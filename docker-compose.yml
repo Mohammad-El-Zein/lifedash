@@ -15,6 +15,15 @@ services:
       timeout: 5s
       retries: 10
 
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    # skipApiVersionCheck: the pinned SDK may speak a newer API version than the image
+    command: azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --location /data --skipApiVersionCheck
+    ports:
+      - "10000:10000"
+    volumes:
+      - azurite_data:/data
+
   backend:
     build: ./backend
     command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
@@ -23,6 +32,8 @@ services:
       SECRET_KEY: dev-only-secret-key-change-me-in-production-0000
       ENVIRONMENT: dev
       CORS_ORIGINS: http://localhost:4200
+      # Azurite's well-known dev account, reached via the compose network.
+      AZURE_STORAGE_CONNECTION_STRING: DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;
     ports:
       - "8000:8000"
     volumes:
@@ -30,6 +41,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      azurite:
+        condition: service_started
 
   frontend:
     image: node:24-alpine
@@ -45,4 +58,5 @@ services:
 
 volumes:
   pgdata:
+  azurite_data:
   frontend_node_modules:
