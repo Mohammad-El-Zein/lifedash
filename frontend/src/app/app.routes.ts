@@ -29,6 +29,15 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/calendar/calendar-week.page').then((m) => m.CalendarWeekPage),
       },
+      {
+        path: 'finance',
+        loadComponent: () =>
+          import('./features/finance/finance.page').then((m) => m.FinancePage),
+      },
+      {
+        path: 'jobs',
+        loadComponent: () => import('./features/jobs/jobs.page').then((m) => m.JobsPage),
+      },
     ],
   },
   { path: '**', redirectTo: '' },
