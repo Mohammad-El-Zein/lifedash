@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { JobsApiService } from '../../core/api/jobs-api.service';
+import { extractError } from '../../core/http-error';
 import {
   ApplicationPayload,
   JOB_STATUSES,
@@ -303,7 +304,7 @@ export class JobsPage {
       },
       error: (err) => {
         this.saving.set(false);
-        this.error.set(err?.error?.detail ?? 'Could not save the application.');
+        this.error.set(extractError(err, 'Could not save the application.'));
       },
     });
   }
@@ -327,7 +328,7 @@ export class JobsPage {
       },
       error: (err) => {
         this.saving.set(false);
-        this.error.set(err?.error?.detail ?? 'Could not update the status.');
+        this.error.set(extractError(err, 'Could not update the status.'));
       },
     });
   }

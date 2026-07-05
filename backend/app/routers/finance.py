@@ -3,9 +3,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import func, select
-from sqlalchemy.exc import IntegrityError
 
-from app.api.deps import CurrentUser, DbDep
+from app.api.deps import CurrentUser, DbDep, commit_or_409, get_owned_or_404
 from app.models.finance import Budget, Transaction, TransactionCategory
 from app.schemas.finance import (
     BudgetOut,
@@ -31,14 +30,9 @@ def _next_month(day: date) -> date:
 
 
 def _get_category(db: DbDep, user_id: int, category_id: int) -> TransactionCategory:
-    category = db.scalar(
-        select(TransactionCategory).where(
-            TransactionCategory.id == category_id, TransactionCategory.user_id == user_id
-        )
+    return get_owned_or_404(
+        db, TransactionCategory, user_id, category_id, detail="Category not found"
     )
-    if category is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Category not found")
-    return category
 
 
 # --- Categories ---------------------------------------------------------------
@@ -61,11 +55,7 @@ def create_category(
 ) -> TransactionCategory:
     category = TransactionCategory(user_id=current_user.id, **payload.model_dump())
     db.add(category)
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status.HTTP_409_CONFLICT, "Category name already exists") from None
+    commit_or_409(db, "Category name already exists")
     db.refresh(category)
     return category
 
@@ -77,11 +67,7 @@ def update_category(
     category = _get_category(db, current_user.id, category_id)
     category.name = payload.name
     category.color = payload.color
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status.HTTP_409_CONFLICT, "Category name already exists") from None
+    commit_or_409(db, "Category name already exists")
     db.refresh(category)
     return category
 
@@ -128,13 +114,7 @@ def create_transaction(
 def update_transaction(
     transaction_id: int, payload: TransactionCreate, current_user: CurrentUser, db: DbDep
 ) -> Transaction:
-    tx = db.scalar(
-        select(Transaction).where(
-            Transaction.id == transaction_id, Transaction.user_id == current_user.id
-        )
-    )
-    if tx is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Transaction not found")
+    tx = get_owned_or_404(db, Transaction, current_user.id, transaction_id)
     _validate_category_kind(db, current_user.id, payload.category_id, payload.kind)
     for field, value in payload.model_dump().items():
         setattr(tx, field, value)
@@ -145,13 +125,7 @@ def update_transaction(
 
 @router.delete("/transactions/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_transaction(transaction_id: int, current_user: CurrentUser, db: DbDep) -> None:
-    tx = db.scalar(
-        select(Transaction).where(
-            Transaction.id == transaction_id, Transaction.user_id == current_user.id
-        )
-    )
-    if tx is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Transaction not found")
+    tx = get_owned_or_404(db, Transaction, current_user.id, transaction_id)
     db.delete(tx)
     db.commit()
 
@@ -209,24 +183,14 @@ def upsert_budget(payload: BudgetUpsert, current_user: CurrentUser, db: DbDep) -
         db.add(budget)
     else:
         budget.amount = payload.amount
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(
-            status.HTTP_409_CONFLICT, "Budget was modified concurrently; please retry"
-        ) from None
+    commit_or_409(db, "Budget was modified concurrently; please retry")
     db.refresh(budget)
     return budget
 
 
 @router.delete("/budgets/{budget_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_budget(budget_id: int, current_user: CurrentUser, db: DbDep) -> None:
-    budget = db.scalar(
-        select(Budget).where(Budget.id == budget_id, Budget.user_id == current_user.id)
-    )
-    if budget is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Budget not found")
+    budget = get_owned_or_404(db, Budget, current_user.id, budget_id)
     db.delete(budget)
     db.commit()
 

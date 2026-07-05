@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import CurrentUser, DbDep
+from app.api.deps import CurrentUser, DbDep, get_owned_or_404
 from app.models.jobs import JobApplication, JobStatusHistory
 from app.schemas.jobs import (
     STATUS_PATTERN,
@@ -16,14 +16,14 @@ router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
 
 def _get_application(db: DbDep, user_id: int, application_id: int) -> JobApplication:
-    application = db.scalar(
-        select(JobApplication)
-        .options(selectinload(JobApplication.status_history))
-        .where(JobApplication.id == application_id, JobApplication.user_id == user_id)
+    return get_owned_or_404(
+        db,
+        JobApplication,
+        user_id,
+        application_id,
+        options=(selectinload(JobApplication.status_history),),
+        detail="Application not found",
     )
-    if application is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Application not found")
-    return application
 
 
 @router.get("/applications", response_model=list[ApplicationOut])

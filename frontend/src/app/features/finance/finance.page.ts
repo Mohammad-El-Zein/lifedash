@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { FinanceApiService } from '../../core/api/finance-api.service';
 import { toIsoDate, todayIso } from '../../core/date-utils';
+import { extractError } from '../../core/http-error';
 import {
   Budget,
   CATEGORY_COLORS,
@@ -70,6 +71,11 @@ const SURFACE = '#0f172a'; // bg-slate-900 — the chart card surface
         <!-- Budgets vs spent -->
         <div class="rounded-2xl border border-slate-800 bg-slate-900 p-5">
           <h2 class="font-semibold mb-4">Budgets</h2>
+          @if (budgetError()) {
+            <p class="text-sm text-red-400 bg-red-950/50 border border-red-900 rounded-lg px-3 py-2 mb-4">
+              {{ budgetError() }}
+            </p>
+          }
           @if (expenseCategories().length === 0) {
             <p class="text-sm text-slate-500 py-10 text-center">
               Create an expense category to set budgets.
@@ -85,7 +91,7 @@ const SURFACE = '#0f172a'; // bg-slate-900 — the chart card surface
                   </span>
                   <span class="text-slate-400">
                     {{ eur(spentFor(cat.id)) }}
-                    @if (budgetFor(cat.id); as b) { / {{ eur(b) }} }
+                    @if (budgetFor(cat.id) !== null) { / {{ eur(budgetFor(cat.id)!) }} }
                   </span>
                 </div>
                 <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
@@ -100,10 +106,10 @@ const SURFACE = '#0f172a'; // bg-slate-900 — the chart card surface
                     type="number"
                     min="0"
                     step="10"
+                    [name]="'budget-' + cat.id"
                     class="w-28 rounded-md bg-slate-800 border border-slate-700 px-2 py-1 text-xs"
                     [placeholder]="'Budget €'"
-                    [ngModel]="budgetFor(cat.id)"
-                    (ngModelChange)="pendingBudgets[cat.id] = $event"
+                    [(ngModel)]="pendingBudgets[cat.id]"
                   />
                   <button
                     (click)="saveBudget(cat.id)"
@@ -184,11 +190,11 @@ const SURFACE = '#0f172a'; // bg-slate-900 — the chart card surface
           }
           <form class="space-y-4" (ngSubmit)="submitTransaction()">
             <div class="grid grid-cols-2 gap-1 rounded-lg bg-slate-800 p-1">
-              <button type="button" (click)="txKind.set('expense')"
+              <button type="button" (click)="setKind('expense')"
                 [class]="'rounded-md py-1.5 text-sm transition-colors ' + (txKind() === 'expense' ? 'bg-slate-700 text-white' : 'text-slate-400')">
                 Expense
               </button>
-              <button type="button" (click)="txKind.set('income')"
+              <button type="button" (click)="setKind('income')"
                 [class]="'rounded-md py-1.5 text-sm transition-colors ' + (txKind() === 'income' ? 'bg-slate-700 text-white' : 'text-slate-400')">
                 Income
               </button>
@@ -272,6 +278,9 @@ export class FinancePage {
   readonly showAdd = signal(false);
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
+  readonly budgetError = signal<string | null>(null);
+  /** Monotonic counter so out-of-order month loads can't overwrite newer data. */
+  private loadSeq = 0;
   readonly txKind = signal<'income' | 'expense'>('expense');
   readonly newCategoryColor = signal(CATEGORY_COLORS[0]);
   txAmount: number | null = null;
@@ -334,6 +343,7 @@ export class FinancePage {
   }
 
   load(): void {
+    const seq = ++this.loadSeq;
     this.loading.set(true);
     const month = toIsoDate(this.monthAnchor());
     forkJoin({
@@ -343,14 +353,20 @@ export class FinancePage {
       budgets: this.api.listBudgets(month),
     }).subscribe({
       next: ({ summary, categories, transactions, budgets }) => {
+        if (seq !== this.loadSeq) return; // a newer month was requested meanwhile
         this.summary.set(summary);
         this.categories.set(categories);
         this.transactions.set(transactions);
         this.budgets.set(budgets);
-        this.pendingBudgets = {};
+        this.pendingBudgets = Object.fromEntries(
+          budgets.map((b) => [b.category_id, b.amount]),
+        );
+        this.budgetError.set(null);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        if (seq === this.loadSeq) this.loading.set(false);
+      },
     });
   }
 
@@ -390,7 +406,8 @@ export class FinancePage {
   budgetPct(categoryId: number): number {
     const budget = this.budgetFor(categoryId);
     const spent = this.spentFor(categoryId);
-    if (!budget) return spent > 0 ? 100 : 0;
+    // budget === 0 is a real budget ("spend nothing"): any spend fills the bar.
+    if (budget === null || budget === 0) return spent > 0 ? 100 : 0;
     return Math.min((spent / budget) * 100, 100);
   }
 
@@ -401,10 +418,23 @@ export class FinancePage {
 
   saveBudget(categoryId: number): void {
     const amount = this.pendingBudgets[categoryId];
-    if (amount === undefined || amount === null || amount < 0) return;
-    this.api
-      .upsertBudget(categoryId, toIsoDate(this.monthAnchor()), amount)
-      .subscribe({ next: () => this.load() });
+    if (amount === undefined || amount === null || !Number.isFinite(amount) || amount < 0) {
+      this.budgetError.set('Please enter a budget amount of 0 or more.');
+      return;
+    }
+    this.budgetError.set(null);
+    this.api.upsertBudget(categoryId, toIsoDate(this.monthAnchor()), amount).subscribe({
+      next: () => this.load(),
+      error: (err) => this.budgetError.set(extractError(err, 'Could not save the budget.')),
+    });
+  }
+
+  setKind(kind: 'income' | 'expense'): void {
+    if (this.txKind() === kind) return;
+    this.txKind.set(kind);
+    // Categories are kind-specific; keeping the old selection would submit a
+    // category of the wrong kind (422) while the select looks blank.
+    this.txCategoryId = null;
   }
 
   openAdd(): void {
@@ -436,7 +466,7 @@ export class FinancePage {
           next: (cat) => this.createTx(cat.id),
           error: (err) => {
             this.saving.set(false);
-            this.error.set(err?.error?.detail ?? 'Could not create the category.');
+            this.error.set(extractError(err, 'Could not create the category.'));
           },
         });
     } else {
@@ -461,7 +491,7 @@ export class FinancePage {
         },
         error: (err) => {
           this.saving.set(false);
-          this.error.set(err?.error?.detail ?? 'Could not save the transaction.');
+          this.error.set(extractError(err, 'Could not save the transaction.'));
         },
       });
   }

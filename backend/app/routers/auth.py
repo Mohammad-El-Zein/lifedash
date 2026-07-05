@@ -1,8 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 
-from app.api.deps import DbDep
+from app.api.deps import DbDep, commit_or_409
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
 from app.schemas.auth import TokenResponse, UserLogin, UserRegister
@@ -21,13 +20,9 @@ def register(payload: UserRegister, db: DbDep) -> TokenResponse:
         full_name=payload.full_name,
     )
     db.add(user)
-    try:
-        db.commit()
-    except IntegrityError:
-        # Concurrent registration with the same email won the race between our
-        # SELECT and this commit; the unique index on users.email catches it.
-        db.rollback()
-        raise HTTPException(status.HTTP_409_CONFLICT, "Email is already registered") from None
+    # Concurrent registration with the same email can win the race between our
+    # SELECT and this commit; the unique index on users.email catches it.
+    commit_or_409(db, "Email is already registered")
     db.refresh(user)
     return TokenResponse(access_token=create_access_token(user.id), user=user)
 

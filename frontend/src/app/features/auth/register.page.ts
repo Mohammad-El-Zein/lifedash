@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../core/api/auth-api.service';
 import { AuthStore } from '../../core/auth/auth.store';
+import { extractError } from '../../core/http-error';
 
 @Component({
   selector: 'app-register-page',
@@ -110,7 +111,7 @@ export class RegisterPage {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err?.error?.detail ?? 'Registration failed. Please try again.');
+        this.error.set(extractError(err, 'Registration failed. Please try again.'));
       },
     });
   }
