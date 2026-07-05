@@ -1,7 +1,8 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, ElementRef, inject, viewChild } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthStore } from '../../core/auth/auth.store';
 import { MODULES } from '../../core/models';
+import { pageEnter } from '../../shared/animations';
 
 @Component({
   selector: 'app-shell',
@@ -61,7 +62,9 @@ import { MODULES } from '../../core/models';
 
       <!-- Content -->
       <main class="flex-1 min-w-0 p-6 lg:p-10">
-        <router-outlet />
+        <div #content>
+          <router-outlet (activate)="onRouteActivate()" />
+        </div>
       </main>
     </div>
   `,
@@ -69,6 +72,11 @@ import { MODULES } from '../../core/models';
 export class ShellComponent {
   private readonly store = inject(AuthStore);
   private readonly router = inject(Router);
+  private readonly content = viewChild.required<ElementRef<HTMLElement>>('content');
+
+  onRouteActivate(): void {
+    pageEnter(this.content().nativeElement);
+  }
 
   readonly user = this.store.user;
   readonly displayName = computed(() => this.store.user()?.full_name || 'Welcome');
