@@ -2,6 +2,7 @@ import { Component, computed, inject, input, output, signal } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 import { CalendarApiService } from '../../core/api/calendar-api.service';
 import { todayIso } from '../../core/date-utils';
+import { extractError } from '../../core/http-error';
 import { CalendarEvent, EventPayload } from '../../core/models';
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -280,7 +281,7 @@ export class EventFormModal {
       next: () => this.saved.emit(),
       error: (err) => {
         this.saving.set(false);
-        this.error.set(extractError(err));
+        this.error.set(extractError(err, 'Something went wrong. Please try again.'));
       },
     });
   }
@@ -290,14 +291,7 @@ export class EventFormModal {
     if (!ev || !confirm(`Delete "${ev.title}" and all its occurrences?`)) return;
     this.api.deleteEvent(ev.id).subscribe({
       next: () => this.saved.emit(),
-      error: (err) => this.error.set(extractError(err)),
+      error: (err) => this.error.set(extractError(err, 'Could not delete the event.')),
     });
   }
-}
-
-function extractError(err: any): string {
-  const detail = err?.error?.detail;
-  if (typeof detail === 'string') return detail;
-  if (Array.isArray(detail)) return detail.map((d) => d.msg).join('; ');
-  return 'Something went wrong. Please try again.';
 }

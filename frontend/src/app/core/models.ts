@@ -69,6 +69,105 @@ export interface WeekResponse {
   occurrences: Occurrence[];
 }
 
+// --- Finance -----------------------------------------------------------------
+
+export interface Category {
+  id: number;
+  name: string;
+  kind: 'income' | 'expense';
+  color: string;
+}
+
+export interface Transaction {
+  id: number;
+  kind: 'income' | 'expense';
+  amount: number;
+  description: string | null;
+  date: string;
+  category_id: number | null;
+}
+
+export interface TransactionPayload {
+  kind: 'income' | 'expense';
+  amount: number;
+  description: string | null;
+  date: string;
+  category_id: number | null;
+}
+
+export interface Budget {
+  id: number;
+  category_id: number;
+  month: string;
+  amount: number;
+}
+
+export interface CategorySummary {
+  category_id: number | null;
+  name: string;
+  color: string;
+  spent: number;
+  budget: number | null;
+}
+
+export interface MonthSummary {
+  month: string;
+  income_total: number;
+  expense_total: number;
+  net: number;
+  expenses_by_category: CategorySummary[];
+}
+
+/** Validated categorical palette for the dark surface (dataviz reference, dark slots). */
+export const CATEGORY_COLORS = [
+  '#3987e5',
+  '#199e70',
+  '#c98500',
+  '#008300',
+  '#9085e9',
+  '#e66767',
+  '#d55181',
+  '#d95926',
+];
+
+// --- Jobs ----------------------------------------------------------------------
+
+export type JobStatus = 'applied' | 'interview' | 'offer' | 'rejected' | 'withdrawn';
+
+export const JOB_STATUSES: { value: JobStatus; label: string; color: string }[] = [
+  { value: 'applied', label: 'Applied', color: '#3987e5' },
+  { value: 'interview', label: 'Interview', color: '#c98500' },
+  { value: 'offer', label: 'Offer', color: '#0ca30c' },
+  { value: 'rejected', label: 'Rejected', color: '#e66767' },
+  { value: 'withdrawn', label: 'Withdrawn', color: '#64748b' },
+];
+
+export interface StatusHistoryEntry {
+  id: number;
+  status: JobStatus;
+  note: string | null;
+  changed_at: string;
+}
+
+export interface JobApplication {
+  id: number;
+  company: string;
+  position: string;
+  link: string | null;
+  status: JobStatus;
+  applied_date: string | null;
+  notes: string | null;
+  status_history: StatusHistoryEntry[];
+}
+
+export interface ApplicationPayload {
+  company: string;
+  position: string;
+  link: string | null;
+  applied_date: string | null;
+  notes: string | null;
+}
+
 export interface ModuleInfo {
   key: string;
   label: string;
@@ -90,7 +189,7 @@ export const MODULES: ModuleInfo[] = [
     label: 'Finance',
     description: 'Transactions, budgets & charts',
     icon: '💶',
-    route: null,
+    route: '/finance',
   },
   {
     key: 'fitness',
@@ -111,7 +210,7 @@ export const MODULES: ModuleInfo[] = [
     label: 'Job Applications',
     description: 'Application pipeline & status history',
     icon: '💼',
-    route: null,
+    route: '/jobs',
   },
   {
     key: 'learning',

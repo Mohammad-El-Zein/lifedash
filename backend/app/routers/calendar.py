@@ -2,10 +2,9 @@ from datetime import date, timedelta
 
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import and_, or_, select
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import CurrentUser, DbDep
+from app.api.deps import CurrentUser, DbDep, commit_or_409, get_owned_or_404
 from app.models.calendar import CalendarEvent, CalendarEventException
 from app.schemas.calendar import (
     EventCreate,
@@ -21,14 +20,14 @@ router = APIRouter(prefix="/api/calendar", tags=["calendar"])
 
 
 def _get_event(db: DbDep, user_id: int, event_id: int) -> CalendarEvent:
-    event = db.scalar(
-        select(CalendarEvent)
-        .options(selectinload(CalendarEvent.exceptions))
-        .where(CalendarEvent.id == event_id, CalendarEvent.user_id == user_id)
+    return get_owned_or_404(
+        db,
+        CalendarEvent,
+        user_id,
+        event_id,
+        options=(selectinload(CalendarEvent.exceptions),),
+        detail="Event not found",
     )
-    if event is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Event not found")
-    return event
 
 
 @router.get("/events", response_model=list[EventOut])
@@ -117,28 +116,16 @@ def create_exception(
         user_id=current_user.id, event_id=event.id, **payload.model_dump()
     )
     db.add(exc)
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(
-            status.HTTP_409_CONFLICT,
-            "This occurrence was modified concurrently; please retry",
-        ) from None
+    commit_or_409(db, "This occurrence was modified concurrently; please retry")
     db.refresh(exc)
     return exc
 
 
 @router.delete("/exceptions/{exception_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_exception(exception_id: int, current_user: CurrentUser, db: DbDep) -> None:
-    exc = db.scalar(
-        select(CalendarEventException).where(
-            CalendarEventException.id == exception_id,
-            CalendarEventException.user_id == current_user.id,
-        )
+    exc = get_owned_or_404(
+        db, CalendarEventException, current_user.id, exception_id, detail="Exception not found"
     )
-    if exc is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Exception not found")
     db.delete(exc)
     db.commit()
 

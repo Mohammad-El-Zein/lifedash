@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.routers import auth, calendar, users
+from app.routers import auth, calendar, finance, jobs, users
 
 settings = get_settings()
 
@@ -23,6 +23,8 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(calendar.router)
+app.include_router(finance.router)
+app.include_router(jobs.router)
 
 
 @app.get("/api/health", tags=["health"])

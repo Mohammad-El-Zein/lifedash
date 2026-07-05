@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthApiService } from '../../core/api/auth-api.service';
 import { AuthStore } from '../../core/auth/auth.store';
+import { extractError } from '../../core/http-error';
 
 @Component({
   selector: 'app-login-page',
@@ -93,7 +94,7 @@ export class LoginPage {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err?.error?.detail ?? 'Login failed. Please try again.');
+        this.error.set(extractError(err, 'Login failed. Please try again.'));
       },
     });
   }
