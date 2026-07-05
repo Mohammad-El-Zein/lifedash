@@ -2,8 +2,17 @@ export interface User {
   id: number;
   email: string;
   full_name: string | null;
+  job_title: string | null;
+  bio: string | null;
+  has_avatar: boolean;
   role: string;
   enabled_modules: string[];
+}
+
+export interface ProfilePayload {
+  full_name: string | null;
+  job_title: string | null;
+  bio: string | null;
 }
 
 export interface TokenResponse {

@@ -12,6 +12,13 @@ class User(Base, TimestampMixin):
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255))
     full_name: Mapped[str | None] = mapped_column(String(255))
+    job_title: Mapped[str | None] = mapped_column(String(200))
+    bio: Mapped[str | None] = mapped_column(String(1000))
+    avatar_blob_name: Mapped[str | None] = mapped_column(String(300))
     role: Mapped[str] = mapped_column(String(20), default="user")
     enabled_modules: Mapped[list[str]] = mapped_column(JSON, default=lambda: list(ALL_MODULES))
     is_active: Mapped[bool] = mapped_column(default=True)
+
+    @property
+    def has_avatar(self) -> bool:
+        return self.avatar_blob_name is not None
