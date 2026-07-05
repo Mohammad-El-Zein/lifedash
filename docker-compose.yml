@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: lifedash
+      POSTGRES_PASSWORD: lifedash
+      POSTGRES_DB: lifedash
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lifedash"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    environment:
+      DATABASE_URL: postgresql+psycopg://lifedash:lifedash@db:5432/lifedash
+      SECRET_KEY: dev-only-secret-key-change-me-in-production-0000
+      ENVIRONMENT: dev
+      CORS_ORIGINS: http://localhost:4200
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    image: node:24-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm start -- --host 0.0.0.0 --port 4200 --proxy-config proxy.conf.json --poll 2000"
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  frontend_node_modules:

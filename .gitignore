@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+
+# Env & secrets
+.env
+*.local.json
+!frontend/proxy.conf.json
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
