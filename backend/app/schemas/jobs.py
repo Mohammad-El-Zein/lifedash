@@ -30,6 +30,17 @@ class StatusChange(BaseModel):
     note: str | None = Field(default=None, max_length=255)
 
 
+class DocumentOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    application_id: int
+    filename: str
+    content_type: str
+    size_bytes: int
+    created_at: datetime
+
+
 class StatusHistoryOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -50,3 +61,4 @@ class ApplicationOut(BaseModel):
     applied_date: date | None
     notes: str | None
     status_history: list[StatusHistoryOut] = []
+    documents: list[DocumentOut] = []

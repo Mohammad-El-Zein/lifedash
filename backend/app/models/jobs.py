@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, ForeignKey, Index, String, Text, func
+from sqlalchemy import Date, DateTime, ForeignKey, Index, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
@@ -24,6 +24,9 @@ class JobApplication(Base, TimestampMixin):
     status_history: Mapped[list["JobStatusHistory"]] = relationship(
         back_populates="application", cascade="all, delete-orphan"
     )
+    documents: Mapped[list["JobDocument"]] = relationship(
+        back_populates="application", cascade="all, delete-orphan"
+    )
 
 
 class JobStatusHistory(Base):
@@ -39,3 +42,21 @@ class JobStatusHistory(Base):
     changed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     application: Mapped[JobApplication] = relationship(back_populates="status_history")
+
+
+class JobDocument(Base, TimestampMixin):
+    """Metadata for an uploaded PDF; the bytes live in blob storage under blob_name."""
+
+    __tablename__ = "job_documents"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    application_id: Mapped[int] = mapped_column(
+        ForeignKey("job_applications.id", ondelete="CASCADE"), index=True
+    )
+    filename: Mapped[str] = mapped_column(String(255))
+    content_type: Mapped[str] = mapped_column(String(100))
+    size_bytes: Mapped[int] = mapped_column(Integer)
+    blob_name: Mapped[str] = mapped_column(String(300), unique=True)
+
+    application: Mapped[JobApplication] = relationship(back_populates="documents")

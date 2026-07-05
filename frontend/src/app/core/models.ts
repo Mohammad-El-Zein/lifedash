@@ -225,6 +225,15 @@ export interface StatusHistoryEntry {
   changed_at: string;
 }
 
+export interface JobDocument {
+  id: number;
+  application_id: number;
+  filename: string;
+  content_type: string;
+  size_bytes: number;
+  created_at: string;
+}
+
 export interface JobApplication {
   id: number;
   company: string;
@@ -234,6 +243,7 @@ export interface JobApplication {
   applied_date: string | null;
   notes: string | null;
   status_history: StatusHistoryEntry[];
+  documents: JobDocument[];
 }
 
 export interface ApplicationPayload {

@@ -15,6 +15,14 @@ class Settings(BaseSettings):
     secret_key: str = "dev-only-secret-key-change-me-in-production-0000"
     access_token_expire_minutes: int = 60 * 24 * 7
     cors_origins: str = "http://localhost:4200"
+    # Defaults target Azurite's well-known dev account (docker compose / local);
+    # production overrides this with the real storage-account connection string.
+    azure_storage_connection_string: str = (
+        "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
+        "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/"
+        "KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
+    )
+    storage_container: str = "job-documents"
 
     @property
     def cors_origin_list(self) -> list[str]:

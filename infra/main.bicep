@@ -95,6 +95,30 @@ resource postgresFirewall 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRul
   }
 }
 
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+  name: replace('${suffix}st', '-', '')
+  location: location
+  sku: { name: 'Standard_LRS' }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: false
+    minimumTlsVersion: 'TLS1_2'
+  }
+}
+
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+resource documentsContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'job-documents'
+  properties: { publicAccess: 'None' }
+}
+
+var storageConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=${az.environment().suffixes.storage}'
+
 var databaseUrl = 'postgresql+psycopg://${postgresAdmin}:${postgresAdminPassword}@${postgres.properties.fullyQualifiedDomainName}:5432/${baseName}?sslmode=require'
 
 resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
@@ -118,6 +142,7 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
         { name: 'acr-password', value: acr.listCredentials().passwords[0].value }
         { name: 'database-url', value: databaseUrl }
         { name: 'jwt-secret', value: jwtSecretKey }
+        { name: 'storage-connection', value: storageConnectionString }
       ]
     }
     template: {
@@ -129,6 +154,7 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
           env: [
             { name: 'DATABASE_URL', secretRef: 'database-url' }
             { name: 'SECRET_KEY', secretRef: 'jwt-secret' }
+            { name: 'AZURE_STORAGE_CONNECTION_STRING', secretRef: 'storage-connection' }
             { name: 'ENVIRONMENT', value: environment }
             { name: 'CORS_ORIGINS', value: 'https://${suffix}-web.${containerAppsEnv.properties.defaultDomain}' }
           ]
