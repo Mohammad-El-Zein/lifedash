@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthStore } from '../../core/auth/auth.store';
+import { AvatarService } from '../../core/auth/avatar.service';
 import { MODULES } from '../../core/models';
 
 @Component({
@@ -48,8 +49,25 @@ import { MODULES } from '../../core/models';
         </nav>
 
         <div class="border-t border-slate-800 p-4">
-          <p class="text-sm font-medium truncate">{{ displayName() }}</p>
-          <p class="text-xs text-slate-500 truncate">{{ user()?.email }}</p>
+          <a
+            routerLink="/profile"
+            class="flex items-center gap-3 rounded-lg p-1.5 -m-1.5 mb-1.5 hover:bg-slate-800/70 transition-colors"
+            title="Edit your profile"
+          >
+            @if (avatar.url(); as url) {
+              <img [src]="url" alt="" class="h-10 w-10 rounded-full object-cover border border-slate-700 shrink-0" />
+            } @else {
+              <span class="h-10 w-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-semibold text-slate-400 shrink-0">
+                {{ initials() }}
+              </span>
+            }
+            <span class="min-w-0">
+              <span class="block text-sm font-medium truncate">{{ displayName() }}</span>
+              <span class="block text-xs text-slate-500 truncate">
+                {{ user()?.job_title || user()?.email }}
+              </span>
+            </span>
+          </a>
           <button
             (click)="logout()"
             class="mt-3 w-full rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800 transition-colors"
@@ -69,9 +87,23 @@ import { MODULES } from '../../core/models';
 export class ShellComponent {
   private readonly store = inject(AuthStore);
   private readonly router = inject(Router);
+  readonly avatar = inject(AvatarService);
 
   readonly user = this.store.user;
   readonly displayName = computed(() => this.store.user()?.full_name || 'Welcome');
+
+  ngOnInit(): void {
+    this.avatar.refresh();
+  }
+
+  initials(): string {
+    const name = this.user()?.full_name || this.user()?.email || '?';
+    return name
+      .split(/[\s@]+/)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('');
+  }
   readonly modules = computed(() => {
     const enabled = this.store.user()?.enabled_modules;
     return enabled ? MODULES.filter((m) => enabled.includes(m.key)) : MODULES;

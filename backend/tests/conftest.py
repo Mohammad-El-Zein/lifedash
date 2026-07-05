@@ -8,7 +8,7 @@ import app.models as _all_models  # noqa: F401  (register all tables on Base.met
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import app
-from app.services.storage import get_storage
+from app.services.storage import get_avatar_storage, get_storage
 
 
 class FakeStorage:
@@ -50,9 +50,15 @@ def storage():
 
 
 @pytest.fixture()
-def client(db_session, storage):
+def avatar_storage():
+    return FakeStorage()
+
+
+@pytest.fixture()
+def client(db_session, storage, avatar_storage):
     app.dependency_overrides[get_db] = lambda: db_session
     app.dependency_overrides[get_storage] = lambda: storage
+    app.dependency_overrides[get_avatar_storage] = lambda: avatar_storage
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()

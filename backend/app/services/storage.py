@@ -56,9 +56,18 @@ class AzureBlobStorage:
 
 
 @lru_cache
-def get_storage() -> BlobStorage:
+def _storage_for(container: str) -> BlobStorage:
     settings = get_settings()
-    return AzureBlobStorage(settings.azure_storage_connection_string, settings.storage_container)
+    return AzureBlobStorage(settings.azure_storage_connection_string, container)
+
+
+def get_storage() -> BlobStorage:
+    return _storage_for(get_settings().storage_container)
+
+
+def get_avatar_storage() -> BlobStorage:
+    return _storage_for(get_settings().avatar_container)
 
 
 StorageDep = Annotated[BlobStorage, Depends(get_storage)]
+AvatarStorageDep = Annotated[BlobStorage, Depends(get_avatar_storage)]

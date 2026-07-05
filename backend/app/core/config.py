@@ -23,6 +23,7 @@ class Settings(BaseSettings):
         "KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
     )
     storage_container: str = "job-documents"
+    avatar_container: str = "avatars"
 
     @property
     def cors_origin_list(self) -> list[str]:
