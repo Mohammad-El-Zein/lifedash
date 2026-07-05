@@ -13,16 +13,17 @@ import {
   Transaction,
 } from '../../core/models';
 import { EchartComponent } from '../../shared/echart.component';
+import { BudgetReportTab } from './budget-report.tab';
 import { MonthlyPlanTab } from './monthly-plan.tab';
 import { SavingsTab } from './savings.tab';
 
 const SURFACE = '#0f172a'; // bg-slate-900 — the chart card surface
 
-type FinanceTab = 'overview' | 'plan' | 'savings';
+type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
 
 @Component({
   selector: 'app-finance-page',
-  imports: [FormsModule, EchartComponent, MonthlyPlanTab, SavingsTab],
+  imports: [FormsModule, EchartComponent, BudgetReportTab, MonthlyPlanTab, SavingsTab],
   template: `
     <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div>
@@ -57,6 +58,8 @@ type FinanceTab = 'overview' | 'plan' | 'savings';
 
     @if (tab() === 'plan') {
       <app-monthly-plan-tab [month]="monthIso()" />
+    } @else if (tab() === 'budgets') {
+      <app-budget-report-tab [month]="monthIso()" />
     } @else if (tab() === 'savings') {
       <app-savings-tab />
     } @else if (loading()) {
@@ -328,6 +331,7 @@ export class FinancePage {
   readonly tabs: { key: FinanceTab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
     { key: 'plan', label: 'Monthly plan' },
+    { key: 'budgets', label: 'Budget report' },
     { key: 'savings', label: 'Savings' },
   ];
   readonly tab = signal<FinanceTab>('overview');
