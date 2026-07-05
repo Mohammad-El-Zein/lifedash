@@ -1,7 +1,8 @@
-import { Component, computed, inject } from '@angular/core';
+import { afterNextRender, Component, computed, ElementRef, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthStore } from '../../core/auth/auth.store';
 import { MODULES } from '../../core/models';
+import { staggerIn } from '../../shared/animations';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -16,6 +17,7 @@ import { MODULES } from '../../core/models';
       @for (mod of modules(); track mod.key) {
         @if (mod.route) {
           <a
+            data-tile
             [routerLink]="mod.route"
             class="group rounded-2xl border border-slate-800 bg-slate-900 p-6 hover:border-indigo-500/60 hover:bg-slate-900/80 transition-all hover:-translate-y-0.5 shadow-lg"
           >
@@ -26,7 +28,10 @@ import { MODULES } from '../../core/models';
             <p class="text-sm text-slate-400 mt-1">{{ mod.description }}</p>
           </a>
         } @else {
-          <div class="relative rounded-2xl border border-slate-800/60 bg-slate-900/40 p-6 opacity-70">
+          <div
+            data-tile
+            class="relative rounded-2xl border border-slate-800/60 bg-slate-900/40 p-6 opacity-70"
+          >
             <span
               class="absolute top-4 right-4 text-[10px] uppercase tracking-wide bg-slate-800 text-slate-400 rounded px-1.5 py-0.5"
             >
@@ -43,6 +48,13 @@ import { MODULES } from '../../core/models';
 })
 export class DashboardPage {
   private readonly store = inject(AuthStore);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  constructor() {
+    afterNextRender(() => {
+      staggerIn(Array.from(this.host.nativeElement.querySelectorAll('[data-tile]')));
+    });
+  }
 
   readonly modules = computed(() => {
     const enabled = this.store.user()?.enabled_modules;
