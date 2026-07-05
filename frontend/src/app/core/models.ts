@@ -78,6 +78,8 @@ export interface Category {
   color: string;
 }
 
+export type PaidStatus = 'paid' | 'unpaid';
+
 export interface Transaction {
   id: number;
   kind: 'income' | 'expense';
@@ -85,6 +87,8 @@ export interface Transaction {
   description: string | null;
   date: string;
   category_id: number | null;
+  status: PaidStatus;
+  recurring_id: number | null;
 }
 
 export interface TransactionPayload {
@@ -93,6 +97,78 @@ export interface TransactionPayload {
   description: string | null;
   date: string;
   category_id: number | null;
+  status?: PaidStatus;
+}
+
+export interface RecurringTransaction {
+  id: number;
+  kind: 'income' | 'expense';
+  amount: number;
+  description: string;
+  day_of_month: number;
+  start_month: string;
+  end_month: string | null;
+  category_id: number | null;
+  is_active: boolean;
+  skipped_months: string[];
+}
+
+export interface RecurringPayload {
+  kind: 'income' | 'expense';
+  amount: number;
+  description: string;
+  day_of_month: number;
+  start_month: string;
+  end_month: string | null;
+  category_id: number | null;
+  is_active: boolean;
+}
+
+export interface FixedItem {
+  transaction_id: number;
+  recurring_id: number | null;
+  description: string | null;
+  amount: number;
+  date: string;
+  status: PaidStatus;
+  category_id: number | null;
+}
+
+export interface MonthlyPlan {
+  month: string;
+  income_total: number;
+  recurring_income_total: number;
+  one_off_income_total: number;
+  fixed_expense_total: number;
+  variable_expense_total: number;
+  available_for_variable: number;
+  fixed_paid_count: number;
+  fixed_unpaid_count: number;
+  fixed_items: FixedItem[];
+}
+
+export interface SavingsSettings {
+  monthly_target: number;
+  start_month: string;
+}
+
+export interface SavingsMonth {
+  month: string;
+  income: number;
+  expenses: number;
+  saved: number;
+  target: number;
+  delta: number;
+  is_current: boolean;
+}
+
+export interface SavingsOverview {
+  monthly_target: number;
+  start_month: string;
+  months: SavingsMonth[];
+  target_total: number;
+  saved_total: number;
+  delta_total: number;
 }
 
 export interface Budget {
