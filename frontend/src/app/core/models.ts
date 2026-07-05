@@ -242,6 +242,7 @@ export interface JobApplication {
   status: JobStatus;
   applied_date: string | null;
   notes: string | null;
+  description: string | null;
   status_history: StatusHistoryEntry[];
   documents: JobDocument[];
 }
@@ -252,6 +253,7 @@ export interface ApplicationPayload {
   link: string | null;
   applied_date: string | null;
   notes: string | null;
+  description: string | null;
 }
 
 export interface ModuleInfo {
