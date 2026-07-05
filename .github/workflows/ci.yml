@@ -24,7 +24,7 @@ jobs:
       - run: pytest -q
 
   frontend-build:
-    name: Frontend · build & tests
+    name: Frontend · tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -38,7 +38,7 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm test -- --watch=false
-      - run: npm run build
+      # The production build runs once, in the Docker image build below.
 
   docker-images:
     name: Docker · build images
@@ -52,11 +52,15 @@ jobs:
         with:
           context: backend
           push: false
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
       - name: Build frontend image
         uses: docker/build-push-action@v6
         with:
           context: frontend
           push: false
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,scope=frontend,mode=max
 
   # Phase 2+: push images to Azure Container Registry and deploy to Container Apps.
   # Requires the AZURE_CREDENTIALS and AZURE_RESOURCE_GROUP repository secrets and

@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CalendarApiService } from '../../core/api/calendar-api.service';
+import { todayIso } from '../../core/date-utils';
 import { CalendarEvent, EventPayload } from '../../core/models';
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -240,7 +241,7 @@ export class EventFormModal {
       this.days.set(ev.recurrence_days ?? []);
       this.color.set(ev.color);
     } else {
-      this.startDate = this.initialDate() ?? new Date().toISOString().slice(0, 10);
+      this.startDate = this.initialDate() ?? todayIso();
     }
   }
 

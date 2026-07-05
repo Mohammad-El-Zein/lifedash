@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CalendarApiService } from '../../core/api/calendar-api.service';
+import { toIsoDate } from '../../core/date-utils';
 import { CalendarEvent, Occurrence } from '../../core/models';
 import { EventFormModal } from './event-form.modal';
 
@@ -87,7 +88,10 @@ interface PositionedOccurrence {
               @for (hour of hours; track hour) {
                 <div class="absolute inset-x-0 border-t border-slate-800/60" [style.top.%]="hourTopPct(hour)"></div>
               }
-              @for (item of day.occurrences; track item.occ.event_id + '-' + item.occ.date + '-' + item.occ.start_time) {
+              @for (
+                item of day.occurrences;
+                track item.occ.event_id + '-' + (item.occ.exception_id ?? 'r') + '-' + item.occ.date + '-' + item.occ.start_time
+              ) {
                 <button
                   class="absolute inset-x-0.5 rounded-md px-1.5 py-0.5 text-left text-xs overflow-hidden border border-white/10 hover:brightness-110 transition-all"
                   [style.top.%]="item.topPct"
@@ -374,11 +378,7 @@ function addDays(date: Date, days: number): Date {
   return d;
 }
 
-function toIso(date: Date): string {
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${m}-${d}`;
-}
+const toIso = toIsoDate;
 
 function position(occ: Occurrence): PositionedOccurrence {
   const startMin = clamp(minutes(occ.start_time) - DAY_START_HOUR * 60, 0, DAY_MINUTES);

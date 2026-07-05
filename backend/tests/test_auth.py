@@ -33,6 +33,19 @@ def test_short_password_rejected(client):
     assert res.status_code == 422
 
 
+def test_password_over_72_bytes_rejected(client):
+    # 72 chars but 144 UTF-8 bytes — bcrypt would silently truncate this.
+    res = client.post(
+        "/api/auth/register", json={"email": "z@example.com", "password": "ä" * 72}
+    )
+    assert res.status_code == 422
+
+    res = client.post(
+        "/api/auth/register", json={"email": "z2@example.com", "password": "a" * 73}
+    )
+    assert res.status_code == 422
+
+
 def test_me_requires_auth(client):
     assert client.get("/api/users/me").status_code == 401
 

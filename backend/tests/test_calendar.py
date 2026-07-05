@@ -112,6 +112,105 @@ def test_moved_exception(client, auth_headers):
     assert moved["start_time"] == "10:00:00"
 
 
+def test_exception_rejected_for_non_occurrence_date(client, auth_headers):
+    event = _create(client, auth_headers, RECURRING)  # Mon/Thu/Fri
+    res = client.post(
+        f"/api/calendar/events/{event['id']}/exceptions",
+        headers=auth_headers,
+        json={"original_date": "2026-07-07", "kind": "cancelled"},  # a Tuesday
+    )
+    assert res.status_code == 422
+
+
+def test_move_onto_existing_occurrence_rejected(client, auth_headers):
+    event = _create(client, auth_headers, RECURRING)
+    res = client.post(
+        f"/api/calendar/events/{event['id']}/exceptions",
+        headers=auth_headers,
+        json={
+            "original_date": "2026-07-06",  # Monday
+            "kind": "moved",
+            "new_date": "2026-07-09",  # Thursday — already a regular occurrence
+            "new_start_time": "10:00",
+            "new_end_time": "18:00",
+        },
+    )
+    assert res.status_code == 422
+
+
+def test_move_time_only_same_day_allowed(client, auth_headers):
+    event = _create(client, auth_headers, RECURRING)
+    res = client.post(
+        f"/api/calendar/events/{event['id']}/exceptions",
+        headers=auth_headers,
+        json={
+            "original_date": "2026-07-06",
+            "kind": "moved",
+            "new_date": "2026-07-06",  # same day, new times
+            "new_start_time": "12:00",
+            "new_end_time": "16:00",
+        },
+    )
+    assert res.status_code == 201
+
+    res = client.get("/api/calendar/week", headers=auth_headers, params={"start": "2026-07-06"})
+    monday = [o for o in res.json()["occurrences"] if o["date"] == "2026-07-06"]
+    assert len(monday) == 1
+    assert monday[0]["start_time"] == "12:00:00"
+
+
+def test_update_schedule_prunes_orphaned_exceptions(client, auth_headers):
+    event = _create(client, auth_headers, RECURRING)
+    client.post(
+        f"/api/calendar/events/{event['id']}/exceptions",
+        headers=auth_headers,
+        json={
+            "original_date": "2026-07-06",  # Monday
+            "kind": "moved",
+            "new_date": "2026-07-08",
+            "new_start_time": "10:00",
+            "new_end_time": "18:00",
+        },
+    )
+    # Change the schedule to Tuesdays only: the Monday exception is now orphaned.
+    updated = {**RECURRING, "recurrence_days": [1]}
+    res = client.put(f"/api/calendar/events/{event['id']}", headers=auth_headers, json=updated)
+    assert res.status_code == 200
+    assert res.json()["exceptions"] == []
+
+    res = client.get("/api/calendar/week", headers=auth_headers, params={"start": "2026-07-06"})
+    dates = [o["date"] for o in res.json()["occurrences"]]
+    assert "2026-07-08" not in dates  # the moved ghost is gone
+    assert "2026-07-07" in dates  # Tuesday occurrence exists
+
+
+def test_week_includes_event_moved_in_from_outside(client, auth_headers):
+    # One-off event outside the requested week, moved into it.
+    event = _create(client, auth_headers, ONE_OFF)  # 2026-07-08
+    res = client.post(
+        f"/api/calendar/events/{event['id']}/exceptions",
+        headers=auth_headers,
+        json={
+            "original_date": "2026-07-08",
+            "kind": "moved",
+            "new_date": "2026-07-14",  # following week
+            "new_start_time": "10:00",
+            "new_end_time": "11:00",
+        },
+    )
+    assert res.status_code == 201
+
+    res = client.get("/api/calendar/week", headers=auth_headers, params={"start": "2026-07-13"})
+    occ = [o for o in res.json()["occurrences"] if o["title"] == "Dentist"]
+    assert len(occ) == 1
+    assert occ[0]["date"] == "2026-07-14"
+    assert occ[0]["is_moved"] is True
+
+    # And it no longer shows in its original week.
+    res = client.get("/api/calendar/week", headers=auth_headers, params={"start": "2026-07-06"})
+    assert all(o["title"] != "Dentist" for o in res.json()["occurrences"])
+
+
 def test_moved_exception_requires_new_date(client, auth_headers):
     event = _create(client, auth_headers, RECURRING)
     res = client.post(

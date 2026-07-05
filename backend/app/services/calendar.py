@@ -1,10 +1,11 @@
-from datetime import date, timedelta
+﻿from datetime import date, timedelta
 
 from app.models.calendar import CalendarEvent, CalendarEventException
 from app.schemas.calendar import Occurrence
 
 
-def _occurs_on(event: CalendarEvent, day: date) -> bool:
+def occurs_on(event: CalendarEvent, day: date) -> bool:
+    """True if the event has a regular (un-excepted) occurrence on the given day."""
     if event.recurrence_days is None:
         return event.start_date == day
     if day < event.start_date:
@@ -17,7 +18,7 @@ def _occurs_on(event: CalendarEvent, day: date) -> bool:
 def expand_week(events: list[CalendarEvent], week_start: date) -> list[Occurrence]:
     """Expand events into concrete occurrences for the 7 days starting at week_start,
     applying per-day exceptions (cancelled occurrences are dropped, moved occurrences
-    appear at their new date/time — even if the original date lies outside the week)."""
+    appear at their new date/time - even if the original date lies outside the week)."""
     week_end = week_start + timedelta(days=6)
     days = [week_start + timedelta(days=i) for i in range(7)]
     occurrences: list[Occurrence] = []
@@ -27,7 +28,7 @@ def expand_week(events: list[CalendarEvent], week_start: date) -> list[Occurrenc
             exc.original_date: exc for exc in event.exceptions
         }
         for day in days:
-            if not _occurs_on(event, day):
+            if not occurs_on(event, day):
                 continue
             if day in exceptions:  # cancelled or moved away from this day
                 continue
@@ -50,7 +51,7 @@ def expand_week(events: list[CalendarEvent], week_start: date) -> list[Occurrenc
                 exc.kind == "moved"
                 and exc.new_date is not None
                 and week_start <= exc.new_date <= week_end
-                and _occurs_on(event, exc.original_date)
+                and occurs_on(event, exc.original_date)
             ):
                 occurrences.append(
                     Occurrence(
@@ -70,3 +71,4 @@ def expand_week(events: list[CalendarEvent], week_start: date) -> list[Occurrenc
 
     occurrences.sort(key=lambda o: (o.date, o.start_time))
     return occurrences
+

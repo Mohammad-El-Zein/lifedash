@@ -1,6 +1,6 @@
 from datetime import date, time
 
-from sqlalchemy import JSON, Date, ForeignKey, String, Text, Time, UniqueConstraint
+from sqlalchemy import JSON, Date, ForeignKey, Index, String, Text, Time, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
@@ -12,6 +12,9 @@ class CalendarEvent(Base, TimestampMixin):
     active from start_date until end_date inclusive; NULL end_date = open-ended)."""
 
     __tablename__ = "calendar_events"
+    __table_args__ = (
+        Index("ix_calendar_events_user_start", "user_id", "start_date", "start_time"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
