@@ -2,8 +2,17 @@ export interface User {
   id: number;
   email: string;
   full_name: string | null;
+  job_title: string | null;
+  bio: string | null;
+  has_avatar: boolean;
   role: string;
   enabled_modules: string[];
+}
+
+export interface ProfilePayload {
+  full_name: string | null;
+  job_title: string | null;
+  bio: string | null;
 }
 
 export interface TokenResponse {
@@ -242,6 +251,7 @@ export interface JobApplication {
   status: JobStatus;
   applied_date: string | null;
   notes: string | null;
+  description: string | null;
   status_history: StatusHistoryEntry[];
   documents: JobDocument[];
 }
@@ -252,6 +262,7 @@ export interface ApplicationPayload {
   link: string | null;
   applied_date: string | null;
   notes: string | null;
+  description: string | null;
 }
 
 export interface ModuleInfo {

@@ -107,3 +107,36 @@ def test_jobs_user_isolation(client, auth_headers):
         json={"status": "offer"},
     )
     assert res.status_code == 404
+
+
+def test_description_and_long_link_roundtrip(client, auth_headers):
+    long_link = "https://www.linkedin.com/jobs/view/4012345678/?" + "trackingId=abc123&" * 80
+    assert len(long_link) > 500
+    description = "About the role\n" + "Responsibilities and requirements. " * 40
+    app_ = _application(client, auth_headers, link=long_link, description=description)
+    assert app_["link"] == long_link
+    assert app_["description"] == description
+
+    res = client.put(
+        f"/api/jobs/applications/{app_['id']}",
+        headers=auth_headers,
+        json={
+            "company": "Wilo SE",
+            "position": "Junior Software Engineer",
+            "link": long_link,
+            "applied_date": "2026-07-01",
+            "notes": None,
+            "description": "Updated description",
+        },
+    )
+    assert res.status_code == 200
+    assert res.json()["description"] == "Updated description"
+
+
+def test_link_over_limit_rejected(client, auth_headers):
+    res = client.post(
+        "/api/jobs/applications",
+        headers=auth_headers,
+        json={"company": "X", "position": "Y", "link": "https://x.example/" + "a" * 2000},
+    )
+    assert res.status_code == 422

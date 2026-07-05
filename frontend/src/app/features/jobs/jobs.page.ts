@@ -88,6 +88,12 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
                 @if (app.notes) {
                   <p class="text-sm text-slate-300 mb-3"><span class="text-slate-500">Notes:</span> {{ app.notes }}</p>
                 }
+                @if (app.description) {
+                  <details class="mb-3 text-sm">
+                    <summary class="cursor-pointer text-slate-400 hover:text-slate-200">Job description</summary>
+                    <p class="mt-2 whitespace-pre-wrap text-slate-300 border-l-2 border-slate-700 pl-3">{{ app.description }}</p>
+                  </details>
+                }
                 <ol class="space-y-2">
                   @for (h of historyNewestFirst(app); track h.id) {
                     <li class="flex items-start gap-3 text-sm">
@@ -173,6 +179,12 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
                 class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
             </div>
             <div>
+              <label for="description" class="block text-sm text-slate-300 mb-1">Job description</label>
+              <textarea id="description" name="description" rows="5" [(ngModel)]="fDescription"
+                placeholder="Paste the full job description here…"
+                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2"></textarea>
+            </div>
+            <div>
               <label for="notes" class="block text-sm text-slate-300 mb-1">Notes</label>
               <textarea id="notes" name="notes" rows="3" [(ngModel)]="fNotes"
                 class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2"></textarea>
@@ -250,6 +262,7 @@ export class JobsPage {
   fLink = '';
   fAppliedDate = '';
   fNotes = '';
+  fDescription = '';
   statusNote = '';
 
   readonly filtered = computed(() => {
@@ -318,6 +331,7 @@ export class JobsPage {
     this.fLink = app?.link ?? '';
     this.fAppliedDate = app?.applied_date ?? '';
     this.fNotes = app?.notes ?? '';
+    this.fDescription = app?.description ?? '';
     this.showForm.set(true);
   }
 
@@ -332,6 +346,7 @@ export class JobsPage {
       link: this.fLink.trim() || null,
       applied_date: this.fAppliedDate || null,
       notes: this.fNotes.trim() || null,
+      description: this.fDescription.trim() || null,
     };
     this.saving.set(true);
     this.error.set(null);

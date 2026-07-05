@@ -9,10 +9,11 @@ STATUS_PATTERN = "^(applied|interview|offer|rejected|withdrawn)$"
 class ApplicationCreate(BaseModel):
     company: str = Field(min_length=1, max_length=200)
     position: str = Field(min_length=1, max_length=200)
-    link: str | None = Field(default=None, max_length=500)
+    link: str | None = Field(default=None, max_length=2000)
     status: str = Field(default="applied", pattern=STATUS_PATTERN)
     applied_date: date | None = None
     notes: str | None = None
+    description: str | None = None
 
 
 class ApplicationUpdate(BaseModel):
@@ -20,9 +21,10 @@ class ApplicationUpdate(BaseModel):
 
     company: str = Field(min_length=1, max_length=200)
     position: str = Field(min_length=1, max_length=200)
-    link: str | None = Field(default=None, max_length=500)
+    link: str | None = Field(default=None, max_length=2000)
     applied_date: date | None = None
     notes: str | None = None
+    description: str | None = None
 
 
 class StatusChange(BaseModel):
@@ -60,5 +62,6 @@ class ApplicationOut(BaseModel):
     status: str
     applied_date: date | None
     notes: str | None
+    description: str | None
     status_history: list[StatusHistoryOut] = []
     documents: list[DocumentOut] = []

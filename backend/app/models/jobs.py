@@ -16,10 +16,11 @@ class JobApplication(Base, TimestampMixin):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     company: Mapped[str] = mapped_column(String(200))
     position: Mapped[str] = mapped_column(String(200))
-    link: Mapped[str | None] = mapped_column(String(500))
+    link: Mapped[str | None] = mapped_column(String(2000))
     status: Mapped[str] = mapped_column(String(20), default="applied")
     applied_date: Mapped[date | None] = mapped_column(Date)
     notes: Mapped[str | None] = mapped_column(Text)
+    description: Mapped[str | None] = mapped_column(Text)
 
     status_history: Mapped[list["JobStatusHistory"]] = relationship(
         back_populates="application", cascade="all, delete-orphan"
