@@ -1,5 +1,12 @@
 from app.models.calendar import CalendarEvent, CalendarEventException
-from app.models.finance import Budget, Transaction, TransactionCategory
+from app.models.finance import (
+    Budget,
+    FinanceSettings,
+    RecurringSkip,
+    RecurringTransaction,
+    Transaction,
+    TransactionCategory,
+)
 from app.models.fitness import Exercise, Workout, WorkoutSet
 from app.models.habits import Habit, HabitLog
 from app.models.jobs import JobApplication, JobStatusHistory
@@ -12,6 +19,9 @@ __all__ = [
     "CalendarEvent",
     "CalendarEventException",
     "Exercise",
+    "FinanceSettings",
+    "RecurringSkip",
+    "RecurringTransaction",
     "Habit",
     "HabitLog",
     "JobApplication",

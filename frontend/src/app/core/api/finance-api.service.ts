@@ -5,6 +5,12 @@ import {
   Budget,
   Category,
   MonthSummary,
+  MonthlyPlan,
+  PaidStatus,
+  RecurringPayload,
+  RecurringTransaction,
+  SavingsOverview,
+  SavingsSettings,
   Transaction,
   TransactionPayload,
 } from '../models';
@@ -57,5 +63,51 @@ export class FinanceApiService {
     return this.http.get<MonthSummary>('/api/finance/summary', {
       params: new HttpParams().set('month', month),
     });
+  }
+
+  updateTransaction(id: number, payload: TransactionPayload): Observable<Transaction> {
+    return this.http.put<Transaction>(`/api/finance/transactions/${id}`, payload);
+  }
+
+  setTransactionStatus(id: number, status: PaidStatus): Observable<Transaction> {
+    return this.http.patch<Transaction>(`/api/finance/transactions/${id}/status`, { status });
+  }
+
+  listRecurring(): Observable<RecurringTransaction[]> {
+    return this.http.get<RecurringTransaction[]>('/api/finance/recurring');
+  }
+
+  createRecurring(payload: RecurringPayload): Observable<RecurringTransaction> {
+    return this.http.post<RecurringTransaction>('/api/finance/recurring', payload);
+  }
+
+  updateRecurring(id: number, payload: RecurringPayload): Observable<RecurringTransaction> {
+    return this.http.put<RecurringTransaction>(`/api/finance/recurring/${id}`, payload);
+  }
+
+  deleteRecurring(id: number): Observable<void> {
+    return this.http.delete<void>(`/api/finance/recurring/${id}`);
+  }
+
+  skipRecurringMonth(id: number, month: string): Observable<RecurringTransaction> {
+    return this.http.post<RecurringTransaction>(`/api/finance/recurring/${id}/skips`, { month });
+  }
+
+  unskipRecurringMonth(id: number, month: string): Observable<RecurringTransaction> {
+    return this.http.delete<RecurringTransaction>(`/api/finance/recurring/${id}/skips/${month}`);
+  }
+
+  monthlyPlan(month: string): Observable<MonthlyPlan> {
+    return this.http.get<MonthlyPlan>('/api/finance/monthly-plan', {
+      params: new HttpParams().set('month', month),
+    });
+  }
+
+  savings(): Observable<SavingsOverview> {
+    return this.http.get<SavingsOverview>('/api/finance/savings');
+  }
+
+  updateSavingsSettings(payload: SavingsSettings): Observable<SavingsSettings> {
+    return this.http.put<SavingsSettings>('/api/finance/savings/settings', payload);
   }
 }
