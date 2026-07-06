@@ -239,6 +239,35 @@ body::before {
   .bg-pill {
     box-shadow: 0 0 16px var(--accent-glow);
   }
+  /* Lucide icons: consistent stroke + baseline alignment app-wide */
+  lucide-icon {
+    display: inline-flex;
+    vertical-align: -0.125em;
+    flex-shrink: 0;
+  }
+  lucide-icon svg {
+    stroke-width: 1.75;
+  }
+
+  /* Icon chip — module icons on dashboard tiles, glowing in the accent */
+  .icon-chip {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.75rem;
+    color: var(--ink-link);
+    background: var(--status-info-surface);
+    border: 1px solid var(--status-info-edge);
+    box-shadow: 0 0 18px var(--accent-glow);
+  }
+  .icon-chip.dim {
+    color: var(--ink-faint);
+    background: var(--surface-field-soft);
+    border-color: var(--edge-default);
+    box-shadow: none;
+  }
+
   /* brand wordmark gradient (shell + auth pages) */
   .logo-accent {
     background: linear-gradient(100deg, var(--logo-from), var(--logo-to));

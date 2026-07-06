@@ -1,4 +1,5 @@
 import { Component, computed, effect, ElementRef, inject, input, signal } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import { FinanceApiService } from '../../core/api/finance-api.service';
@@ -10,7 +11,7 @@ import { staggerTilesSoon } from '../../shared/animations';
 
 @Component({
   selector: 'app-monthly-plan-tab',
-  imports: [RecurringFormModal, TranslatePipe],
+  imports: [RecurringFormModal, TranslatePipe, LucideAngularModule],
   template: `
     @if (loading()) {
       <p class="text-ink-muted">{{ 'common.loading' | translate }}</p>
@@ -79,13 +80,13 @@ import { staggerTilesSoon } from '../../shared/animations';
                   <span class="tabular-nums font-medium">{{ eur(item.amount) }}</span>
                   <button
                     (click)="toggleStatus(item)"
-                    [class]="'rounded-full px-3 py-1 text-xs font-medium transition-colors ' +
+                    [class]="'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-colors ' +
                       (item.status === 'paid'
                         ? 'bg-success-surface text-success border border-success-edge'
                         : 'bg-warn-surface text-warn border border-warn-edge hover:bg-warn-hover')"
                     [title]="(item.status === 'paid' ? 'finance.markUnpaid' : 'finance.markPaid') | translate"
                   >
-                    {{ (item.status === 'paid' ? 'finance.paid' : 'finance.unpaid') | translate }}
+                    @if (item.status === 'paid') {<lucide-icon name="check" [size]="12" />}{{ (item.status === 'paid' ? 'finance.paid' : 'finance.unpaid') | translate }}
                   </button>
                 </div>
               </li>
@@ -135,8 +136,8 @@ import { staggerTilesSoon } from '../../shared/animations';
                         {{ 'plan.skip' | translate }}
                       </button>
                     }
-                    <button (click)="openEdit(rec)" class="text-ink-faint hover:text-ink px-1" [title]="'common.edit' | translate">✎</button>
-                    <button (click)="remove(rec)" class="text-ink-faint hover:text-danger px-1" [title]="'plan.deleteTemplate' | translate">✕</button>
+                    <button (click)="openEdit(rec)" class="text-ink-faint hover:text-ink px-1" [title]="'common.edit' | translate"><lucide-icon name="pencil" [size]="15" /></button>
+                    <button (click)="remove(rec)" class="text-ink-faint hover:text-danger px-1" [title]="'plan.deleteTemplate' | translate"><lucide-icon name="x" [size]="15" /></button>
                   </div>
                 </div>
               </li>

@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FxModal } from '../../shared/animations';
@@ -27,7 +28,7 @@ interface PositionedOccurrence {
 
 @Component({
   selector: 'app-calendar-week-page',
-  imports: [FormsModule, EventFormModal, TranslatePipe, FxModal],
+  imports: [FormsModule, EventFormModal, TranslatePipe, FxModal, LucideAngularModule],
   template: `
     <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div>
@@ -35,9 +36,9 @@ interface PositionedOccurrence {
         <p class="text-ink-muted mt-1">{{ weekLabel() }}</p>
       </div>
       <div class="flex items-center gap-2">
-        <button (click)="shiftWeek(-1)" class="rounded-control border border-edge-strong px-3 py-2 hover:bg-field transition-colors" [attr.aria-label]="'calendar.prevWeek' | translate">←</button>
+        <button (click)="shiftWeek(-1)" class="rounded-control border border-edge-strong px-3 py-2 hover:bg-field transition-colors" [attr.aria-label]="'calendar.prevWeek' | translate"><lucide-icon name="chevron-left" [size]="16" /></button>
         <button (click)="goToday()" class="rounded-control border border-edge-strong px-4 py-2 text-sm hover:bg-field transition-colors">{{ 'common.today' | translate }}</button>
-        <button (click)="shiftWeek(1)" class="rounded-control border border-edge-strong px-3 py-2 hover:bg-field transition-colors" [attr.aria-label]="'calendar.nextWeek' | translate">→</button>
+        <button (click)="shiftWeek(1)" class="rounded-control border border-edge-strong px-3 py-2 hover:bg-field transition-colors" [attr.aria-label]="'calendar.nextWeek' | translate"><lucide-icon name="chevron-right" [size]="16" /></button>
         <button
           (click)="openCreate(null)"
           class="ml-2 rounded-control bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium transition-colors"
@@ -103,7 +104,7 @@ interface PositionedOccurrence {
                 >
                   <span class="font-semibold block truncate">
                     {{ item.occ.title }}
-                    @if (item.occ.is_moved) { <span [title]="'calendar.moved' | translate">↪</span> }
+                    @if (item.occ.is_moved) { <span [title]="'calendar.moved' | translate"><lucide-icon name="corner-down-right" [size]="12" /></span> }
                   </span>
                   <span class="block truncate text-white/80">
                     {{ item.occ.start_time.slice(0, 5) }}–{{ item.occ.end_time.slice(0, 5) }}
@@ -160,19 +161,19 @@ interface PositionedOccurrence {
           } @else {
             <div class="mt-5 grid gap-2">
               <button (click)="editSeries(occ)" class="rounded-control border border-edge-strong px-4 py-2 text-sm text-left hover:bg-field transition-colors">
-                ✏️ {{ (occ.is_recurring ? 'calendar.editSeries' : 'calendar.editEvent') | translate }}
+                <lucide-icon name="pencil" [size]="15" class="mr-1.5" />{{ (occ.is_recurring ? 'calendar.editSeries' : 'calendar.editEvent') | translate }}
               </button>
               @if (occ.is_recurring || occ.is_moved) {
                 @if (occ.is_moved && occ.exception_id) {
                   <button (click)="revertMove(occ)" class="rounded-control border border-edge-strong px-4 py-2 text-sm text-left hover:bg-field transition-colors">
-                    ↩️ {{ 'calendar.revert' | translate }}
+                    <lucide-icon name="undo-2" [size]="15" class="mr-1.5" />{{ 'calendar.revert' | translate }}
                   </button>
                 } @else {
                   <button (click)="startMove(occ)" class="rounded-control border border-edge-strong px-4 py-2 text-sm text-left hover:bg-field transition-colors">
-                    📆 {{ 'calendar.moveOnly' | translate }}
+                    <lucide-icon name="calendar-clock" [size]="15" class="mr-1.5" />{{ 'calendar.moveOnly' | translate }}
                   </button>
                   <button (click)="cancelOccurrence(occ)" class="rounded-control border border-warn-edge text-warn px-4 py-2 text-sm text-left hover:bg-warn-surface transition-colors">
-                    🚫 {{ 'calendar.cancelOnly' | translate }}
+                    <lucide-icon name="ban" [size]="15" class="mr-1.5" />{{ 'calendar.cancelOnly' | translate }}
                   </button>
                 }
               }

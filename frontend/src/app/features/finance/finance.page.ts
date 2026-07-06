@@ -1,4 +1,5 @@
 import { Component, computed, ElementRef, inject, signal } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FxModal, staggerTilesSoon } from '../../shared/animations';
@@ -27,7 +28,7 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
 
 @Component({
   selector: 'app-finance-page',
-  imports: [FormsModule, EchartComponent, BudgetReportTab, MonthlyPlanTab, SavingsTab, TranslatePipe, FxModal],
+  imports: [FormsModule, EchartComponent, BudgetReportTab, MonthlyPlanTab, SavingsTab, TranslatePipe, FxModal, LucideAngularModule],
   template: `
     <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div>
@@ -38,9 +39,9 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
       </div>
       @if (tab() !== 'savings') {
         <div class="flex items-center gap-2">
-          <button (click)="shiftMonth(-1)" class="rounded-control border border-edge-strong px-3 py-2 hover:bg-field transition-colors" [attr.aria-label]="'finance.prevMonth' | translate">←</button>
+          <button (click)="shiftMonth(-1)" class="rounded-control border border-edge-strong px-3 py-2 hover:bg-field transition-colors" [attr.aria-label]="'finance.prevMonth' | translate"><lucide-icon name="chevron-left" [size]="16" /></button>
           <button (click)="goCurrentMonth()" class="rounded-control border border-edge-strong px-4 py-2 text-sm hover:bg-field transition-colors">{{ 'finance.thisMonth' | translate }}</button>
-          <button (click)="shiftMonth(1)" class="rounded-control border border-edge-strong px-3 py-2 hover:bg-field transition-colors" [attr.aria-label]="'finance.nextMonth' | translate">→</button>
+          <button (click)="shiftMonth(1)" class="rounded-control border border-edge-strong px-3 py-2 hover:bg-field transition-colors" [attr.aria-label]="'finance.nextMonth' | translate"><lucide-icon name="chevron-right" [size]="16" /></button>
           @if (tab() === 'overview') {
             <button (click)="openAdd()" class="ml-2 rounded-control bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium transition-colors">
               {{ 'finance.addTransaction' | translate }}
@@ -193,19 +194,19 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
                     <td class="px-5 py-2.5 text-ink-soft">
                       {{ tx.description || '—' }}
                       @if (tx.recurring_id !== null) {
-                        <span class="ml-1 text-ink-faint" [title]="'finance.fromRecurring' | translate">↻</span>
+                        <span class="ml-1 text-ink-faint" [title]="'finance.fromRecurring' | translate"><lucide-icon name="repeat" [size]="13" /></span>
                       }
                     </td>
                     <td class="px-5 py-2.5">
                       <button
                         (click)="toggleStatus(tx)"
-                        [class]="'rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ' +
+                        [class]="'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ' +
                           (tx.status === 'paid'
                             ? 'bg-success-surface text-success border border-success-edge'
                             : 'bg-warn-surface text-warn border border-warn-edge hover:bg-warn-hover')"
                         [title]="(tx.status === 'paid' ? 'finance.markUnpaid' : 'finance.markPaid') | translate"
                       >
-                        {{ (tx.status === 'paid' ? 'finance.paid' : 'finance.unpaid') | translate }}
+                        @if (tx.status === 'paid') {<lucide-icon name="check" [size]="12" />}{{ (tx.status === 'paid' ? 'finance.paid' : 'finance.unpaid') | translate }}
                       </button>
                     </td>
                     <td
@@ -220,14 +221,14 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
                         class="text-ink-faint hover:text-ink px-1"
                         [title]="'finance.editTx' | translate"
                       >
-                        ✎
+                        <lucide-icon name="pencil" [size]="15" />
                       </button>
                       <button
                         (click)="removeTransaction(tx)"
                         class="text-ink-faint hover:text-danger px-1"
                         [title]="'finance.deleteTx' | translate"
                       >
-                        ✕
+                        <lucide-icon name="x" [size]="15" />
                       </button>
                     </td>
                   </tr>

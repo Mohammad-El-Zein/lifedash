@@ -1,4 +1,5 @@
 import { afterNextRender, Component, computed, ElementRef, inject } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthStore } from '../../core/auth/auth.store';
@@ -7,7 +8,7 @@ import { staggerIn } from '../../shared/animations';
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, LucideAngularModule],
   template: `
     <header class="mb-8">
       <h1 class="text-3xl font-bold">{{ greetingKey() | translate }}{{ greetingSuffix() }}</h1>
@@ -22,7 +23,7 @@ import { staggerIn } from '../../shared/animations';
             [routerLink]="mod.route"
             class="group rounded-card border border-edge bg-card p-6 hover:border-accent/60 hover:bg-card transition-all hover:-translate-y-0.5 shadow-card"
           >
-            <div class="text-3xl mb-3">{{ mod.icon }}</div>
+            <div class="icon-chip mb-3"><lucide-icon [name]="mod.icon" [size]="22" /></div>
             <h2 class="font-semibold text-lg group-hover:text-link transition-colors">
               {{ mod.labelKey | translate }}
             </h2>
@@ -38,7 +39,7 @@ import { staggerIn } from '../../shared/animations';
             >
               {{ 'common.comingSoon' | translate }}
             </span>
-            <div class="text-3xl mb-3 grayscale opacity-60">{{ mod.icon }}</div>
+            <div class="icon-chip dim mb-3"><lucide-icon [name]="mod.icon" [size]="22" /></div>
             <h2 class="font-semibold text-lg text-ink-muted">{{ mod.labelKey | translate }}</h2>
             <p class="text-sm text-ink-faint mt-1">{{ mod.descriptionKey | translate }}</p>
           </div>

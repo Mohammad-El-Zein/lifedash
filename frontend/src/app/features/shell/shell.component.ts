@@ -1,4 +1,5 @@
 import { Component, computed, ElementRef, inject, viewChild } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthStore } from '../../core/auth/auth.store';
@@ -10,7 +11,7 @@ import { pageEnter } from '../../shared/animations';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, LucideAngularModule],
   template: `
     <div class="min-h-screen flex">
       <!-- Sidebar -->
@@ -25,7 +26,7 @@ import { pageEnter } from '../../shared/animations';
             routerLinkActive="bg-nav-active text-nav-active-ink"
             class="flex items-center gap-3 rounded-control px-3 py-2 text-ink-soft hover:bg-nav-hover transition-colors"
           >
-            <span>🏠</span> {{ 'nav.overview' | translate }}
+            <lucide-icon name="house" [size]="18" /> {{ 'nav.overview' | translate }}
           </a>
 
           @for (mod of modules(); track mod.key) {
@@ -35,14 +36,14 @@ import { pageEnter } from '../../shared/animations';
                 routerLinkActive="bg-nav-active text-nav-active-ink"
                 class="flex items-center gap-3 rounded-control px-3 py-2 text-ink-soft hover:bg-nav-hover transition-colors"
               >
-                <span>{{ mod.icon }}</span> {{ mod.labelKey | translate }}
+                <lucide-icon [name]="mod.icon" [size]="18" /> {{ mod.labelKey | translate }}
               </a>
             } @else {
               <div
                 class="flex items-center gap-3 rounded-control px-3 py-2 text-ink-faint cursor-not-allowed"
                 [title]="(mod.labelKey | translate) + ' — ' + ('common.comingSoon' | translate)"
               >
-                <span class="grayscale opacity-60">{{ mod.icon }}</span>
+                <lucide-icon [name]="mod.icon" [size]="18" class="opacity-60" />
                 <span class="flex-1">{{ mod.labelKey | translate }}</span>
                 <span class="text-[10px] uppercase tracking-wide bg-field text-ink-muted rounded px-1.5 py-0.5">
                   {{ 'common.soon' | translate }}
@@ -86,7 +87,7 @@ import { pageEnter } from '../../shared/animations';
               class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field transition-colors"
               [title]="'theme.switch' | translate: { mode: ('theme.' + theme.theme() | translate) }"
             >
-              {{ themeIcon() }}
+              <lucide-icon [name]="themeIcon()" [size]="16" />
             </button>
             <button
               (click)="language.toggle()"
@@ -117,7 +118,7 @@ export class ShellComponent {
   readonly theme = inject(ThemeService);
 
   readonly themeIcon = computed(() =>
-    this.theme.theme() === 'dark' ? '🌙' : this.theme.theme() === 'light' ? '☀️' : '🖥️',
+    this.theme.theme() === 'dark' ? 'moon' : this.theme.theme() === 'light' ? 'sun' : 'monitor',
   );
 
   onRouteActivate(): void {
