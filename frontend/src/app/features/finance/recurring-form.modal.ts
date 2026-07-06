@@ -1,5 +1,6 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FinanceApiService } from '../../core/api/finance-api.service';
 import { toIsoDate } from '../../core/date-utils';
 import { extractError } from '../../core/http-error';
@@ -7,7 +8,7 @@ import { Category, RecurringPayload, RecurringTransaction } from '../../core/mod
 
 @Component({
   selector: 'app-recurring-form-modal',
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   template: `
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" (click)="closed.emit()">
       <div
@@ -15,7 +16,7 @@ import { Category, RecurringPayload, RecurringTransaction } from '../../core/mod
         (click)="$event.stopPropagation()"
       >
         <h2 class="text-xl font-semibold mb-4">
-          {{ recurring() ? 'Edit recurring transaction' : 'New recurring transaction' }}
+          {{ (recurring() ? 'recurringForm.editTitle' : 'recurringForm.newTitle') | translate }}
         </h2>
 
         @if (error()) {
@@ -28,30 +29,30 @@ import { Category, RecurringPayload, RecurringTransaction } from '../../core/mod
           <div class="grid grid-cols-2 gap-1 rounded-lg bg-slate-800 p-1">
             <button type="button" (click)="setKind('expense')"
               [class]="'rounded-md py-1.5 text-sm transition-colors ' + (kind() === 'expense' ? 'bg-slate-700 text-white' : 'text-slate-400')">
-              Expense
+              {{ 'finance.expense' | translate }}
             </button>
             <button type="button" (click)="setKind('income')"
               [class]="'rounded-md py-1.5 text-sm transition-colors ' + (kind() === 'income' ? 'bg-slate-700 text-white' : 'text-slate-400')">
-              Income
+              {{ 'finance.incomeKind' | translate }}
             </button>
           </div>
 
           <div>
-            <label for="recDesc" class="block text-sm text-slate-300 mb-1">Name</label>
+            <label for="recDesc" class="block text-sm text-slate-300 mb-1">{{ 'recurringForm.name' | translate }}</label>
             <input id="recDesc" name="recDesc" required [(ngModel)]="description"
-              placeholder="e.g. Salary, Rent, Insurance"
+              [placeholder]="'recurringForm.namePlaceholder' | translate"
               class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label for="recAmount" class="block text-sm text-slate-300 mb-1">Amount (€)</label>
+              <label for="recAmount" class="block text-sm text-slate-300 mb-1">{{ 'recurringForm.amountEur' | translate }}</label>
               <input id="recAmount" name="recAmount" type="number" step="0.01" min="0.01" required
                 [(ngModel)]="amount"
                 class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
             </div>
             <div>
-              <label for="recDay" class="block text-sm text-slate-300 mb-1">Day of month</label>
+              <label for="recDay" class="block text-sm text-slate-300 mb-1">{{ 'recurringForm.dayOfMonth' | translate }}</label>
               <input id="recDay" name="recDay" type="number" min="1" max="31" required
                 [(ngModel)]="dayOfMonth"
                 class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
@@ -60,23 +61,23 @@ import { Category, RecurringPayload, RecurringTransaction } from '../../core/mod
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label for="recStart" class="block text-sm text-slate-300 mb-1">First month</label>
+              <label for="recStart" class="block text-sm text-slate-300 mb-1">{{ 'recurringForm.firstMonth' | translate }}</label>
               <input id="recStart" name="recStart" type="month" required [(ngModel)]="startMonth"
                 class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
             </div>
             <div>
-              <label for="recEnd" class="block text-sm text-slate-300 mb-1">Last month</label>
+              <label for="recEnd" class="block text-sm text-slate-300 mb-1">{{ 'recurringForm.lastMonth' | translate }}</label>
               <input id="recEnd" name="recEnd" type="month" [(ngModel)]="endMonth"
                 class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
-              <p class="text-xs text-slate-500 mt-1">Leave empty for open-ended</p>
+              <p class="text-xs text-slate-500 mt-1">{{ 'recurringForm.openEnded' | translate }}</p>
             </div>
           </div>
 
           <div>
-            <label for="recCategory" class="block text-sm text-slate-300 mb-1">Category</label>
+            <label for="recCategory" class="block text-sm text-slate-300 mb-1">{{ 'finance.category' | translate }}</label>
             <select id="recCategory" name="recCategory" [(ngModel)]="categoryId"
               class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
-              <option [ngValue]="null">No category</option>
+              <option [ngValue]="null">{{ 'finance.noCategory' | translate }}</option>
               @for (cat of categoriesForKind(); track cat.id) {
                 <option [ngValue]="cat.id">{{ cat.name }}</option>
               }
@@ -85,17 +86,17 @@ import { Category, RecurringPayload, RecurringTransaction } from '../../core/mod
 
           <label class="flex items-center gap-2 text-sm text-slate-300">
             <input type="checkbox" name="recActive" [(ngModel)]="isActive" class="accent-indigo-500" />
-            Active (generates a transaction each month)
+            {{ 'recurringForm.active' | translate }}
           </label>
 
           <div class="flex justify-end gap-2 pt-2">
             <button type="button" (click)="closed.emit()"
               class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800">
-              Cancel
+              {{ 'common.cancel' | translate }}
             </button>
             <button type="submit" [disabled]="saving()"
               class="rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-4 py-2 text-sm font-medium">
-              {{ saving() ? 'Saving…' : 'Save' }}
+              {{ (saving() ? 'common.saving' : 'common.save') | translate }}
             </button>
           </div>
         </form>
@@ -105,6 +106,7 @@ import { Category, RecurringPayload, RecurringTransaction } from '../../core/mod
 })
 export class RecurringFormModal {
   private readonly api = inject(FinanceApiService);
+  private readonly translate = inject(TranslateService);
 
   readonly recurring = input<RecurringTransaction | null>(null);
   readonly categories = input.required<Category[]>();
@@ -148,11 +150,11 @@ export class RecurringFormModal {
 
   submit(): void {
     if (!this.description.trim() || !this.amount || this.amount <= 0 || !this.startMonth) {
-      this.error.set('Please enter a name, a positive amount and a first month.');
+      this.error.set(this.translate.instant('recurringForm.errors.required'));
       return;
     }
     if (this.dayOfMonth < 1 || this.dayOfMonth > 31) {
-      this.error.set('Day of month must be between 1 and 31.');
+      this.error.set(this.translate.instant('recurringForm.errors.day'));
       return;
     }
     const payload: RecurringPayload = {
@@ -176,7 +178,7 @@ export class RecurringFormModal {
       },
       error: (err) => {
         this.saving.set(false);
-        this.error.set(extractError(err, 'Could not save the recurring transaction.'));
+        this.error.set(extractError(err, this.translate.instant('recurringForm.errors.save')));
       },
     });
   }

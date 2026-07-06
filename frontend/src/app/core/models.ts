@@ -4,15 +4,18 @@ export interface User {
   full_name: string | null;
   job_title: string | null;
   bio: string | null;
+  language: string | null;
   has_avatar: boolean;
   role: string;
   enabled_modules: string[];
 }
 
+/** PATCH /users/me — only the fields present are applied. */
 export interface ProfilePayload {
-  full_name: string | null;
-  job_title: string | null;
-  bio: string | null;
+  full_name?: string | null;
+  job_title?: string | null;
+  bio?: string | null;
+  language?: string;
 }
 
 export interface TokenResponse {
@@ -219,12 +222,12 @@ export const CATEGORY_COLORS = [
 
 export type JobStatus = 'applied' | 'interview' | 'offer' | 'rejected' | 'withdrawn';
 
-export const JOB_STATUSES: { value: JobStatus; label: string; color: string }[] = [
-  { value: 'applied', label: 'Applied', color: '#3987e5' },
-  { value: 'interview', label: 'Interview', color: '#c98500' },
-  { value: 'offer', label: 'Offer', color: '#0ca30c' },
-  { value: 'rejected', label: 'Rejected', color: '#e66767' },
-  { value: 'withdrawn', label: 'Withdrawn', color: '#64748b' },
+export const JOB_STATUSES: { value: JobStatus; labelKey: string; color: string }[] = [
+  { value: 'applied', labelKey: 'jobs.status.applied', color: '#3987e5' },
+  { value: 'interview', labelKey: 'jobs.status.interview', color: '#c98500' },
+  { value: 'offer', labelKey: 'jobs.status.offer', color: '#0ca30c' },
+  { value: 'rejected', labelKey: 'jobs.status.rejected', color: '#e66767' },
+  { value: 'withdrawn', labelKey: 'jobs.status.withdrawn', color: '#64748b' },
 ];
 
 export interface StatusHistoryEntry {
@@ -267,8 +270,8 @@ export interface ApplicationPayload {
 
 export interface ModuleInfo {
   key: string;
-  label: string;
-  description: string;
+  labelKey: string;
+  descriptionKey: string;
   icon: string;
   route: string | null; // null = coming soon
 }
@@ -276,50 +279,50 @@ export interface ModuleInfo {
 export const MODULES: ModuleInfo[] = [
   {
     key: 'calendar',
-    label: 'Calendar',
-    description: 'Weekly schedule with recurring events',
+    labelKey: 'modules.calendar.label',
+    descriptionKey: 'modules.calendar.description',
     icon: '📅',
     route: '/calendar',
   },
   {
     key: 'finance',
-    label: 'Finance',
-    description: 'Transactions, budgets & charts',
+    labelKey: 'modules.finance.label',
+    descriptionKey: 'modules.finance.description',
     icon: '💶',
     route: '/finance',
   },
   {
     key: 'fitness',
-    label: 'Fitness',
-    description: 'Workouts, sets & progress',
+    labelKey: 'modules.fitness.label',
+    descriptionKey: 'modules.fitness.description',
     icon: '🏋️',
     route: null,
   },
   {
     key: 'meals',
-    label: 'Meals',
-    description: 'Meal planning & calories',
+    labelKey: 'modules.meals.label',
+    descriptionKey: 'modules.meals.description',
     icon: '🥗',
     route: null,
   },
   {
     key: 'jobs',
-    label: 'Job Applications',
-    description: 'Application pipeline & status history',
+    labelKey: 'modules.jobs.label',
+    descriptionKey: 'modules.jobs.description',
     icon: '💼',
     route: '/jobs',
   },
   {
     key: 'learning',
-    label: 'Learning',
-    description: 'Goals, deadlines & milestones',
+    labelKey: 'modules.learning.label',
+    descriptionKey: 'modules.learning.description',
     icon: '🎓',
     route: null,
   },
   {
     key: 'habits',
-    label: 'Habits',
-    description: 'Daily habits & streaks',
+    labelKey: 'modules.habits.label',
+    descriptionKey: 'modules.habits.description',
     icon: '🔥',
     route: null,
   },

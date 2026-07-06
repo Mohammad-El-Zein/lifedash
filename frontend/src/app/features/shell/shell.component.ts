@@ -1,13 +1,15 @@
 import { Component, computed, ElementRef, inject, viewChild } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthStore } from '../../core/auth/auth.store';
 import { AvatarService } from '../../core/auth/avatar.service';
+import { LanguageService } from '../../core/i18n/language.service';
 import { MODULES } from '../../core/models';
 import { pageEnter } from '../../shared/animations';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe],
   template: `
     <div class="min-h-screen flex">
       <!-- Sidebar -->
@@ -22,7 +24,7 @@ import { pageEnter } from '../../shared/animations';
             routerLinkActive="bg-slate-800 text-white"
             class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800/70 transition-colors"
           >
-            <span>🏠</span> Overview
+            <span>🏠</span> {{ 'nav.overview' | translate }}
           </a>
 
           @for (mod of modules(); track mod.key) {
@@ -32,17 +34,17 @@ import { pageEnter } from '../../shared/animations';
                 routerLinkActive="bg-slate-800 text-white"
                 class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800/70 transition-colors"
               >
-                <span>{{ mod.icon }}</span> {{ mod.label }}
+                <span>{{ mod.icon }}</span> {{ mod.labelKey | translate }}
               </a>
             } @else {
               <div
                 class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-500 cursor-not-allowed"
-                [title]="mod.label + ' — coming soon'"
+                [title]="(mod.labelKey | translate) + ' — ' + ('common.comingSoon' | translate)"
               >
                 <span class="grayscale opacity-60">{{ mod.icon }}</span>
-                <span class="flex-1">{{ mod.label }}</span>
+                <span class="flex-1">{{ mod.labelKey | translate }}</span>
                 <span class="text-[10px] uppercase tracking-wide bg-slate-800 text-slate-400 rounded px-1.5 py-0.5">
-                  soon
+                  {{ 'common.soon' | translate }}
                 </span>
               </div>
             }
@@ -53,7 +55,7 @@ import { pageEnter } from '../../shared/animations';
           <a
             routerLink="/profile"
             class="flex items-center gap-3 rounded-lg p-1.5 -m-1.5 mb-1.5 hover:bg-slate-800/70 transition-colors"
-            title="Edit your profile"
+            [title]="'nav.editProfile' | translate"
           >
             @if (avatar.url(); as url) {
               <img [src]="url" alt="" class="h-10 w-10 rounded-full object-cover border border-slate-700 shrink-0" />
@@ -63,18 +65,29 @@ import { pageEnter } from '../../shared/animations';
               </span>
             }
             <span class="min-w-0">
-              <span class="block text-sm font-medium truncate">{{ displayName() }}</span>
+              <span class="block text-sm font-medium truncate">
+                {{ user()?.full_name || ('nav.welcome' | translate) }}
+              </span>
               <span class="block text-xs text-slate-500 truncate">
                 {{ user()?.job_title || user()?.email }}
               </span>
             </span>
           </a>
-          <button
-            (click)="logout()"
-            class="mt-3 w-full rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800 transition-colors"
-          >
-            Sign out
-          </button>
+          <div class="mt-3 flex gap-2">
+            <button
+              (click)="logout()"
+              class="flex-1 rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800 transition-colors"
+            >
+              {{ 'nav.signOut' | translate }}
+            </button>
+            <button
+              (click)="language.toggle()"
+              class="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800 transition-colors uppercase tracking-wide"
+              [title]="'languages.switch' | translate"
+            >
+              {{ language.lang() === 'en' ? 'DE' : 'EN' }}
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -92,13 +105,13 @@ export class ShellComponent {
   private readonly router = inject(Router);
   private readonly content = viewChild.required<ElementRef<HTMLElement>>('content');
   readonly avatar = inject(AvatarService);
+  readonly language = inject(LanguageService);
 
   onRouteActivate(): void {
     pageEnter(this.content().nativeElement);
   }
 
   readonly user = this.store.user;
-  readonly displayName = computed(() => this.store.user()?.full_name || 'Welcome');
 
   ngOnInit(): void {
     this.avatar.refresh();

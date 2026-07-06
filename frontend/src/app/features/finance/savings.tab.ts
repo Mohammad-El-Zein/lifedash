@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FinanceApiService } from '../../core/api/finance-api.service';
 import { eur } from '../../core/format';
 import { extractError } from '../../core/http-error';
@@ -7,10 +8,10 @@ import { SavingsOverview } from '../../core/models';
 
 @Component({
   selector: 'app-savings-tab',
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   template: `
     @if (loading()) {
-      <p class="text-slate-400">Loading…</p>
+      <p class="text-slate-400">{{ 'common.loading' | translate }}</p>
     } @else if (overview(); as o) {
       @if (error()) {
         <p class="text-sm text-red-400 bg-red-950/50 border border-red-900 rounded-lg px-3 py-2 mb-4">
@@ -21,13 +22,15 @@ import { SavingsOverview } from '../../core/models';
       <div class="grid gap-6 lg:grid-cols-3 mb-6">
         <!-- Cumulative progress -->
         <div class="rounded-2xl border border-slate-800 bg-slate-900 p-5 lg:col-span-2">
-          <h2 class="font-semibold mb-1">Savings since {{ o.start_month.slice(0, 7) }}</h2>
+          <h2 class="font-semibold mb-1">
+            {{ 'savings.since' | translate: { month: o.start_month.slice(0, 7) } }}
+          </h2>
           <p class="text-3xl font-semibold mt-2 tabular-nums">
             {{ eur(o.saved_total) }}
-            <span class="text-slate-400 text-xl font-normal">/ {{ eur(o.target_total) }} saved</span>
+            <span class="text-slate-400 text-xl font-normal">/ {{ eur(o.target_total) }} {{ 'savings.saved' | translate }}</span>
           </p>
           <p class="mt-1 text-sm" [class]="o.delta_total >= 0 ? 'text-emerald-400' : 'text-red-400'">
-            {{ o.delta_total >= 0 ? '+' : '' }}{{ eur(o.delta_total) }} vs. the cumulative goal
+            {{ o.delta_total >= 0 ? '+' : '' }}{{ eur(o.delta_total) }} {{ 'savings.vsGoal' | translate }}
             ({{ o.months.length }} × {{ eur(o.monthly_target) }})
           </p>
           <div class="h-3 rounded-full bg-slate-800 overflow-hidden mt-4">
@@ -41,25 +44,25 @@ import { SavingsOverview } from '../../core/models';
 
         <!-- Settings -->
         <div class="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <h2 class="font-semibold mb-4">Goal settings</h2>
+          <h2 class="font-semibold mb-4">{{ 'savings.settings' | translate }}</h2>
           <div class="space-y-3">
             <div>
-              <label for="savTarget" class="block text-sm text-slate-300 mb-1">Monthly target (€)</label>
+              <label for="savTarget" class="block text-sm text-slate-300 mb-1">{{ 'savings.monthlyTarget' | translate }}</label>
               <input id="savTarget" name="savTarget" type="number" min="0" step="10"
                 [(ngModel)]="pendingTarget"
                 class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
             </div>
             <div>
-              <label for="savStart" class="block text-sm text-slate-300 mb-1">Tracking starts</label>
+              <label for="savStart" class="block text-sm text-slate-300 mb-1">{{ 'savings.trackingStarts' | translate }}</label>
               <input id="savStart" name="savStart" type="month" [(ngModel)]="pendingStart"
                 class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
             </div>
             <button (click)="saveSettings()" [disabled]="saving()"
               class="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-4 py-2 text-sm font-medium">
-              {{ saving() ? 'Saving…' : 'Save settings' }}
+              {{ (saving() ? 'common.saving' : 'savings.saveSettings') | translate }}
             </button>
             <p class="text-xs text-slate-500">
-              The target applies to all months, including past ones.
+              {{ 'savings.targetNote' | translate }}
             </p>
           </div>
         </div>
@@ -67,21 +70,21 @@ import { SavingsOverview } from '../../core/models';
 
       <!-- Per-month breakdown -->
       <div class="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
-        <h2 class="font-semibold px-5 pt-5 pb-3">Month by month</h2>
+        <h2 class="font-semibold px-5 pt-5 pb-3">{{ 'savings.monthByMonth' | translate }}</h2>
         @if (o.months.length === 0) {
           <p class="text-sm text-slate-500 px-5 pb-6">
-            Tracking starts in a future month — nothing to show yet.
+            {{ 'savings.futureStart' | translate }}
           </p>
         } @else {
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="text-left text-slate-400 border-t border-slate-800">
-                  <th class="px-5 py-2.5 font-medium">Month</th>
-                  <th class="px-5 py-2.5 font-medium text-right">Income</th>
-                  <th class="px-5 py-2.5 font-medium text-right">Expenses</th>
-                  <th class="px-5 py-2.5 font-medium text-right">Saved</th>
-                  <th class="px-5 py-2.5 font-medium text-right">Target</th>
+                  <th class="px-5 py-2.5 font-medium">{{ 'savings.month' | translate }}</th>
+                  <th class="px-5 py-2.5 font-medium text-right">{{ 'savings.income' | translate }}</th>
+                  <th class="px-5 py-2.5 font-medium text-right">{{ 'savings.expenses' | translate }}</th>
+                  <th class="px-5 py-2.5 font-medium text-right">{{ 'savings.savedCol' | translate }}</th>
+                  <th class="px-5 py-2.5 font-medium text-right">{{ 'savings.target' | translate }}</th>
                   <th class="px-5 py-2.5 font-medium text-right">±</th>
                 </tr>
               </thead>
@@ -91,7 +94,7 @@ import { SavingsOverview } from '../../core/models';
                     <td class="px-5 py-2.5 text-slate-300 tabular-nums">
                       {{ m.month.slice(0, 7) }}
                       @if (m.is_current) {
-                        <span class="ml-2 rounded-full bg-indigo-950 border border-indigo-800 text-indigo-300 px-2 py-0.5 text-xs">in progress</span>
+                        <span class="ml-2 rounded-full bg-indigo-950 border border-indigo-800 text-indigo-300 px-2 py-0.5 text-xs">{{ 'savings.inProgress' | translate }}</span>
                       }
                     </td>
                     <td class="px-5 py-2.5 text-right tabular-nums text-slate-300">{{ eur(m.income) }}</td>
@@ -114,6 +117,7 @@ import { SavingsOverview } from '../../core/models';
 })
 export class SavingsTab {
   private readonly api = inject(FinanceApiService);
+  private readonly translate = inject(TranslateService);
 
   readonly loading = signal(true);
   readonly overview = signal<SavingsOverview | null>(null);
@@ -147,7 +151,7 @@ export class SavingsTab {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(extractError(err, 'Could not load the savings overview.'));
+        this.error.set(extractError(err, this.translate.instant('savings.errors.load')));
       },
     });
   }
@@ -159,7 +163,7 @@ export class SavingsTab {
       this.pendingTarget < 0 ||
       !this.pendingStart
     ) {
-      this.error.set('Please enter a target of 0 or more and a start month.');
+      this.error.set(this.translate.instant('savings.errors.invalid'));
       return;
     }
     this.saving.set(true);
@@ -176,7 +180,7 @@ export class SavingsTab {
         },
         error: (err) => {
           this.saving.set(false);
-          this.error.set(extractError(err, 'Could not save the settings.'));
+          this.error.set(extractError(err, this.translate.instant('savings.errors.save')));
         },
       });
   }

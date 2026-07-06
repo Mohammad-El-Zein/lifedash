@@ -29,6 +29,7 @@ class UserOut(BaseModel):
     full_name: str | None
     job_title: str | None = None
     bio: str | None = None
+    language: str | None = None
     has_avatar: bool = False
     role: str
     enabled_modules: list[str]
@@ -40,6 +41,7 @@ class UserUpdate(BaseModel):
     full_name: str | None = Field(default=None, max_length=255)
     job_title: str | None = Field(default=None, max_length=200)
     bio: str | None = Field(default=None, max_length=1000)
+    language: str | None = Field(default=None, pattern="^(de|en)$")
     enabled_modules: list[str] | None = None
 
 

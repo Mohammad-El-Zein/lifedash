@@ -1,16 +1,17 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CalendarApiService } from '../../core/api/calendar-api.service';
 import { todayIso } from '../../core/date-utils';
 import { extractError } from '../../core/http-error';
+import { LanguageService } from '../../core/i18n/language.service';
 import { CalendarEvent, EventPayload } from '../../core/models';
 
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
 
 @Component({
   selector: 'app-event-form-modal',
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   template: `
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" (click)="closed.emit()">
       <div
@@ -18,7 +19,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
         (click)="$event.stopPropagation()"
       >
         <h2 class="text-xl font-semibold mb-4">
-          {{ event() ? 'Edit event' : 'New event' }}
+          {{ (event() ? 'calendar.form.editTitle' : 'calendar.form.newTitle') | translate }}
         </h2>
 
         @if (error()) {
@@ -29,31 +30,31 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
 
         <form class="space-y-4" (ngSubmit)="submit()">
           <div>
-            <label for="title" class="block text-sm text-slate-300 mb-1">Title</label>
+            <label for="title" class="block text-sm text-slate-300 mb-1">{{ 'calendar.form.title' | translate }}</label>
             <input
               id="title"
               name="title"
               required
               [(ngModel)]="title"
               class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="e.g. Work at Wilo"
+              [placeholder]="'calendar.form.titlePlaceholder' | translate"
             />
           </div>
 
           <div>
-            <label for="location" class="block text-sm text-slate-300 mb-1">Location</label>
+            <label for="location" class="block text-sm text-slate-300 mb-1">{{ 'calendar.form.location' | translate }}</label>
             <input
               id="location"
               name="location"
               [(ngModel)]="location"
               class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Optional"
+              [placeholder]="'common.optional' | translate"
             />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label for="startTime" class="block text-sm text-slate-300 mb-1">Start time</label>
+              <label for="startTime" class="block text-sm text-slate-300 mb-1">{{ 'calendar.form.startTime' | translate }}</label>
               <input
                 id="startTime"
                 name="startTime"
@@ -64,7 +65,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
               />
             </div>
             <div>
-              <label for="endTime" class="block text-sm text-slate-300 mb-1">End time</label>
+              <label for="endTime" class="block text-sm text-slate-300 mb-1">{{ 'calendar.form.endTime' | translate }}</label>
               <input
                 id="endTime"
                 name="endTime"
@@ -78,14 +79,14 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
 
           <div class="flex items-center gap-2">
             <input id="recurring" name="recurring" type="checkbox" [(ngModel)]="recurring" class="accent-indigo-500" />
-            <label for="recurring" class="text-sm text-slate-300">Repeats weekly</label>
+            <label for="recurring" class="text-sm text-slate-300">{{ 'calendar.form.repeatsWeekly' | translate }}</label>
           </div>
 
           @if (recurring) {
             <div>
-              <p class="text-sm text-slate-300 mb-2">On these days</p>
+              <p class="text-sm text-slate-300 mb-2">{{ 'calendar.form.onDays' | translate }}</p>
               <div class="flex gap-1.5 flex-wrap">
-                @for (day of weekdayNames; track $index) {
+                @for (day of weekdayNames(); track $index) {
                   <button
                     type="button"
                     (click)="toggleDay($index)"
@@ -103,7 +104,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label for="startDate" class="block text-sm text-slate-300 mb-1">From</label>
+                <label for="startDate" class="block text-sm text-slate-300 mb-1">{{ 'calendar.form.from' | translate }}</label>
                 <input
                   id="startDate"
                   name="startDate"
@@ -114,7 +115,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
                 />
               </div>
               <div>
-                <label for="endDate" class="block text-sm text-slate-300 mb-1">Until (optional)</label>
+                <label for="endDate" class="block text-sm text-slate-300 mb-1">{{ 'calendar.form.until' | translate }}</label>
                 <input
                   id="endDate"
                   name="endDate"
@@ -126,7 +127,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
             </div>
           } @else {
             <div>
-              <label for="date" class="block text-sm text-slate-300 mb-1">Date</label>
+              <label for="date" class="block text-sm text-slate-300 mb-1">{{ 'calendar.form.date' | translate }}</label>
               <input
                 id="date"
                 name="date"
@@ -139,7 +140,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
           }
 
           <div>
-            <p class="text-sm text-slate-300 mb-2">Color</p>
+            <p class="text-sm text-slate-300 mb-2">{{ 'calendar.form.color' | translate }}</p>
             <div class="flex gap-2">
               @for (c of colors; track c) {
                 <button
@@ -154,14 +155,14 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
           </div>
 
           <div>
-            <label for="description" class="block text-sm text-slate-300 mb-1">Notes</label>
+            <label for="description" class="block text-sm text-slate-300 mb-1">{{ 'calendar.form.notes' | translate }}</label>
             <textarea
               id="description"
               name="description"
               rows="2"
               [(ngModel)]="description"
               class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2"
-              placeholder="Optional"
+              [placeholder]="'common.optional' | translate"
             ></textarea>
           </div>
 
@@ -172,7 +173,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
                 (click)="remove()"
                 class="rounded-lg border border-red-900 text-red-400 px-4 py-2 text-sm hover:bg-red-950/40 transition-colors"
               >
-                Delete
+                {{ 'common.delete' | translate }}
               </button>
             } @else {
               <span></span>
@@ -183,14 +184,14 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
                 (click)="closed.emit()"
                 class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 transition-colors"
               >
-                Cancel
+                {{ 'common.cancel' | translate }}
               </button>
               <button
                 type="submit"
                 [disabled]="saving()"
                 class="rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-4 py-2 text-sm font-medium transition-colors"
               >
-                {{ saving() ? 'Saving…' : 'Save' }}
+                {{ (saving() ? 'common.saving' : 'common.save') | translate }}
               </button>
             </div>
           </div>
@@ -201,6 +202,8 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
 })
 export class EventFormModal {
   private readonly api = inject(CalendarApiService);
+  private readonly translate = inject(TranslateService);
+  private readonly language = inject(LanguageService);
 
   /** Event to edit; null = create mode. */
   readonly event = input<CalendarEvent | null>(null);
@@ -210,7 +213,13 @@ export class EventFormModal {
   readonly closed = output<void>();
   readonly saved = output<void>();
 
-  readonly weekdayNames = WEEKDAYS;
+  /** Mon–Sun short names in the active locale (2024-01-01 is a Monday). */
+  readonly weekdayNames = computed(() => {
+    const locale = this.language.locale();
+    return Array.from({ length: 7 }, (_, i) =>
+      new Date(2024, 0, 1 + i).toLocaleDateString(locale, { weekday: 'short' }),
+    );
+  });
   readonly colors = COLORS;
 
   title = '';
@@ -255,11 +264,11 @@ export class EventFormModal {
   submit(): void {
     if (!this.title.trim()) return;
     if (this.recurring && this.days().length === 0) {
-      this.error.set('Pick at least one weekday for a recurring event.');
+      this.error.set(this.translate.instant('calendar.form.errors.days'));
       return;
     }
     if (this.endTime <= this.startTime) {
-      this.error.set('End time must be after start time.');
+      this.error.set(this.translate.instant('calendar.form.errors.endTime'));
       return;
     }
     const payload: EventPayload = {
@@ -281,17 +290,18 @@ export class EventFormModal {
       next: () => this.saved.emit(),
       error: (err) => {
         this.saving.set(false);
-        this.error.set(extractError(err, 'Something went wrong. Please try again.'));
+        this.error.set(extractError(err, this.translate.instant('common.genericError')));
       },
     });
   }
 
   remove(): void {
     const ev = this.event();
-    if (!ev || !confirm(`Delete "${ev.title}" and all its occurrences?`)) return;
+    if (!ev || !confirm(this.translate.instant('calendar.form.deleteConfirm', { title: ev.title }))) return;
     this.api.deleteEvent(ev.id).subscribe({
       next: () => this.saved.emit(),
-      error: (err) => this.error.set(extractError(err, 'Could not delete the event.')),
+      error: (err) =>
+        this.error.set(extractError(err, this.translate.instant('calendar.form.errors.delete'))),
     });
   }
 }

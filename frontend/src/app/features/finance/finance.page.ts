@@ -1,10 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import { FinanceApiService } from '../../core/api/finance-api.service';
 import { toIsoDate, todayIso } from '../../core/date-utils';
 import { eur } from '../../core/format';
 import { extractError } from '../../core/http-error';
+import { LanguageService } from '../../core/i18n/language.service';
 import {
   Budget,
   CATEGORY_COLORS,
@@ -23,21 +25,23 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
 
 @Component({
   selector: 'app-finance-page',
-  imports: [FormsModule, EchartComponent, BudgetReportTab, MonthlyPlanTab, SavingsTab],
+  imports: [FormsModule, EchartComponent, BudgetReportTab, MonthlyPlanTab, SavingsTab, TranslatePipe],
   template: `
     <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold">Finance</h1>
-        <p class="text-slate-400 mt-1">{{ tab() === 'savings' ? 'Savings goal' : monthLabel() }}</p>
+        <h1 class="text-3xl font-bold">{{ 'finance.title' | translate }}</h1>
+        <p class="text-slate-400 mt-1">
+          {{ tab() === 'savings' ? ('finance.savingsGoal' | translate) : monthLabel() }}
+        </p>
       </div>
       @if (tab() !== 'savings') {
         <div class="flex items-center gap-2">
-          <button (click)="shiftMonth(-1)" class="rounded-lg border border-slate-700 px-3 py-2 hover:bg-slate-800 transition-colors" aria-label="Previous month">←</button>
-          <button (click)="goCurrentMonth()" class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800 transition-colors">This month</button>
-          <button (click)="shiftMonth(1)" class="rounded-lg border border-slate-700 px-3 py-2 hover:bg-slate-800 transition-colors" aria-label="Next month">→</button>
+          <button (click)="shiftMonth(-1)" class="rounded-lg border border-slate-700 px-3 py-2 hover:bg-slate-800 transition-colors" [attr.aria-label]="'finance.prevMonth' | translate">←</button>
+          <button (click)="goCurrentMonth()" class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800 transition-colors">{{ 'finance.thisMonth' | translate }}</button>
+          <button (click)="shiftMonth(1)" class="rounded-lg border border-slate-700 px-3 py-2 hover:bg-slate-800 transition-colors" [attr.aria-label]="'finance.nextMonth' | translate">→</button>
           @if (tab() === 'overview') {
             <button (click)="openAdd()" class="ml-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-sm font-medium transition-colors">
-              + Add transaction
+              {{ 'finance.addTransaction' | translate }}
             </button>
           }
         </div>
@@ -51,7 +55,7 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
           [class]="'rounded-lg px-4 py-2 text-sm transition-colors ' +
             (tab() === t.key ? 'bg-slate-700 text-white font-medium' : 'text-slate-400 hover:text-slate-200')"
         >
-          {{ t.label }}
+          {{ t.labelKey | translate }}
         </button>
       }
     </nav>
@@ -63,20 +67,20 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
     } @else if (tab() === 'savings') {
       <app-savings-tab />
     } @else if (loading()) {
-      <p class="text-slate-400">Loading…</p>
+      <p class="text-slate-400">{{ 'common.loading' | translate }}</p>
     } @else if (summary(); as s) {
       <!-- Stat tiles -->
       <div class="grid gap-4 sm:grid-cols-3 mb-6">
         <div class="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <p class="text-sm text-slate-400">Income</p>
+          <p class="text-sm text-slate-400">{{ 'finance.income' | translate }}</p>
           <p class="text-2xl font-semibold mt-1">{{ eur(s.income_total) }}</p>
         </div>
         <div class="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <p class="text-sm text-slate-400">Expenses</p>
+          <p class="text-sm text-slate-400">{{ 'finance.expenses' | translate }}</p>
           <p class="text-2xl font-semibold mt-1">{{ eur(s.expense_total) }}</p>
         </div>
         <div class="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <p class="text-sm text-slate-400">Net</p>
+          <p class="text-sm text-slate-400">{{ 'finance.net' | translate }}</p>
           <p class="text-2xl font-semibold mt-1" [class]="s.net >= 0 ? 'text-emerald-400' : 'text-red-400'">
             {{ eur(s.net) }}
           </p>
@@ -86,19 +90,19 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
       <div class="grid gap-6 lg:grid-cols-2 mb-6">
         <!-- Expenses by category (donut) -->
         <div class="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <h2 class="font-semibold mb-2">Expenses by category</h2>
+          <h2 class="font-semibold mb-2">{{ 'finance.byCategory' | translate }}</h2>
           @if (s.expenses_by_category.length > 0) {
             <div class="h-72">
               <app-echart [option]="donutOption()" />
             </div>
           } @else {
-            <p class="text-sm text-slate-500 py-10 text-center">No expenses this month yet.</p>
+            <p class="text-sm text-slate-500 py-10 text-center">{{ 'finance.noExpenses' | translate }}</p>
           }
         </div>
 
         <!-- Budgets vs spent -->
         <div class="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <h2 class="font-semibold mb-4">Budgets</h2>
+          <h2 class="font-semibold mb-4">{{ 'finance.budgets' | translate }}</h2>
           @if (budgetError()) {
             <p class="text-sm text-red-400 bg-red-950/50 border border-red-900 rounded-lg px-3 py-2 mb-4">
               {{ budgetError() }}
@@ -106,7 +110,7 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
           }
           @if (expenseCategories().length === 0) {
             <p class="text-sm text-slate-500 py-10 text-center">
-              Create an expense category to set budgets.
+              {{ 'finance.noExpenseCategories' | translate }}
             </p>
           }
           <div class="space-y-4">
@@ -136,14 +140,14 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
                     step="10"
                     [name]="'budget-' + cat.id"
                     class="w-28 rounded-md bg-slate-800 border border-slate-700 px-2 py-1 text-xs"
-                    [placeholder]="'Budget €'"
+                    [placeholder]="'finance.budgetPlaceholder' | translate"
                     [(ngModel)]="pendingBudgets[cat.id]"
                   />
                   <button
                     (click)="saveBudget(cat.id)"
                     class="rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:bg-slate-800"
                   >
-                    Save
+                    {{ 'common.save' | translate }}
                   </button>
                 </div>
               </div>
@@ -154,19 +158,19 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
 
       <!-- Transactions -->
       <div class="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
-        <h2 class="font-semibold px-5 pt-5 pb-3">Transactions</h2>
+        <h2 class="font-semibold px-5 pt-5 pb-3">{{ 'finance.transactions' | translate }}</h2>
         @if (transactions().length === 0) {
-          <p class="text-sm text-slate-500 px-5 pb-6">No transactions this month.</p>
+          <p class="text-sm text-slate-500 px-5 pb-6">{{ 'finance.noTransactions' | translate }}</p>
         } @else {
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="text-left text-slate-400 border-t border-slate-800">
-                  <th class="px-5 py-2.5 font-medium">Date</th>
-                  <th class="px-5 py-2.5 font-medium">Category</th>
-                  <th class="px-5 py-2.5 font-medium">Description</th>
-                  <th class="px-5 py-2.5 font-medium">Status</th>
-                  <th class="px-5 py-2.5 font-medium text-right">Amount</th>
+                  <th class="px-5 py-2.5 font-medium">{{ 'finance.date' | translate }}</th>
+                  <th class="px-5 py-2.5 font-medium">{{ 'finance.category' | translate }}</th>
+                  <th class="px-5 py-2.5 font-medium">{{ 'finance.description' | translate }}</th>
+                  <th class="px-5 py-2.5 font-medium">{{ 'finance.status' | translate }}</th>
+                  <th class="px-5 py-2.5 font-medium text-right">{{ 'finance.amount' | translate }}</th>
                   <th class="px-2 py-2.5"></th>
                 </tr>
               </thead>
@@ -187,7 +191,7 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
                     <td class="px-5 py-2.5 text-slate-300">
                       {{ tx.description || '—' }}
                       @if (tx.recurring_id !== null) {
-                        <span class="ml-1 text-slate-500" title="Generated from a recurring transaction">↻</span>
+                        <span class="ml-1 text-slate-500" [title]="'finance.fromRecurring' | translate">↻</span>
                       }
                     </td>
                     <td class="px-5 py-2.5">
@@ -197,9 +201,9 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
                           (tx.status === 'paid'
                             ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
                             : 'bg-amber-950 text-amber-400 border border-amber-800 hover:bg-amber-900')"
-                        [title]="tx.status === 'paid' ? 'Mark as unpaid' : 'Mark as paid'"
+                        [title]="(tx.status === 'paid' ? 'finance.markUnpaid' : 'finance.markPaid') | translate"
                       >
-                        {{ tx.status === 'paid' ? '✓ Paid' : 'Unpaid' }}
+                        {{ (tx.status === 'paid' ? 'finance.paid' : 'finance.unpaid') | translate }}
                       </button>
                     </td>
                     <td
@@ -212,14 +216,14 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
                       <button
                         (click)="openEdit(tx)"
                         class="text-slate-500 hover:text-slate-200 px-1"
-                        title="Edit transaction"
+                        [title]="'finance.editTx' | translate"
                       >
                         ✎
                       </button>
                       <button
                         (click)="removeTransaction(tx)"
                         class="text-slate-500 hover:text-red-400 px-1"
-                        title="Delete transaction"
+                        [title]="'finance.deleteTx' | translate"
                       >
                         ✕
                       </button>
@@ -237,7 +241,9 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
     @if (showAdd()) {
       <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" (click)="showAdd.set(false)">
         <div class="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl" (click)="$event.stopPropagation()">
-          <h2 class="text-xl font-semibold mb-4">{{ editingTx() ? 'Edit transaction' : 'New transaction' }}</h2>
+          <h2 class="text-xl font-semibold mb-4">
+            {{ (editingTx() ? 'finance.editTxTitle' : 'finance.newTxTitle') | translate }}
+          </h2>
           @if (error()) {
             <p class="text-sm text-red-400 bg-red-950/50 border border-red-900 rounded-lg px-3 py-2 mb-4">{{ error() }}</p>
           }
@@ -245,43 +251,43 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
             <div class="grid grid-cols-2 gap-1 rounded-lg bg-slate-800 p-1">
               <button type="button" (click)="setKind('expense')"
                 [class]="'rounded-md py-1.5 text-sm transition-colors ' + (txKind() === 'expense' ? 'bg-slate-700 text-white' : 'text-slate-400')">
-                Expense
+                {{ 'finance.expense' | translate }}
               </button>
               <button type="button" (click)="setKind('income')"
                 [class]="'rounded-md py-1.5 text-sm transition-colors ' + (txKind() === 'income' ? 'bg-slate-700 text-white' : 'text-slate-400')">
-                Income
+                {{ 'finance.incomeKind' | translate }}
               </button>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label for="txAmount" class="block text-sm text-slate-300 mb-1">Amount (€)</label>
+                <label for="txAmount" class="block text-sm text-slate-300 mb-1">{{ 'finance.amountEur' | translate }}</label>
                 <input id="txAmount" name="txAmount" type="number" step="0.01" min="0.01" required
                   [(ngModel)]="txAmount"
                   class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
               </div>
               <div>
-                <label for="txDate" class="block text-sm text-slate-300 mb-1">Date</label>
+                <label for="txDate" class="block text-sm text-slate-300 mb-1">{{ 'finance.date' | translate }}</label>
                 <input id="txDate" name="txDate" type="date" required [(ngModel)]="txDate"
                   class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
               </div>
             </div>
 
             <div>
-              <label for="txCategory" class="block text-sm text-slate-300 mb-1">Category</label>
+              <label for="txCategory" class="block text-sm text-slate-300 mb-1">{{ 'finance.category' | translate }}</label>
               <select id="txCategory" name="txCategory" [(ngModel)]="txCategoryId"
                 class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
-                <option [ngValue]="null">No category</option>
+                <option [ngValue]="null">{{ 'finance.noCategory' | translate }}</option>
                 @for (cat of categoriesForKind(); track cat.id) {
                   <option [ngValue]="cat.id">{{ cat.name }}</option>
                 }
-                <option [ngValue]="-1">＋ New category…</option>
+                <option [ngValue]="-1">{{ 'finance.newCategory' | translate }}</option>
               </select>
             </div>
 
             @if (txCategoryId === -1) {
               <div class="rounded-xl border border-slate-700 bg-slate-800/50 p-3 space-y-3">
-                <input name="newCatName" placeholder="Category name" [(ngModel)]="newCategoryName"
+                <input name="newCatName" [placeholder]="'finance.categoryName' | translate" [(ngModel)]="newCategoryName"
                   class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm" />
                 <div class="flex gap-2">
                   @for (c of categoryColors; track c) {
@@ -295,19 +301,19 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
             }
 
             <div>
-              <label for="txDesc" class="block text-sm text-slate-300 mb-1">Description</label>
-              <input id="txDesc" name="txDesc" [(ngModel)]="txDescription" placeholder="Optional"
+              <label for="txDesc" class="block text-sm text-slate-300 mb-1">{{ 'finance.description' | translate }}</label>
+              <input id="txDesc" name="txDesc" [(ngModel)]="txDescription" [placeholder]="'common.optional' | translate"
                 class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
             </div>
 
             <div class="flex justify-end gap-2 pt-2">
               <button type="button" (click)="showAdd.set(false)"
                 class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800">
-                Cancel
+                {{ 'common.cancel' | translate }}
               </button>
               <button type="submit" [disabled]="saving()"
                 class="rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-4 py-2 text-sm font-medium">
-                {{ saving() ? 'Saving…' : 'Save' }}
+                {{ (saving() ? 'common.saving' : 'common.save') | translate }}
               </button>
             </div>
           </form>
@@ -318,6 +324,8 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
 })
 export class FinancePage {
   private readonly api = inject(FinanceApiService);
+  private readonly translate = inject(TranslateService);
+  private readonly language = inject(LanguageService);
 
   readonly categoryColors = CATEGORY_COLORS;
 
@@ -328,11 +336,11 @@ export class FinancePage {
   readonly transactions = signal<Transaction[]>([]);
   readonly budgets = signal<Budget[]>([]);
 
-  readonly tabs: { key: FinanceTab; label: string }[] = [
-    { key: 'overview', label: 'Overview' },
-    { key: 'plan', label: 'Monthly plan' },
-    { key: 'budgets', label: 'Budget report' },
-    { key: 'savings', label: 'Savings' },
+  readonly tabs: { key: FinanceTab; labelKey: string }[] = [
+    { key: 'overview', labelKey: 'finance.tabs.overview' },
+    { key: 'plan', labelKey: 'finance.tabs.plan' },
+    { key: 'budgets', labelKey: 'finance.tabs.budgets' },
+    { key: 'savings', labelKey: 'finance.tabs.savings' },
   ];
   readonly tab = signal<FinanceTab>('overview');
   readonly showAdd = signal(false);
@@ -352,7 +360,10 @@ export class FinancePage {
   pendingBudgets: Record<number, number> = {};
 
   readonly monthLabel = computed(() =>
-    this.monthAnchor().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }),
+    this.monthAnchor().toLocaleDateString(this.language.locale(), {
+      month: 'long',
+      year: 'numeric',
+    }),
   );
 
   readonly monthIso = computed(() => toIsoDate(this.monthAnchor()));
@@ -484,13 +495,14 @@ export class FinancePage {
   saveBudget(categoryId: number): void {
     const amount = this.pendingBudgets[categoryId];
     if (amount === undefined || amount === null || !Number.isFinite(amount) || amount < 0) {
-      this.budgetError.set('Please enter a budget amount of 0 or more.');
+      this.budgetError.set(this.translate.instant('finance.errors.budgetAmount'));
       return;
     }
     this.budgetError.set(null);
     this.api.upsertBudget(categoryId, toIsoDate(this.monthAnchor()), amount).subscribe({
       next: () => this.load(),
-      error: (err) => this.budgetError.set(extractError(err, 'Could not save the budget.')),
+      error: (err) =>
+        this.budgetError.set(extractError(err, this.translate.instant('finance.errors.saveBudget'))),
     });
   }
 
@@ -529,13 +541,14 @@ export class FinancePage {
     const next = tx.status === 'paid' ? 'unpaid' : 'paid';
     this.api.setTransactionStatus(tx.id, next).subscribe({
       next: () => this.load(),
-      error: (err) => this.error.set(extractError(err, 'Could not update the status.')),
+      error: (err) =>
+        this.error.set(extractError(err, this.translate.instant('finance.errors.status'))),
     });
   }
 
   submitTransaction(): void {
     if (!this.txAmount || this.txAmount <= 0 || !this.txDate) {
-      this.error.set('Please enter a positive amount and a date.');
+      this.error.set(this.translate.instant('finance.errors.amountDate'));
       return;
     }
     this.saving.set(true);
@@ -543,7 +556,7 @@ export class FinancePage {
     if (this.txCategoryId === -1) {
       if (!this.newCategoryName.trim()) {
         this.saving.set(false);
-        this.error.set('Please name the new category.');
+        this.error.set(this.translate.instant('finance.errors.nameCategory'));
         return;
       }
       this.api
@@ -552,7 +565,9 @@ export class FinancePage {
           next: (cat) => this.createTx(cat.id),
           error: (err) => {
             this.saving.set(false);
-            this.error.set(extractError(err, 'Could not create the category.'));
+            this.error.set(
+              extractError(err, this.translate.instant('finance.errors.createCategory')),
+            );
           },
         });
     } else {
@@ -582,16 +597,15 @@ export class FinancePage {
       },
       error: (err) => {
         this.saving.set(false);
-        this.error.set(extractError(err, 'Could not save the transaction.'));
+        this.error.set(extractError(err, this.translate.instant('finance.errors.saveTx')));
       },
     });
   }
 
   removeTransaction(tx: Transaction): void {
-    const message =
-      tx.recurring_id !== null
-        ? 'Delete this generated transaction? This skips the recurring transaction for this month.'
-        : 'Delete this transaction?';
+    const message = this.translate.instant(
+      tx.recurring_id !== null ? 'finance.deleteRecurringConfirm' : 'finance.deleteConfirm',
+    );
     if (!confirm(message)) return;
     this.api.deleteTransaction(tx.id).subscribe({ next: () => this.load() });
   }

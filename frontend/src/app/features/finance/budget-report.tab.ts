@@ -1,4 +1,5 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FinanceApiService } from '../../core/api/finance-api.service';
 import { eur } from '../../core/format';
 import { extractError } from '../../core/http-error';
@@ -11,6 +12,7 @@ interface BudgetRow extends CategorySummary {
 
 @Component({
   selector: 'app-budget-report-tab',
+  imports: [TranslatePipe],
   template: `
     @if (error()) {
       <p class="text-sm text-red-400 bg-red-950/50 border border-red-900 rounded-lg px-3 py-2 mb-4">
@@ -18,23 +20,23 @@ interface BudgetRow extends CategorySummary {
       </p>
     }
     @if (loading()) {
-      <p class="text-slate-400">Loading…</p>
+      <p class="text-slate-400">{{ 'common.loading' | translate }}</p>
     } @else if (rows().length === 0) {
       <div class="rounded-2xl border border-slate-800 bg-slate-900 p-5">
         <p class="text-sm text-slate-500 py-10 text-center">
-          No budgets set for this month. Set one on a category in the Overview tab.
+          {{ 'budgetReport.none' | translate }}
         </p>
       </div>
     } @else {
       <div class="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
-        <h2 class="font-semibold px-5 pt-5 pb-3">Budget vs. actual</h2>
+        <h2 class="font-semibold px-5 pt-5 pb-3">{{ 'budgetReport.title' | translate }}</h2>
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="text-left text-slate-400 border-t border-slate-800">
-                <th class="px-5 py-2.5 font-medium">Category</th>
-                <th class="px-5 py-2.5 font-medium text-right">Budget</th>
-                <th class="px-5 py-2.5 font-medium text-right">Spent</th>
+                <th class="px-5 py-2.5 font-medium">{{ 'budgetReport.category' | translate }}</th>
+                <th class="px-5 py-2.5 font-medium text-right">{{ 'budgetReport.budget' | translate }}</th>
+                <th class="px-5 py-2.5 font-medium text-right">{{ 'budgetReport.spent' | translate }}</th>
                 <th class="px-5 py-2.5 font-medium text-right">±</th>
               </tr>
             </thead>
@@ -60,7 +62,7 @@ interface BudgetRow extends CategorySummary {
             </tbody>
             <tfoot>
               <tr class="border-t border-slate-700 font-semibold">
-                <td class="px-5 py-3">Total</td>
+                <td class="px-5 py-3">{{ 'common.total' | translate }}</td>
                 <td class="px-5 py-3 text-right tabular-nums">{{ eur(totals().budget) }}</td>
                 <td class="px-5 py-3 text-right tabular-nums">{{ eur(totals().spent) }}</td>
                 <td
@@ -79,6 +81,7 @@ interface BudgetRow extends CategorySummary {
 })
 export class BudgetReportTab {
   private readonly api = inject(FinanceApiService);
+  private readonly translate = inject(TranslateService);
 
   /** ISO date (any day) of the month to report on, e.g. "2026-07-01". */
   readonly month = input.required<string>();
@@ -124,7 +127,7 @@ export class BudgetReportTab {
       error: (err) => {
         if (seq !== this.loadSeq) return;
         this.loading.set(false);
-        this.error.set(extractError(err, 'Could not load the budget report.'));
+        this.error.set(extractError(err, this.translate.instant('budgetReport.errors.load')));
       },
     });
   }
