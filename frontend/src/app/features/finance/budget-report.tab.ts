@@ -15,25 +15,25 @@ interface BudgetRow extends CategorySummary {
   imports: [TranslatePipe],
   template: `
     @if (error()) {
-      <p class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2 mb-4">
+      <p class="fx-pop text-sm text-danger bg-danger-surface border border-danger-edge rounded-control px-3 py-2 mb-4">
         {{ error() }}
       </p>
     }
     @if (loading()) {
-      <p class="text-slate-600 dark:text-slate-400">{{ 'common.loading' | translate }}</p>
+      <p class="text-ink-muted">{{ 'common.loading' | translate }}</p>
     } @else if (rows().length === 0) {
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-        <p class="text-sm text-slate-500 py-10 text-center">
+      <div class="rounded-card border border-edge bg-card p-5">
+        <p class="text-sm text-ink-faint py-10 text-center">
           {{ 'budgetReport.none' | translate }}
         </p>
       </div>
     } @else {
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+      <div class="rounded-card border border-edge bg-card overflow-hidden">
         <h2 class="font-semibold px-5 pt-5 pb-3">{{ 'budgetReport.title' | translate }}</h2>
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
-              <tr class="text-left text-slate-600 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800">
+              <tr class="text-left text-ink-muted border-t border-edge">
                 <th class="px-5 py-2.5 font-medium">{{ 'budgetReport.category' | translate }}</th>
                 <th class="px-5 py-2.5 font-medium text-right">{{ 'budgetReport.budget' | translate }}</th>
                 <th class="px-5 py-2.5 font-medium text-right">{{ 'budgetReport.spent' | translate }}</th>
@@ -42,18 +42,18 @@ interface BudgetRow extends CategorySummary {
             </thead>
             <tbody>
               @for (row of rows(); track row.category_id) {
-                <tr class="border-t border-slate-200/70 dark:border-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                  <td class="px-5 py-2.5 text-slate-700 dark:text-slate-300">
+                <tr class="border-t border-edge-soft hover:bg-row-hover">
+                  <td class="px-5 py-2.5 text-ink-soft">
                     <span class="flex items-center gap-2">
                       <span class="h-3 w-3 rounded-full shrink-0" [style.background]="row.color"></span>
                       {{ row.name }}
                     </span>
                   </td>
-                  <td class="px-5 py-2.5 text-right tabular-nums text-slate-600 dark:text-slate-400">{{ eur(row.budget) }}</td>
-                  <td class="px-5 py-2.5 text-right tabular-nums text-slate-700 dark:text-slate-300">{{ eur(row.spent) }}</td>
+                  <td class="px-5 py-2.5 text-right tabular-nums text-ink-muted">{{ eur(row.budget) }}</td>
+                  <td class="px-5 py-2.5 text-right tabular-nums text-ink-soft">{{ eur(row.spent) }}</td>
                   <td
                     class="px-5 py-2.5 text-right tabular-nums font-medium"
-                    [class]="row.diff >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'"
+                    [class]="row.diff >= 0 ? 'text-success' : 'text-danger'"
                   >
                     {{ row.diff >= 0 ? '+' : '' }}{{ eur(row.diff) }}
                   </td>
@@ -61,13 +61,13 @@ interface BudgetRow extends CategorySummary {
               }
             </tbody>
             <tfoot>
-              <tr class="border-t border-slate-300 dark:border-slate-700 font-semibold">
+              <tr class="border-t border-edge-strong font-semibold">
                 <td class="px-5 py-3">{{ 'common.total' | translate }}</td>
                 <td class="px-5 py-3 text-right tabular-nums">{{ eur(totals().budget) }}</td>
                 <td class="px-5 py-3 text-right tabular-nums">{{ eur(totals().spent) }}</td>
                 <td
                   class="px-5 py-3 text-right tabular-nums"
-                  [class]="totals().diff >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'"
+                  [class]="totals().diff >= 0 ? 'text-success' : 'text-danger'"
                 >
                   {{ totals().diff >= 0 ? '+' : '' }}{{ eur(totals().diff) }}
                 </td>

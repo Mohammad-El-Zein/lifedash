@@ -1,6 +1,7 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, ElementRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { FxModal, staggerTilesSoon } from '../../shared/animations';
 import { JobsApiService } from '../../core/api/jobs-api.service';
 import { extractError } from '../../core/http-error';
 import { LanguageService } from '../../core/i18n/language.service';
@@ -16,14 +17,14 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
 
 @Component({
   selector: 'app-jobs-page',
-  imports: [FormsModule, TranslatePipe],
+  imports: [FormsModule, TranslatePipe, FxModal],
   template: `
     <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div>
         <h1 class="text-3xl font-bold">{{ 'jobs.title' | translate }}</h1>
-        <p class="text-slate-600 dark:text-slate-400 mt-1">{{ 'jobs.count' | translate: { n: applications().length } }}</p>
+        <p class="text-ink-muted mt-1">{{ 'jobs.count' | translate: { n: applications().length } }}</p>
       </div>
-      <button (click)="openForm(null)" class="rounded-lg bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-sm font-medium transition-colors">
+      <button (click)="openForm(null)" class="rounded-control bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium transition-colors">
         {{ 'jobs.addApplication' | translate }}
       </button>
     </header>
@@ -32,68 +33,68 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
     <div class="mb-6 flex flex-wrap gap-2">
       <button (click)="filter.set(null)"
         [class]="chipClass(filter() === null)">
-        {{ 'common.all' | translate }} <span class="text-slate-500">{{ countFor(null) }}</span>
+        {{ 'common.all' | translate }} <span class="text-ink-faint">{{ countFor(null) }}</span>
       </button>
       @for (s of statuses; track s.value) {
         <button (click)="filter.set(s.value)" [class]="chipClass(filter() === s.value)">
           <span class="h-2 w-2 rounded-full inline-block" [style.background]="s.color"></span>
-          {{ s.labelKey | translate }} <span class="text-slate-500">{{ countFor(s.value) }}</span>
+          {{ s.labelKey | translate }} <span class="text-ink-faint">{{ countFor(s.value) }}</span>
         </button>
       }
     </div>
 
     @if (loading()) {
-      <p class="text-slate-600 dark:text-slate-400">{{ 'common.loading' | translate }}</p>
+      <p class="text-ink-muted">{{ 'common.loading' | translate }}</p>
     } @else if (filtered().length === 0) {
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-10 text-center text-slate-500">
+      <div class="rounded-card border border-edge bg-card p-10 text-center text-ink-faint">
         {{ (filter() ? 'jobs.noApplicationsFiltered' : 'jobs.noApplications') | translate }}
       </div>
     } @else {
       <div class="space-y-3">
         @for (app of filtered(); track app.id) {
-          <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+          <div data-tile class="rounded-card border border-edge bg-card p-5">
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div class="min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
                   <h2 class="font-semibold text-lg truncate">{{ app.company }}</h2>
-                  <span class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 dark:border-slate-700 px-2.5 py-0.5 text-xs">
+                  <span class="inline-flex items-center gap-1.5 rounded-full border border-edge-strong px-2.5 py-0.5 text-xs">
                     <span class="h-2 w-2 rounded-full" [style.background]="statusColor(app.status)"></span>
                     {{ statusLabelKey(app.status) | translate }}
                   </span>
                 </div>
-                <p class="text-slate-600 dark:text-slate-400 text-sm mt-0.5">
+                <p class="text-ink-muted text-sm mt-0.5">
                   {{ app.position }}
                   @if (app.applied_date) { · {{ 'jobs.appliedOn' | translate: { date: app.applied_date } }} }
                   @if (app.link) {
-                    · <a [href]="app.link" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 hover:underline">{{ 'jobs.posting' | translate }}</a>
+                    · <a [href]="app.link" target="_blank" rel="noopener" class="text-link hover:underline">{{ 'jobs.posting' | translate }}</a>
                   }
                 </p>
               </div>
               <div class="flex items-center gap-2 shrink-0">
-                <button (click)="openStatus(app)" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <button (click)="openStatus(app)" class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field">
                   {{ 'jobs.changeStatus' | translate }}
                 </button>
-                <button (click)="openForm(app)" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <button (click)="openForm(app)" class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field">
                   {{ 'common.edit' | translate }}
                 </button>
-                <button (click)="toggleExpand(app.id)" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <button (click)="toggleExpand(app.id)" class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field">
                   {{ (expanded() === app.id ? 'common.hide' : 'common.details') | translate }}
                   @if (app.documents.length > 0) {
-                    <span class="text-slate-500">· {{ app.documents.length }} 📄</span>
+                    <span class="text-ink-faint">· {{ app.documents.length }} 📄</span>
                   }
                 </button>
               </div>
             </div>
 
             @if (expanded() === app.id) {
-              <div class="mt-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+              <div class="mt-4 border-t border-edge pt-4">
                 @if (app.notes) {
-                  <p class="text-sm text-slate-700 dark:text-slate-300 mb-3"><span class="text-slate-500">{{ 'jobs.notes' | translate }}</span> {{ app.notes }}</p>
+                  <p class="text-sm text-ink-soft mb-3"><span class="text-ink-faint">{{ 'jobs.notes' | translate }}</span> {{ app.notes }}</p>
                 }
                 @if (app.description) {
                   <details class="mb-3 text-sm">
-                    <summary class="cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200">{{ 'jobs.jobDescription' | translate }}</summary>
-                    <p class="mt-2 whitespace-pre-wrap text-slate-700 dark:text-slate-300 border-l-2 border-slate-300 dark:border-slate-700 pl-3">{{ app.description }}</p>
+                    <summary class="cursor-pointer text-ink-muted hover:text-ink">{{ 'jobs.jobDescription' | translate }}</summary>
+                    <p class="mt-2 whitespace-pre-wrap text-ink-soft border-l-2 border-edge-strong pl-3">{{ app.description }}</p>
                   </details>
                 }
                 <ol class="space-y-2">
@@ -102,46 +103,46 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
                       <span class="mt-1 h-2.5 w-2.5 rounded-full shrink-0" [style.background]="statusColor(h.status)"></span>
                       <div>
                         <span class="font-medium">{{ statusLabelKey(h.status) | translate }}</span>
-                        <span class="text-slate-500"> · {{ formatDate(h.changed_at) }}</span>
-                        @if (h.note) { <p class="text-slate-600 dark:text-slate-400">{{ h.note }}</p> }
+                        <span class="text-ink-faint"> · {{ formatDate(h.changed_at) }}</span>
+                        @if (h.note) { <p class="text-ink-muted">{{ h.note }}</p> }
                       </div>
                     </li>
                   }
                 </ol>
 
                 <!-- Documents -->
-                <div class="mt-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+                <div class="mt-4 border-t border-edge pt-4">
                   <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ 'jobs.documents' | translate }}</h3>
-                    <label class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                    <h3 class="text-sm font-medium text-ink-soft">{{ 'jobs.documents' | translate }}</h3>
+                    <label class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field cursor-pointer">
                       {{ (uploading() ? 'common.uploading' : 'jobs.uploadPdf') | translate }}
                       <input type="file" accept="application/pdf" class="hidden"
                         [disabled]="uploading()" (change)="onFileSelected($event, app)" />
                     </label>
                   </div>
                   @if (docError()) {
-                    <p class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2 mb-2">
+                    <p class="fx-pop text-sm text-danger bg-danger-surface border border-danger-edge rounded-control px-3 py-2 mb-2">
                       {{ docError() }}
                     </p>
                   }
                   @if (app.documents.length === 0) {
-                    <p class="text-sm text-slate-500">{{ 'jobs.noDocuments' | translate }}</p>
+                    <p class="text-sm text-ink-faint">{{ 'jobs.noDocuments' | translate }}</p>
                   } @else {
                     <ul class="space-y-1.5">
                       @for (doc of app.documents; track doc.id) {
-                        <li class="flex items-center gap-3 text-sm rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2">
+                        <li class="flex items-center gap-3 text-sm rounded-control border border-edge px-3 py-2">
                           <span>📄</span>
                           <span class="min-w-0 flex-1 truncate">{{ doc.filename }}</span>
-                          <span class="text-slate-500 shrink-0">{{ formatBytes(doc.size_bytes) }} · {{ formatDate(doc.created_at) }}</span>
-                          <button (click)="download(doc)" class="text-indigo-600 dark:text-indigo-400 hover:underline shrink-0">{{ 'common.download' | translate }}</button>
-                          <button (click)="removeDocument(doc)" class="text-red-600 dark:text-red-400 hover:underline shrink-0">{{ 'common.delete' | translate }}</button>
+                          <span class="text-ink-faint shrink-0">{{ formatBytes(doc.size_bytes) }} · {{ formatDate(doc.created_at) }}</span>
+                          <button (click)="download(doc)" class="text-link hover:underline shrink-0">{{ 'common.download' | translate }}</button>
+                          <button (click)="removeDocument(doc)" class="text-danger hover:underline shrink-0">{{ 'common.delete' | translate }}</button>
                         </li>
                       }
                     </ul>
                   }
                 </div>
 
-                <button (click)="remove(app)" class="mt-4 rounded-lg border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 px-3 py-1.5 text-sm hover:bg-red-50 dark:hover:bg-red-950/40">
+                <button (click)="remove(app)" class="mt-4 rounded-control border border-danger-edge text-danger px-3 py-1.5 text-sm hover:bg-danger-surface">
                   {{ 'jobs.deleteApplication' | translate }}
                 </button>
               </div>
@@ -153,51 +154,51 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
 
     <!-- Add/edit modal -->
     @if (showForm()) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 p-4" (click)="showForm.set(false)">
-        <div class="w-full max-w-md rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-2xl" (click)="$event.stopPropagation()">
+      <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="showForm.set(false)">
+        <div class="w-full max-w-md rounded-card border border-edge-strong bg-card p-6 shadow-modal" fxModal (click)="$event.stopPropagation()">
           <h2 class="text-xl font-semibold mb-4">
             {{ (editing() ? 'jobs.form.editTitle' : 'jobs.form.newTitle') | translate }}
           </h2>
           @if (error()) {
-            <p class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2 mb-4">{{ error() }}</p>
+            <p class="fx-pop text-sm text-danger bg-danger-surface border border-danger-edge rounded-control px-3 py-2 mb-4">{{ error() }}</p>
           }
           <form class="space-y-4" (ngSubmit)="submitForm()">
             <div>
-              <label for="company" class="block text-sm text-slate-700 dark:text-slate-300 mb-1">{{ 'jobs.form.company' | translate }}</label>
+              <label for="company" class="block text-sm text-ink-soft mb-1">{{ 'jobs.form.company' | translate }}</label>
               <input id="company" name="company" required [(ngModel)]="fCompany"
-                class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2" />
+                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
             </div>
             <div>
-              <label for="position" class="block text-sm text-slate-700 dark:text-slate-300 mb-1">{{ 'jobs.form.position' | translate }}</label>
+              <label for="position" class="block text-sm text-ink-soft mb-1">{{ 'jobs.form.position' | translate }}</label>
               <input id="position" name="position" required [(ngModel)]="fPosition"
-                class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2" />
+                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
             </div>
             <div>
-              <label for="link" class="block text-sm text-slate-700 dark:text-slate-300 mb-1">{{ 'jobs.form.link' | translate }}</label>
+              <label for="link" class="block text-sm text-ink-soft mb-1">{{ 'jobs.form.link' | translate }}</label>
               <input id="link" name="link" type="url" [(ngModel)]="fLink" placeholder="https://…"
-                class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2" />
+                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
             </div>
             <div>
-              <label for="appliedDate" class="block text-sm text-slate-700 dark:text-slate-300 mb-1">{{ 'jobs.form.appliedDate' | translate }}</label>
+              <label for="appliedDate" class="block text-sm text-ink-soft mb-1">{{ 'jobs.form.appliedDate' | translate }}</label>
               <input id="appliedDate" name="appliedDate" type="date" [(ngModel)]="fAppliedDate"
-                class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2" />
+                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
             </div>
             <div>
-              <label for="description" class="block text-sm text-slate-700 dark:text-slate-300 mb-1">{{ 'jobs.form.description' | translate }}</label>
+              <label for="description" class="block text-sm text-ink-soft mb-1">{{ 'jobs.form.description' | translate }}</label>
               <textarea id="description" name="description" rows="5" [(ngModel)]="fDescription"
                 [placeholder]="'jobs.form.descriptionPlaceholder' | translate"
-                class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2"></textarea>
+                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"></textarea>
             </div>
             <div>
-              <label for="notes" class="block text-sm text-slate-700 dark:text-slate-300 mb-1">{{ 'jobs.form.notes' | translate }}</label>
+              <label for="notes" class="block text-sm text-ink-soft mb-1">{{ 'jobs.form.notes' | translate }}</label>
               <textarea id="notes" name="notes" rows="3" [(ngModel)]="fNotes"
-                class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2"></textarea>
+                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"></textarea>
             </div>
             <div class="flex justify-end gap-2 pt-2">
               <button type="button" (click)="showForm.set(false)"
-                class="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">{{ 'common.cancel' | translate }}</button>
+                class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">{{ 'common.cancel' | translate }}</button>
               <button type="submit" [disabled]="saving()"
-                class="rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-4 py-2 text-sm font-medium">
+                class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
                 {{ (saving() ? 'common.saving' : 'common.save') | translate }}
               </button>
             </div>
@@ -208,19 +209,19 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
 
     <!-- Status change modal -->
     @if (statusTarget(); as app) {
-      <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 p-4" (click)="statusTarget.set(null)">
-        <div class="w-full max-w-sm rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-2xl" (click)="$event.stopPropagation()">
+      <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="statusTarget.set(null)">
+        <div class="w-full max-w-sm rounded-card border border-edge-strong bg-card p-6 shadow-modal" fxModal (click)="$event.stopPropagation()">
           <h2 class="text-lg font-semibold mb-1">{{ 'jobs.statusModal.title' | translate }}</h2>
-          <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">{{ app.company }} · {{ app.position }}</p>
+          <p class="text-sm text-ink-muted mb-4">{{ app.company }} · {{ app.position }}</p>
           @if (error()) {
-            <p class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2 mb-4">{{ error() }}</p>
+            <p class="fx-pop text-sm text-danger bg-danger-surface border border-danger-edge rounded-control px-3 py-2 mb-4">{{ error() }}</p>
           }
           <div class="grid gap-2 mb-4">
             @for (s of statuses; track s.value) {
               @if (s.value !== app.status) {
                 <button type="button" (click)="newStatus.set(s.value)"
-                  [class]="'flex items-center gap-2 rounded-lg border px-3 py-2 text-sm text-left transition-colors ' +
-                    (newStatus() === s.value ? 'border-indigo-500 bg-indigo-50 dark:bg-slate-800' : 'border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800/60')">
+                  [class]="'flex items-center gap-2 rounded-control border px-3 py-2 text-sm text-left transition-colors ' +
+                    (newStatus() === s.value ? 'border-accent bg-nav-active' : 'border-edge-strong hover:bg-field-soft')">
                   <span class="h-2.5 w-2.5 rounded-full" [style.background]="s.color"></span>
                   {{ s.labelKey | translate }}
                 </button>
@@ -228,12 +229,12 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
             }
           </div>
           <input name="statusNote" [(ngModel)]="statusNote" [placeholder]="'jobs.statusModal.notePlaceholder' | translate"
-            class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm mb-4" />
+            class="w-full rounded-control bg-field border border-edge-strong px-3 py-2 text-sm mb-4" />
           <div class="flex justify-end gap-2">
             <button (click)="statusTarget.set(null)"
-              class="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">{{ 'common.cancel' | translate }}</button>
+              class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">{{ 'common.cancel' | translate }}</button>
             <button (click)="submitStatus(app)" [disabled]="!newStatus() || saving()"
-              class="rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-4 py-2 text-sm font-medium">
+              class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
               {{ 'common.update' | translate }}
             </button>
           </div>
@@ -244,6 +245,7 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
 })
 export class JobsPage {
   private readonly api = inject(JobsApiService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly translate = inject(TranslateService);
   private readonly language = inject(LanguageService);
 
@@ -285,6 +287,7 @@ export class JobsPage {
       next: (apps) => {
         this.applications.set(apps);
         this.loading.set(false);
+        staggerTilesSoon(this.host.nativeElement);
       },
       error: () => this.loading.set(false),
     });
@@ -294,8 +297,8 @@ export class JobsPage {
     return (
       'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors ' +
       (active
-        ? 'border-indigo-500 bg-indigo-50 text-indigo-950 dark:bg-slate-800 dark:text-white'
-        : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60')
+        ? 'border-accent bg-nav-active text-nav-active-ink'
+        : 'border-edge-strong text-ink-soft hover:bg-field-soft')
     );
   }
 
