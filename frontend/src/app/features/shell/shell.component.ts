@@ -16,7 +16,7 @@ import { pageEnter } from '../../shared/animations';
       <!-- Sidebar -->
       <aside class="w-64 shrink-0 border-r border-edge bg-sidebar flex flex-col">
         <a routerLink="/dashboard" class="px-6 py-5 text-2xl font-bold tracking-tight">
-          Life<span class="text-link">Dash</span>
+          Life<span class="logo-accent">Dash</span>
         </a>
 
         <nav class="flex-1 px-3 space-y-1">

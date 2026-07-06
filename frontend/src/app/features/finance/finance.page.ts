@@ -21,7 +21,7 @@ import { BudgetReportTab } from './budget-report.tab';
 import { MonthlyPlanTab } from './monthly-plan.tab';
 import { SavingsTab } from './savings.tab';
 
-const DARK_SURFACE = '#0f172a'; // slate-900 — the chart card surface in dark mode
+const DARK_SURFACE = '#12152a'; // effective glass-card surface over the night canvas
 
 type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
 
@@ -386,15 +386,15 @@ export class FinancePage {
     return {
       tooltip: {
         trigger: 'item',
-        backgroundColor: dark ? '#1e293b' : '#ffffff',
-        borderColor: dark ? '#334155' : '#e2e8f0',
-        textStyle: { color: dark ? '#e2e8f0' : '#0f172a' },
+        backgroundColor: dark ? '#161a30' : '#ffffff',
+        borderColor: dark ? 'rgba(255,255,255,0.14)' : '#e3e6ef',
+        textStyle: { color: dark ? '#eef0fb' : '#171c2e' },
         valueFormatter: (v: number) => this.eur(v),
       },
       legend: {
         bottom: 0,
         icon: 'circle',
-        textStyle: { color: dark ? '#94a3b8' : '#475569' },
+        textStyle: { color: dark ? '#9aa0bd' : '#5b6172' },
       },
       series: [
         {
@@ -403,10 +403,10 @@ export class FinancePage {
           center: ['50%', '44%'],
           itemStyle: { borderColor: dark ? DARK_SURFACE : '#ffffff', borderWidth: 2, borderRadius: 4 },
           label: {
-            color: dark ? '#cbd5e1' : '#334155',
+            color: dark ? '#c6cade' : '#3a4056',
             formatter: (p: { name: string; value: number }) => `${p.name}\n${this.eur(p.value)}`,
           },
-          labelLine: { lineStyle: { color: dark ? '#475569' : '#94a3b8' } },
+          labelLine: { lineStyle: { color: dark ? 'rgba(255,255,255,0.25)' : '#7d8296' } },
           data: rows.map((r) => ({
             name: r.name,
             value: r.spent,

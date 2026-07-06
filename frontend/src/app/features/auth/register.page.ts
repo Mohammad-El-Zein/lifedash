@@ -16,7 +16,7 @@ import { AuthFxComponent } from './auth-fx.component';
       <div class="relative z-10 w-full max-w-md">
         <div class="text-center mb-8">
           <h1 class="text-4xl font-bold tracking-tight">
-            Life<span class="text-link">Dash</span>
+            Life<span class="logo-accent">Dash</span>
           </h1>
           <p class="text-ink-muted mt-2">{{ 'app.tagline' | translate }}</p>
         </div>
