@@ -1,4 +1,5 @@
 import { Component, computed, ElementRef, inject, signal } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FxModal, staggerTilesSoon } from '../../shared/animations';
@@ -17,7 +18,7 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
 
 @Component({
   selector: 'app-jobs-page',
-  imports: [FormsModule, TranslatePipe, FxModal],
+  imports: [FormsModule, TranslatePipe, FxModal, LucideAngularModule],
   template: `
     <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div>
@@ -80,7 +81,7 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
                 <button (click)="toggleExpand(app.id)" class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field">
                   {{ (expanded() === app.id ? 'common.hide' : 'common.details') | translate }}
                   @if (app.documents.length > 0) {
-                    <span class="text-ink-faint">· {{ app.documents.length }} 📄</span>
+                    <span class="text-ink-faint inline-flex items-center gap-1">· {{ app.documents.length }} <lucide-icon name="file-text" [size]="13" /></span>
                   }
                 </button>
               </div>
@@ -131,7 +132,7 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
                     <ul class="space-y-1.5">
                       @for (doc of app.documents; track doc.id) {
                         <li class="flex items-center gap-3 text-sm rounded-control border border-edge px-3 py-2">
-                          <span>📄</span>
+                          <span class="text-ink-faint"><lucide-icon name="file-text" [size]="16" /></span>
                           <span class="min-w-0 flex-1 truncate">{{ doc.filename }}</span>
                           <span class="text-ink-faint shrink-0">{{ formatBytes(doc.size_bytes) }} · {{ formatDate(doc.created_at) }}</span>
                           <button (click)="download(doc)" class="text-link hover:underline shrink-0">{{ 'common.download' | translate }}</button>

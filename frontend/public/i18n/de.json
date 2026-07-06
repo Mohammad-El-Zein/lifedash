@@ -175,7 +175,7 @@
     "description": "Beschreibung",
     "status": "Status",
     "amount": "Betrag",
-    "paid": "✓ Bezahlt",
+    "paid": "Bezahlt",
     "unpaid": "Offen",
     "markPaid": "Als bezahlt markieren",
     "markUnpaid": "Als offen markieren",

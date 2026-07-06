@@ -1,0 +1,55 @@
+import {
+  Ban,
+  BriefcaseBusiness,
+  CalendarClock,
+  CalendarDays,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CornerDownRight,
+  Dumbbell,
+  FileText,
+  Flame,
+  GraduationCap,
+  House,
+  LucideAngularModule,
+  Monitor,
+  Moon,
+  Pencil,
+  Repeat,
+  Sun,
+  Undo2,
+  Utensils,
+  Wallet,
+  X,
+} from 'lucide-angular';
+
+/**
+ * Every Lucide icon used in the app, registered once at bootstrap
+ * (app.config.ts). Components just import LucideAngularModule and use
+ * `<lucide-icon name="…">`; sizing/stroke conventions live in styles.css.
+ */
+export const APP_ICONS = LucideAngularModule.pick({
+  Ban,
+  BriefcaseBusiness,
+  CalendarClock,
+  CalendarDays,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CornerDownRight,
+  Dumbbell,
+  FileText,
+  Flame,
+  GraduationCap,
+  House,
+  Monitor,
+  Moon,
+  Pencil,
+  Repeat,
+  Sun,
+  Undo2,
+  Utensils,
+  Wallet,
+  X,
+});

@@ -175,7 +175,7 @@
     "description": "Description",
     "status": "Status",
     "amount": "Amount",
-    "paid": "✓ Paid",
+    "paid": "Paid",
     "unpaid": "Unpaid",
     "markPaid": "Mark as paid",
     "markUnpaid": "Mark as unpaid",

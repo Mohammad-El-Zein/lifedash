@@ -274,7 +274,7 @@ export interface ModuleInfo {
   key: string;
   labelKey: string;
   descriptionKey: string;
-  icon: string;
+  icon: string; // lucide icon name
   route: string | null; // null = coming soon
 }
 
@@ -283,49 +283,49 @@ export const MODULES: ModuleInfo[] = [
     key: 'calendar',
     labelKey: 'modules.calendar.label',
     descriptionKey: 'modules.calendar.description',
-    icon: '📅',
+    icon: 'calendar-days',
     route: '/calendar',
   },
   {
     key: 'finance',
     labelKey: 'modules.finance.label',
     descriptionKey: 'modules.finance.description',
-    icon: '💶',
+    icon: 'wallet',
     route: '/finance',
   },
   {
     key: 'fitness',
     labelKey: 'modules.fitness.label',
     descriptionKey: 'modules.fitness.description',
-    icon: '🏋️',
+    icon: 'dumbbell',
     route: null,
   },
   {
     key: 'meals',
     labelKey: 'modules.meals.label',
     descriptionKey: 'modules.meals.description',
-    icon: '🥗',
+    icon: 'utensils',
     route: null,
   },
   {
     key: 'jobs',
     labelKey: 'modules.jobs.label',
     descriptionKey: 'modules.jobs.description',
-    icon: '💼',
+    icon: 'briefcase-business',
     route: '/jobs',
   },
   {
     key: 'learning',
     labelKey: 'modules.learning.label',
     descriptionKey: 'modules.learning.description',
-    icon: '🎓',
+    icon: 'graduation-cap',
     route: null,
   },
   {
     key: 'habits',
     labelKey: 'modules.habits.label',
     descriptionKey: 'modules.habits.description',
-    icon: '🔥',
+    icon: 'flame',
     route: null,
   },
 ];
