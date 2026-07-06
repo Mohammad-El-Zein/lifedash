@@ -34,6 +34,8 @@ def update_me(payload: UserUpdate, current_user: CurrentUser, db: DbDep) -> User
         current_user.job_title = payload.job_title
     if "bio" in provided:
         current_user.bio = payload.bio
+    if "language" in provided:
+        current_user.language = payload.language
     if payload.enabled_modules is not None:
         unknown = set(payload.enabled_modules) - set(ALL_MODULES)
         if unknown:

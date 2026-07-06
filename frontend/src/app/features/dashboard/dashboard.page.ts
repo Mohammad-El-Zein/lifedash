@@ -1,16 +1,17 @@
 import { afterNextRender, Component, computed, ElementRef, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthStore } from '../../core/auth/auth.store';
 import { MODULES } from '../../core/models';
 import { staggerIn } from '../../shared/animations';
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   template: `
     <header class="mb-8">
-      <h1 class="text-3xl font-bold">{{ greeting() }}</h1>
-      <p class="text-slate-400 mt-1">Pick a module to get started.</p>
+      <h1 class="text-3xl font-bold">{{ greetingKey() | translate }}{{ greetingSuffix() }}</h1>
+      <p class="text-slate-400 mt-1">{{ 'dashboard.pickModule' | translate }}</p>
     </header>
 
     <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
@@ -23,9 +24,9 @@ import { staggerIn } from '../../shared/animations';
           >
             <div class="text-3xl mb-3">{{ mod.icon }}</div>
             <h2 class="font-semibold text-lg group-hover:text-indigo-300 transition-colors">
-              {{ mod.label }}
+              {{ mod.labelKey | translate }}
             </h2>
-            <p class="text-sm text-slate-400 mt-1">{{ mod.description }}</p>
+            <p class="text-sm text-slate-400 mt-1">{{ mod.descriptionKey | translate }}</p>
           </a>
         } @else {
           <div
@@ -35,11 +36,11 @@ import { staggerIn } from '../../shared/animations';
             <span
               class="absolute top-4 right-4 text-[10px] uppercase tracking-wide bg-slate-800 text-slate-400 rounded px-1.5 py-0.5"
             >
-              Coming soon
+              {{ 'common.comingSoon' | translate }}
             </span>
             <div class="text-3xl mb-3 grayscale opacity-60">{{ mod.icon }}</div>
-            <h2 class="font-semibold text-lg text-slate-400">{{ mod.label }}</h2>
-            <p class="text-sm text-slate-500 mt-1">{{ mod.description }}</p>
+            <h2 class="font-semibold text-lg text-slate-400">{{ mod.labelKey | translate }}</h2>
+            <p class="text-sm text-slate-500 mt-1">{{ mod.descriptionKey | translate }}</p>
           </div>
         }
       }
@@ -61,10 +62,13 @@ export class DashboardPage {
     return enabled ? MODULES.filter((m) => enabled.includes(m.key)) : MODULES;
   });
 
-  readonly greeting = computed(() => {
-    const name = this.store.user()?.full_name;
+  readonly greetingKey = computed(() => {
     const hour = new Date().getHours();
-    const base = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-    return name ? `${base}, ${name.split(' ')[0]}!` : `${base}!`;
+    return hour < 12 ? 'dashboard.morning' : hour < 18 ? 'dashboard.afternoon' : 'dashboard.evening';
+  });
+
+  readonly greetingSuffix = computed(() => {
+    const name = this.store.user()?.full_name;
+    return name ? `, ${name.split(' ')[0]}!` : '!';
   });
 }

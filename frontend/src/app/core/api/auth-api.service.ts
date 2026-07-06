@@ -23,7 +23,7 @@ export class AuthApiService {
     return this.http.get<User>('/api/users/me');
   }
 
-  updateProfile(payload: ProfilePayload): Observable<User> {
+  updateProfile(payload: Partial<ProfilePayload>): Observable<User> {
     return this.http.patch<User>('/api/users/me', payload);
   }
 

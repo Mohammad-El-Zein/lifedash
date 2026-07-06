@@ -31,6 +31,22 @@ def test_profile_update_and_clear(client, auth_headers):
     assert res.json()["job_title"] == "Backend Engineer"
 
 
+def test_language_update_and_validation(client, auth_headers):
+    res = client.get("/api/users/me", headers=auth_headers)
+    assert res.json()["language"] is None  # not chosen yet
+
+    res = client.patch("/api/users/me", json={"language": "de"}, headers=auth_headers)
+    assert res.status_code == 200
+    assert res.json()["language"] == "de"
+
+    # unrelated updates must not clear the language
+    res = client.patch("/api/users/me", json={"bio": "hi"}, headers=auth_headers)
+    assert res.json()["language"] == "de"
+
+    res = client.patch("/api/users/me", json={"language": "fr"}, headers=auth_headers)
+    assert res.status_code == 422
+
+
 def test_avatar_upload_download_roundtrip(client, auth_headers, avatar_storage):
     res = upload_avatar(client, auth_headers)
     assert res.status_code == 200, res.text

@@ -1,13 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthApiService } from '../../core/api/auth-api.service';
 import { AuthStore } from '../../core/auth/auth.store';
 import { extractError } from '../../core/http-error';
 
 @Component({
   selector: 'app-register-page',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslatePipe],
   template: `
     <div class="min-h-screen flex items-center justify-center px-4">
       <div class="w-full max-w-md">
@@ -15,14 +16,14 @@ import { extractError } from '../../core/http-error';
           <h1 class="text-4xl font-bold tracking-tight">
             Life<span class="text-indigo-400">Dash</span>
           </h1>
-          <p class="text-slate-400 mt-2">Your whole life, one dashboard.</p>
+          <p class="text-slate-400 mt-2">{{ 'app.tagline' | translate }}</p>
         </div>
 
         <form
           class="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl space-y-5"
           (ngSubmit)="submit()"
         >
-          <h2 class="text-xl font-semibold">Create account</h2>
+          <h2 class="text-xl font-semibold">{{ 'auth.createTitle' | translate }}</h2>
 
           @if (error()) {
             <p class="text-sm text-red-400 bg-red-950/50 border border-red-900 rounded-lg px-3 py-2">
@@ -31,19 +32,19 @@ import { extractError } from '../../core/http-error';
           }
 
           <div>
-            <label for="fullName" class="block text-sm text-slate-300 mb-1">Name</label>
+            <label for="fullName" class="block text-sm text-slate-300 mb-1">{{ 'auth.name' | translate }}</label>
             <input
               id="fullName"
               name="fullName"
               type="text"
               [(ngModel)]="fullName"
               class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Your name (optional)"
+              [placeholder]="'auth.namePlaceholder' | translate"
             />
           </div>
 
           <div>
-            <label for="email" class="block text-sm text-slate-300 mb-1">Email</label>
+            <label for="email" class="block text-sm text-slate-300 mb-1">{{ 'auth.email' | translate }}</label>
             <input
               id="email"
               name="email"
@@ -56,7 +57,7 @@ import { extractError } from '../../core/http-error';
           </div>
 
           <div>
-            <label for="password" class="block text-sm text-slate-300 mb-1">Password</label>
+            <label for="password" class="block text-sm text-slate-300 mb-1">{{ 'auth.password' | translate }}</label>
             <input
               id="password"
               name="password"
@@ -65,7 +66,7 @@ import { extractError } from '../../core/http-error';
               minlength="8"
               [(ngModel)]="password"
               class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="At least 8 characters"
+              [placeholder]="'auth.passwordPlaceholder' | translate"
             />
           </div>
 
@@ -74,12 +75,12 @@ import { extractError } from '../../core/http-error';
             [disabled]="loading()"
             class="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-4 py-2.5 font-medium transition-colors"
           >
-            {{ loading() ? 'Creating account…' : 'Create account' }}
+            {{ (loading() ? 'auth.creating' : 'auth.createTitle') | translate }}
           </button>
 
           <p class="text-sm text-slate-400 text-center">
-            Already registered?
-            <a routerLink="/login" class="text-indigo-400 hover:underline">Sign in</a>
+            {{ 'auth.alreadyRegistered' | translate }}
+            <a routerLink="/login" class="text-indigo-400 hover:underline">{{ 'auth.signInTitle' | translate }}</a>
           </p>
         </form>
       </div>
@@ -90,6 +91,7 @@ export class RegisterPage {
   private readonly api = inject(AuthApiService);
   private readonly store = inject(AuthStore);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   fullName = '';
   email = '';
@@ -99,7 +101,7 @@ export class RegisterPage {
 
   submit(): void {
     if (!this.email || this.password.length < 8) {
-      this.error.set('Please enter a valid email and a password with at least 8 characters.');
+      this.error.set(this.translate.instant('auth.registerInvalid'));
       return;
     }
     this.loading.set(true);
@@ -111,7 +113,7 @@ export class RegisterPage {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(extractError(err, 'Registration failed. Please try again.'));
+        this.error.set(extractError(err, this.translate.instant('auth.registerFailed')));
       },
     });
   }

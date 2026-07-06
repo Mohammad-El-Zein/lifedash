@@ -1,7 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CalendarApiService } from '../../core/api/calendar-api.service';
 import { toIsoDate } from '../../core/date-utils';
+import { LanguageService } from '../../core/i18n/language.service';
 import { CalendarEvent, Occurrence } from '../../core/models';
 import { EventFormModal } from './event-form.modal';
 
@@ -11,7 +13,6 @@ const DAY_MINUTES = (DAY_END_HOUR - DAY_START_HOUR) * 60;
 
 interface DayColumn {
   date: string; // YYYY-MM-DD
-  label: string; // "Mon"
   dayOfMonth: number;
   isToday: boolean;
   occurrences: PositionedOccurrence[];
@@ -25,28 +26,28 @@ interface PositionedOccurrence {
 
 @Component({
   selector: 'app-calendar-week-page',
-  imports: [FormsModule, EventFormModal],
+  imports: [FormsModule, EventFormModal, TranslatePipe],
   template: `
     <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold">Calendar</h1>
+        <h1 class="text-3xl font-bold">{{ 'calendar.title' | translate }}</h1>
         <p class="text-slate-400 mt-1">{{ weekLabel() }}</p>
       </div>
       <div class="flex items-center gap-2">
-        <button (click)="shiftWeek(-1)" class="rounded-lg border border-slate-700 px-3 py-2 hover:bg-slate-800 transition-colors" aria-label="Previous week">←</button>
-        <button (click)="goToday()" class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800 transition-colors">Today</button>
-        <button (click)="shiftWeek(1)" class="rounded-lg border border-slate-700 px-3 py-2 hover:bg-slate-800 transition-colors" aria-label="Next week">→</button>
+        <button (click)="shiftWeek(-1)" class="rounded-lg border border-slate-700 px-3 py-2 hover:bg-slate-800 transition-colors" [attr.aria-label]="'calendar.prevWeek' | translate">←</button>
+        <button (click)="goToday()" class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800 transition-colors">{{ 'common.today' | translate }}</button>
+        <button (click)="shiftWeek(1)" class="rounded-lg border border-slate-700 px-3 py-2 hover:bg-slate-800 transition-colors" [attr.aria-label]="'calendar.nextWeek' | translate">→</button>
         <button
           (click)="openCreate(null)"
           class="ml-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-sm font-medium transition-colors"
         >
-          + New event
+          {{ 'calendar.newEvent' | translate }}
         </button>
       </div>
     </header>
 
     @if (loading()) {
-      <p class="text-slate-400">Loading week…</p>
+      <p class="text-slate-400">{{ 'calendar.loadingWeek' | translate }}</p>
     } @else {
       <div class="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
         <!-- Day headers -->
@@ -56,9 +57,9 @@ interface PositionedOccurrence {
             <button
               (click)="openCreate(day.date)"
               class="border-b border-l border-slate-800 px-2 py-3 text-center hover:bg-slate-800/50 transition-colors"
-              [title]="'Add event on ' + day.date"
+              [title]="'calendar.addEventOn' | translate: { date: day.date }"
             >
-              <span class="text-xs text-slate-400 uppercase">{{ day.label }}</span>
+              <span class="text-xs text-slate-400 uppercase">{{ dayLabel(day.date) }}</span>
               <span
                 class="ml-1.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-sm"
                 [class]="day.isToday ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-200'"
@@ -101,7 +102,7 @@ interface PositionedOccurrence {
                 >
                   <span class="font-semibold block truncate">
                     {{ item.occ.title }}
-                    @if (item.occ.is_moved) { <span title="Moved occurrence">↪</span> }
+                    @if (item.occ.is_moved) { <span [title]="'calendar.moved' | translate">↪</span> }
                   </span>
                   <span class="block truncate text-white/80">
                     {{ item.occ.start_time.slice(0, 5) }}–{{ item.occ.end_time.slice(0, 5) }}
@@ -129,7 +130,7 @@ interface PositionedOccurrence {
                 @if (occ.location) { · {{ occ.location }} }
               </p>
               @if (occ.is_moved) {
-                <p class="text-xs text-amber-400 mt-1">This occurrence was moved from its regular slot.</p>
+                <p class="text-xs text-amber-400 mt-1">{{ 'calendar.movedNote' | translate }}</p>
               }
             </div>
             <span class="h-4 w-4 rounded-full mt-1" [style.background]="occ.color"></span>
@@ -141,7 +142,7 @@ interface PositionedOccurrence {
 
           @if (moveMode()) {
             <div class="mt-4 space-y-3 rounded-xl border border-slate-700 bg-slate-800/50 p-4">
-              <p class="text-sm font-medium">Move this occurrence to:</p>
+              <p class="text-sm font-medium">{{ 'calendar.moveTo' | translate }}</p>
               <input type="date" [(ngModel)]="moveDate" class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm" />
               <div class="grid grid-cols-2 gap-2">
                 <input type="time" [(ngModel)]="moveStart" class="rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm" />
@@ -151,26 +152,26 @@ interface PositionedOccurrence {
                 <p class="text-xs text-red-400">{{ actionError() }}</p>
               }
               <div class="flex justify-end gap-2">
-                <button (click)="moveMode.set(false)" class="rounded-lg border border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-800">Back</button>
-                <button (click)="confirmMove(occ)" class="rounded-lg bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 text-sm font-medium">Move</button>
+                <button (click)="moveMode.set(false)" class="rounded-lg border border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-800">{{ 'common.back' | translate }}</button>
+                <button (click)="confirmMove(occ)" class="rounded-lg bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 text-sm font-medium">{{ 'calendar.move' | translate }}</button>
               </div>
             </div>
           } @else {
             <div class="mt-5 grid gap-2">
               <button (click)="editSeries(occ)" class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-left hover:bg-slate-800 transition-colors">
-                ✏️ Edit {{ occ.is_recurring ? 'series' : 'event' }}
+                ✏️ {{ (occ.is_recurring ? 'calendar.editSeries' : 'calendar.editEvent') | translate }}
               </button>
               @if (occ.is_recurring || occ.is_moved) {
                 @if (occ.is_moved && occ.exception_id) {
                   <button (click)="revertMove(occ)" class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-left hover:bg-slate-800 transition-colors">
-                    ↩️ Revert to regular slot
+                    ↩️ {{ 'calendar.revert' | translate }}
                   </button>
                 } @else {
                   <button (click)="startMove(occ)" class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-left hover:bg-slate-800 transition-colors">
-                    📆 Move only this occurrence
+                    📆 {{ 'calendar.moveOnly' | translate }}
                   </button>
                   <button (click)="cancelOccurrence(occ)" class="rounded-lg border border-amber-900 text-amber-400 px-4 py-2 text-sm text-left hover:bg-amber-950/30 transition-colors">
-                    🚫 Cancel only this occurrence
+                    🚫 {{ 'calendar.cancelOnly' | translate }}
                   </button>
                 }
               }
@@ -195,6 +196,8 @@ interface PositionedOccurrence {
 })
 export class CalendarWeekPage {
   private readonly api = inject(CalendarApiService);
+  private readonly translate = inject(TranslateService);
+  private readonly language = inject(LanguageService);
 
   readonly hours = Array.from(
     { length: DAY_END_HOUR - DAY_START_HOUR },
@@ -217,15 +220,21 @@ export class CalendarWeekPage {
   moveEnd = '';
 
   readonly weekLabel = computed(() => {
+    const locale = this.language.locale();
     const start = this.weekStart();
     const end = addDays(start, 6);
     const fmt = (d: Date) =>
-      d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
     return `${fmt(start)} – ${fmt(end)}`;
   });
 
   ngOnInit(): void {
     this.load();
+  }
+
+  dayLabel(iso: string): string {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString(this.language.locale(), { weekday: 'short' });
   }
 
   load(): void {
@@ -245,7 +254,6 @@ export class CalendarWeekPage {
           const iso = toIso(d);
           days.push({
             date: iso,
-            label: d.toLocaleDateString('en-GB', { weekday: 'short' }),
             dayOfMonth: d.getDate(),
             isToday: iso === today,
             occurrences: (byDate.get(iso) ?? []).map(position),
@@ -291,7 +299,7 @@ export class CalendarWeekPage {
         this.editingEvent.set(event);
         this.showForm.set(true);
       },
-      error: () => this.actionError.set('Could not load the event.'),
+      error: () => this.actionError.set(this.translate.instant('calendar.errors.loadEvent')),
     });
   }
 
@@ -305,7 +313,7 @@ export class CalendarWeekPage {
 
   confirmMove(occ: Occurrence): void {
     if (!this.moveDate || !this.moveStart || !this.moveEnd || this.moveEnd <= this.moveStart) {
-      this.actionError.set('Please provide a valid date and time range.');
+      this.actionError.set(this.translate.instant('calendar.errors.moveInvalid'));
       return;
     }
     this.api
@@ -319,7 +327,7 @@ export class CalendarWeekPage {
       })
       .subscribe({
         next: () => this.afterAction(),
-        error: () => this.actionError.set('Could not move the occurrence.'),
+        error: () => this.actionError.set(this.translate.instant('calendar.errors.move')),
       });
   }
 
@@ -335,7 +343,7 @@ export class CalendarWeekPage {
       })
       .subscribe({
         next: () => this.afterAction(),
-        error: () => this.actionError.set('Could not cancel the occurrence.'),
+        error: () => this.actionError.set(this.translate.instant('calendar.errors.cancel')),
       });
   }
 
@@ -343,7 +351,7 @@ export class CalendarWeekPage {
     if (occ.exception_id === null) return;
     this.api.deleteException(occ.exception_id).subscribe({
       next: () => this.afterAction(),
-      error: () => this.actionError.set('Could not revert the move.'),
+      error: () => this.actionError.set(this.translate.instant('calendar.errors.revert')),
     });
   }
 

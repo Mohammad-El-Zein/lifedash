@@ -1,8 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthApiService } from '../../core/api/auth-api.service';
 import { AuthStore } from '../../core/auth/auth.store';
 import { AvatarService } from '../../core/auth/avatar.service';
+import { AppLanguage, LanguageService } from '../../core/i18n/language.service';
 import { extractError } from '../../core/http-error';
 import { User } from '../../core/models';
 
@@ -11,17 +13,17 @@ const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 @Component({
   selector: 'app-profile-page',
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   template: `
     <header class="mb-8">
-      <h1 class="text-3xl font-bold">Your profile</h1>
-      <p class="text-slate-400 mt-1">How you appear across LifeDash.</p>
+      <h1 class="text-3xl font-bold">{{ 'profile.title' | translate }}</h1>
+      <p class="text-slate-400 mt-1">{{ 'profile.subtitle' | translate }}</p>
     </header>
 
     <div class="grid gap-6 lg:grid-cols-3 max-w-4xl">
       <!-- Avatar -->
       <div class="rounded-2xl border border-slate-800 bg-slate-900 p-5 text-center">
-        <h2 class="font-semibold mb-4 text-left">Profile picture</h2>
+        <h2 class="font-semibold mb-4 text-left">{{ 'profile.picture' | translate }}</h2>
         @if (avatar.url(); as url) {
           <img [src]="url" alt="Your avatar"
             class="mx-auto h-32 w-32 rounded-full object-cover border border-slate-700" />
@@ -33,23 +35,41 @@ const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
         }
         <div class="mt-4 flex justify-center gap-2">
           <label class="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800 cursor-pointer">
-            {{ uploading() ? 'Uploading…' : user()?.has_avatar ? 'Change' : 'Upload' }}
+            {{ (uploading() ? 'common.uploading' : user()?.has_avatar ? 'common.change' : 'common.upload') | translate }}
             <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden"
               [disabled]="uploading()" (change)="onFileSelected($event)" />
           </label>
           @if (user()?.has_avatar) {
             <button (click)="removeAvatar()"
               class="rounded-lg border border-red-900 text-red-400 px-3 py-1.5 text-sm hover:bg-red-950/40">
-              Remove
+              {{ 'common.remove' | translate }}
             </button>
           }
         </div>
-        <p class="mt-3 text-xs text-slate-500">JPEG, PNG or WebP · max 2 MB</p>
+        <p class="mt-3 text-xs text-slate-500">{{ 'profile.fileHint' | translate }}</p>
+
+        <!-- Preferences -->
+        <div class="mt-6 border-t border-slate-800 pt-4 text-left">
+          <h2 class="font-semibold mb-3">{{ 'profile.preferences' | translate }}</h2>
+          <label for="language" class="block text-sm text-slate-300 mb-1">
+            {{ 'languages.label' | translate }}
+          </label>
+          <select
+            id="language"
+            name="language"
+            [ngModel]="language.lang()"
+            (ngModelChange)="setLanguage($event)"
+            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2"
+          >
+            <option value="en">{{ 'languages.en' | translate }}</option>
+            <option value="de">{{ 'languages.de' | translate }}</option>
+          </select>
+        </div>
       </div>
 
       <!-- Details -->
       <div class="rounded-2xl border border-slate-800 bg-slate-900 p-5 lg:col-span-2">
-        <h2 class="font-semibold mb-4">Details</h2>
+        <h2 class="font-semibold mb-4">{{ 'profile.details' | translate }}</h2>
         @if (error()) {
           <p class="text-sm text-red-400 bg-red-950/50 border border-red-900 rounded-lg px-3 py-2 mb-4">
             {{ error() }}
@@ -57,35 +77,35 @@ const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
         }
         @if (saved()) {
           <p class="text-sm text-emerald-400 bg-emerald-950/40 border border-emerald-900 rounded-lg px-3 py-2 mb-4">
-            Profile saved.
+            {{ 'profile.saved' | translate }}
           </p>
         }
         <form class="space-y-4" (ngSubmit)="save()" (input)="dirty = true">
           <div>
-            <label for="fullName" class="block text-sm text-slate-300 mb-1">Name</label>
+            <label for="fullName" class="block text-sm text-slate-300 mb-1">{{ 'profile.name' | translate }}</label>
             <input id="fullName" name="fullName" [(ngModel)]="fName" maxlength="255"
               class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
           </div>
           <div>
-            <label for="jobTitle" class="block text-sm text-slate-300 mb-1">Job title</label>
+            <label for="jobTitle" class="block text-sm text-slate-300 mb-1">{{ 'profile.jobTitle' | translate }}</label>
             <input id="jobTitle" name="jobTitle" [(ngModel)]="fJobTitle" maxlength="200"
-              placeholder="e.g. Full-stack Developer"
+              [placeholder]="'profile.jobTitlePlaceholder' | translate"
               class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" />
           </div>
           <div>
-            <label for="bio" class="block text-sm text-slate-300 mb-1">Bio</label>
+            <label for="bio" class="block text-sm text-slate-300 mb-1">{{ 'profile.bio' | translate }}</label>
             <textarea id="bio" name="bio" rows="4" [(ngModel)]="fBio" maxlength="1000"
-              placeholder="A short introduction…"
+              [placeholder]="'profile.bioPlaceholder' | translate"
               class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2"></textarea>
             <p class="mt-1 text-xs text-slate-500">{{ fBio.length }}/1000</p>
           </div>
           <div>
-            <span class="block text-sm text-slate-300 mb-1">Email</span>
-            <p class="text-sm text-slate-500">{{ user()?.email }} (cannot be changed)</p>
+            <span class="block text-sm text-slate-300 mb-1">{{ 'profile.email' | translate }}</span>
+            <p class="text-sm text-slate-500">{{ user()?.email }} {{ 'profile.emailNote' | translate }}</p>
           </div>
           <button type="submit" [disabled]="saving()"
             class="rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-4 py-2 text-sm font-medium">
-            {{ saving() ? 'Saving…' : 'Save profile' }}
+            {{ (saving() ? 'common.saving' : 'profile.saveButton') | translate }}
           </button>
         </form>
       </div>
@@ -95,7 +115,9 @@ const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 export class ProfilePage {
   private readonly api = inject(AuthApiService);
   private readonly store = inject(AuthStore);
+  private readonly translate = inject(TranslateService);
   readonly avatar = inject(AvatarService);
+  readonly language = inject(LanguageService);
 
   readonly user = this.store.user;
   readonly saving = signal(false);
@@ -133,6 +155,10 @@ export class ProfilePage {
       .join('');
   }
 
+  setLanguage(lang: AppLanguage): void {
+    this.language.set(lang);
+  }
+
   save(): void {
     this.saving.set(true);
     this.saved.set(false);
@@ -147,7 +173,7 @@ export class ProfilePage {
         next: (user) => this.afterChange(user, () => this.saved.set(true)),
         error: (err) => {
           this.saving.set(false);
-          this.error.set(extractError(err, 'Could not save the profile.'));
+          this.error.set(extractError(err, this.translate.instant('profile.errors.save')));
         },
       });
   }
@@ -158,11 +184,11 @@ export class ProfilePage {
     input.value = '';
     if (!file) return;
     if (!AVATAR_TYPES.includes(file.type)) {
-      this.error.set('Only JPEG, PNG or WebP images are allowed.');
+      this.error.set(this.translate.instant('profile.errors.uploadType'));
       return;
     }
     if (file.size > MAX_AVATAR_BYTES) {
-      this.error.set('The image exceeds the 2 MB limit.');
+      this.error.set(this.translate.instant('profile.errors.uploadSize'));
       return;
     }
     this.error.set(null);
@@ -175,7 +201,7 @@ export class ProfilePage {
       },
       error: (err) => {
         this.uploading.set(false);
-        this.error.set(extractError(err, 'Could not upload the image.'));
+        this.error.set(extractError(err, this.translate.instant('profile.errors.upload')));
       },
     });
   }
@@ -186,7 +212,8 @@ export class ProfilePage {
         this.store.updateUser(user);
         this.avatar.clear();
       },
-      error: (err) => this.error.set(extractError(err, 'Could not remove the image.')),
+      error: (err) =>
+        this.error.set(extractError(err, this.translate.instant('profile.errors.removeAvatar'))),
     });
   }
 

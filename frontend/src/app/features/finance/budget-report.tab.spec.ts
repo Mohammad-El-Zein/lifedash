@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { MonthSummary } from '../../core/models';
 import { BudgetReportTab } from './budget-report.tab';
@@ -29,6 +30,7 @@ describe('BudgetReportTab', () => {
         provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideTranslateService({ fallbackLang: 'en' }),
       ],
     }).compileComponents();
     http = TestBed.inject(HttpTestingController);
