@@ -5,13 +5,15 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthApiService } from '../../core/api/auth-api.service';
 import { AuthStore } from '../../core/auth/auth.store';
 import { extractError } from '../../core/http-error';
+import { AuthFxComponent } from './auth-fx.component';
 
 @Component({
   selector: 'app-login-page',
-  imports: [FormsModule, RouterLink, TranslatePipe],
+  imports: [FormsModule, RouterLink, TranslatePipe, AuthFxComponent],
   template: `
-    <div class="min-h-screen flex items-center justify-center px-4">
-      <div class="w-full max-w-md">
+    <div class="relative min-h-screen overflow-hidden flex items-center justify-center px-4">
+      <app-auth-fx />
+      <div class="relative z-10 w-full max-w-md">
         <div class="text-center mb-8">
           <h1 class="text-4xl font-bold tracking-tight">
             Life<span class="text-link">Dash</span>
