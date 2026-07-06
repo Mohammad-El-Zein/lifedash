@@ -15,6 +15,7 @@ const USER: User = {
   job_title: null,
   bio: null,
   language: null,
+  theme: null,
   has_avatar: false,
   role: 'user',
   enabled_modules: [],

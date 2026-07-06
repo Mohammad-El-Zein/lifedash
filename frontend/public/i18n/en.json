@@ -26,6 +26,13 @@
     "total": "Total",
     "genericError": "Something went wrong. Please try again."
   },
+  "theme": {
+    "label": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System",
+    "switch": "Switch theme (current: {{mode}})"
+  },
   "languages": {
     "label": "Language",
     "en": "English",

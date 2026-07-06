@@ -47,6 +47,25 @@ def test_language_update_and_validation(client, auth_headers):
     assert res.status_code == 422
 
 
+def test_theme_update_and_validation(client, auth_headers):
+    res = client.get("/api/users/me", headers=auth_headers)
+    assert res.json()["theme"] is None  # not chosen yet
+
+    res = client.patch("/api/users/me", json={"theme": "light"}, headers=auth_headers)
+    assert res.status_code == 200
+    assert res.json()["theme"] == "light"
+
+    res = client.patch("/api/users/me", json={"theme": "system"}, headers=auth_headers)
+    assert res.json()["theme"] == "system"
+
+    # unrelated updates must not clear the theme
+    res = client.patch("/api/users/me", json={"bio": "hi"}, headers=auth_headers)
+    assert res.json()["theme"] == "system"
+
+    res = client.patch("/api/users/me", json={"theme": "blue"}, headers=auth_headers)
+    assert res.status_code == 422
+
+
 def test_avatar_upload_download_roundtrip(client, auth_headers, avatar_storage):
     res = upload_avatar(client, auth_headers)
     assert res.status_code == 200, res.text

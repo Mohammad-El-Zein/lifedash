@@ -6,6 +6,17 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    // Apply the stored theme before the app boots to avoid a flash of the
+    // wrong theme. Must mirror ThemeService: default is dark.
+    try {
+      var t = localStorage.getItem('lifedash_theme');
+      var dark = t === 'light' ? false
+        : t === 'system' ? matchMedia('(prefers-color-scheme: dark)').matches
+        : true;
+      document.documentElement.classList.toggle('dark', dark);
+    } catch (e) { /* keep the dark default from the class attribute */ }
+  </script>
 </head>
 <body>
   <app-root></app-root>
