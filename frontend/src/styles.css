@@ -5,95 +5,117 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ---------------------------------------------------------------------------
-   Design tokens — the single source of truth for colors, radii and shadows.
-   Each semantic token has a light and a dark value; components use ONLY the
-   semantic utilities (bg-card, text-ink, border-edge, …), never raw palette
-   classes, so a palette change happens here and nowhere else.
+   Design tokens — "Aurora Glass".
+   One visual character throughout: translucent glass surfaces floating over a
+   slowly drifting aurora. Dark is a deep night sky with glowing indigo/violet;
+   light is the same aurora as morning mist over cool paper.
+   Token NAMES are the stable API used by every component; only values and the
+   ambience layer below define the look.
 --------------------------------------------------------------------------- */
 :root {
-  /* surfaces */
-  --surface-canvas: #f1f5f9;            /* page background            (slate-100) */
-  --surface-card: #ffffff;              /* cards, modals, tables               */
-  --surface-card-dim: rgba(255, 255, 255, 0.5);  /* disabled tiles             */
-  --surface-sidebar: rgba(255, 255, 255, 0.7);
-  --surface-field: #f1f5f9;             /* inputs, chips, segments  (slate-100) */
-  --surface-field-soft: #f1f5f9;
-  --surface-row-hover: #f8fafc;         /* table row hover           (slate-50) */
-  --surface-nav-hover: rgba(226, 232, 240, 0.7);
-  --surface-nav-active: #e0e7ff;        /* active nav/chip         (indigo-100) */
-  --surface-pill: #0f172a;              /* active tab pill          (slate-900) */
-  --surface-today: rgba(224, 231, 255, 0.5);     /* calendar today column      */
-  --surface-backdrop: rgba(0, 0, 0, 0.4);
+  /* surfaces (light: frosted white over mist) */
+  --surface-canvas: #eef0f8;
+  --surface-card: rgba(255, 255, 255, 0.78);
+  --surface-card-dim: rgba(255, 255, 255, 0.45);
+  --surface-sidebar: rgba(255, 255, 255, 0.62);
+  --surface-field: rgba(233, 236, 247, 0.92);
+  --surface-field-soft: rgba(233, 236, 247, 0.6);
+  --surface-row-hover: rgba(99, 102, 241, 0.05);
+  --surface-nav-hover: rgba(99, 102, 241, 0.08);
+  --surface-nav-active: rgba(99, 102, 241, 0.14);
+  --surface-pill: #4f46e5;
+  --surface-today: rgba(99, 102, 241, 0.08);
+  --surface-backdrop: rgba(15, 18, 40, 0.35);
 
   /* borders */
-  --edge-default: #e2e8f0;              /* card borders             (slate-200) */
-  --edge-soft: rgba(226, 232, 240, 0.7);
-  --edge-strong: #cbd5e1;               /* input/button borders     (slate-300) */
-  --edge-hover: #94a3b8;                /*                          (slate-400) */
+  --edge-default: rgba(23, 28, 56, 0.1);
+  --edge-soft: rgba(23, 28, 56, 0.07);
+  --edge-strong: rgba(23, 28, 56, 0.16);
+  --edge-hover: rgba(23, 28, 56, 0.32);
 
   /* text */
-  --ink-default: #0f172a;               /* headings, body           (slate-900) */
-  --ink-soft: #334155;                  /* labels                   (slate-700) */
-  --ink-muted: #475569;                 /* secondary text           (slate-600) */
-  --ink-faint: #64748b;                 /* hints, timestamps        (slate-500) */
-  --ink-nav-active: #1e1b4b;            /*                         (indigo-950) */
-  --ink-link: #4f46e5;                  /* links                   (indigo-600) */
+  --ink-default: #171c2e;
+  --ink-soft: #3a4056;
+  --ink-muted: #5b6172;
+  --ink-faint: #7d8296;
+  --ink-nav-active: #312e81;
+  --ink-link: #4f46e5;
 
   /* status */
-  --status-danger: #dc2626;             /*                            (red-600) */
-  --status-danger-surface: #fef2f2;
-  --status-danger-edge: #fecaca;
-  --status-success: #059669;            /*                        (emerald-600) */
-  --status-success-surface: #ecfdf5;
-  --status-success-edge: #a7f3d0;
-  --status-warn: #d97706;               /*                          (amber-600) */
-  --status-warn-surface: #fffbeb;
-  --status-warn-edge: #fcd34d;
-  --status-warn-hover: #fef3c7;
-  --status-info-surface: #eef2ff;       /*                          (indigo-50) */
-  --status-info-edge: #c7d2fe;
+  --status-danger: #dc2626;
+  --status-danger-surface: rgba(220, 38, 38, 0.08);
+  --status-danger-edge: rgba(220, 38, 38, 0.25);
+  --status-success: #059669;
+  --status-success-surface: rgba(5, 150, 105, 0.08);
+  --status-success-edge: rgba(5, 150, 105, 0.25);
+  --status-warn: #b45309;
+  --status-warn-surface: rgba(217, 119, 6, 0.1);
+  --status-warn-edge: rgba(217, 119, 6, 0.3);
+  --status-warn-hover: rgba(217, 119, 6, 0.16);
+  --status-info-surface: rgba(99, 102, 241, 0.1);
+  --status-info-edge: rgba(99, 102, 241, 0.3);
   --status-info-ink: #4338ca;
+
+  /* ambience */
+  --aurora-1: rgba(99, 102, 241, 0.16);
+  --aurora-2: rgba(168, 85, 247, 0.12);
+  --aurora-3: rgba(14, 165, 233, 0.1);
+  --logo-from: #4f46e5;
+  --logo-to: #9333ea;
+  --accent-glow: rgba(79, 70, 229, 0.28);
+  --fx-shadow-card: 0 12px 32px rgba(23, 28, 56, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --fx-shadow-modal: 0 30px 70px rgba(23, 28, 56, 0.22), inset 0 1px 0 #ffffff;
 }
 
 .dark {
-  --surface-canvas: #020617;            /* slate-950 */
-  --surface-card: #0f172a;              /* slate-900 */
-  --surface-card-dim: rgba(15, 23, 42, 0.4);
-  --surface-sidebar: rgba(15, 23, 42, 0.6);
-  --surface-field: #1e293b;             /* slate-800 */
-  --surface-field-soft: rgba(30, 41, 59, 0.5);
-  --surface-row-hover: rgba(30, 41, 59, 0.3);
-  --surface-nav-hover: rgba(30, 41, 59, 0.7);
-  --surface-nav-active: #1e293b;
-  --surface-pill: #334155;              /* slate-700 */
-  --surface-today: rgba(30, 41, 59, 0.2);
-  --surface-backdrop: rgba(0, 0, 0, 0.6);
+  /* surfaces (dark: glass over night sky) */
+  --surface-canvas: #05060f;
+  --surface-card: rgba(255, 255, 255, 0.055);
+  --surface-card-dim: rgba(255, 255, 255, 0.028);
+  --surface-sidebar: rgba(11, 14, 30, 0.55);
+  --surface-field: rgba(255, 255, 255, 0.07);
+  --surface-field-soft: rgba(255, 255, 255, 0.05);
+  --surface-row-hover: rgba(255, 255, 255, 0.04);
+  --surface-nav-hover: rgba(255, 255, 255, 0.06);
+  --surface-nav-active: rgba(129, 140, 248, 0.18);
+  --surface-pill: #4f46e5;
+  --surface-today: rgba(129, 140, 248, 0.08);
+  --surface-backdrop: rgba(2, 4, 14, 0.65);
 
-  --edge-default: #1e293b;              /* slate-800 */
-  --edge-soft: rgba(30, 41, 59, 0.6);
-  --edge-strong: #334155;               /* slate-700 */
-  --edge-hover: #64748b;                /* slate-500 */
+  --edge-default: rgba(255, 255, 255, 0.1);
+  --edge-soft: rgba(255, 255, 255, 0.07);
+  --edge-strong: rgba(255, 255, 255, 0.16);
+  --edge-hover: rgba(255, 255, 255, 0.3);
 
-  --ink-default: #f1f5f9;               /* slate-100 */
-  --ink-soft: #cbd5e1;                  /* slate-300 */
-  --ink-muted: #94a3b8;                 /* slate-400 */
-  --ink-faint: #64748b;                 /* slate-500 */
+  --ink-default: #eef0fb;
+  --ink-soft: #c6cade;
+  --ink-muted: #9aa0bd;
+  --ink-faint: #7c81a0;
   --ink-nav-active: #ffffff;
-  --ink-link: #818cf8;                  /* indigo-400 */
+  --ink-link: #a5b0ff;
 
-  --status-danger: #f87171;             /* red-400 */
-  --status-danger-surface: rgba(69, 10, 10, 0.5);
-  --status-danger-edge: #7f1d1d;
-  --status-success: #34d399;            /* emerald-400 */
-  --status-success-surface: rgba(2, 44, 34, 0.45);
-  --status-success-edge: #065f46;
-  --status-warn: #fbbf24;               /* amber-400 */
-  --status-warn-surface: rgba(69, 26, 3, 0.4);
-  --status-warn-edge: #92400e;
-  --status-warn-hover: #78350f;
-  --status-info-surface: #1e1b4b;       /* indigo-950 */
-  --status-info-edge: #3730a3;
-  --status-info-ink: #a5b4fc;
+  --status-danger: #f87171;
+  --status-danger-surface: rgba(248, 113, 113, 0.1);
+  --status-danger-edge: rgba(248, 113, 113, 0.35);
+  --status-success: #34d399;
+  --status-success-surface: rgba(52, 211, 153, 0.1);
+  --status-success-edge: rgba(52, 211, 153, 0.32);
+  --status-warn: #fbbf24;
+  --status-warn-surface: rgba(251, 191, 36, 0.1);
+  --status-warn-edge: rgba(251, 191, 36, 0.35);
+  --status-warn-hover: rgba(251, 191, 36, 0.18);
+  --status-info-surface: rgba(129, 140, 248, 0.12);
+  --status-info-edge: rgba(129, 140, 248, 0.4);
+  --status-info-ink: #b3bcff;
+
+  --aurora-1: rgba(79, 70, 229, 0.5);
+  --aurora-2: rgba(124, 58, 237, 0.38);
+  --aurora-3: rgba(14, 165, 233, 0.26);
+  --logo-from: #818cf8;
+  --logo-to: #c084fc;
+  --accent-glow: rgba(99, 102, 241, 0.45);
+  --fx-shadow-card: 0 16px 40px rgba(2, 4, 18, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --fx-shadow-modal: 0 30px 70px rgba(1, 2, 10, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 @theme inline {
@@ -123,8 +145,8 @@
   --color-nav-active-ink: var(--ink-nav-active);
   --color-link: var(--ink-link);
   /* brand accent (same in both themes) */
-  --color-accent: #4f46e5;              /* indigo-600 */
-  --color-accent-hover: #6366f1;        /* indigo-500 */
+  --color-accent: #4f46e5;
+  --color-accent-hover: #6366f1;
   /* status */
   --color-danger: var(--status-danger);
   --color-danger-surface: var(--status-danger-surface);
@@ -141,12 +163,12 @@
   --color-info-ink: var(--status-info-ink);
 
   /* radii */
-  --radius-card: 1rem;                  /* cards, modals, tiles */
-  --radius-control: 0.5rem;             /* buttons, inputs, chips */
+  --radius-card: 1.125rem;
+  --radius-control: 0.5rem;
 
-  /* shadows */
-  --shadow-card: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-modal: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  /* shadows (theme-dependent via the vars above) */
+  --shadow-card: var(--fx-shadow-card);
+  --shadow-modal: var(--fx-shadow-modal);
 }
 
 html,
@@ -154,8 +176,76 @@ body {
   height: 100%;
 }
 
+html {
+  background-color: var(--surface-canvas);
+}
+
 body {
-  @apply bg-canvas text-ink antialiased;
+  @apply text-ink antialiased;
+}
+
+/* ---------------------------------------------------------------------------
+   Ambience — the aurora. One fixed, pre-blurred layer behind everything;
+   a single transform animation keeps it on the GPU.
+--------------------------------------------------------------------------- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -25%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 34% at 22% 18%, var(--aurora-1), transparent 70%),
+    radial-gradient(42% 38% at 82% 26%, var(--aurora-2), transparent 70%),
+    radial-gradient(36% 32% at 48% 88%, var(--aurora-3), transparent 70%);
+  filter: blur(70px);
+  animation: aurora-drift 90s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2%, 2%, 0) scale(1.08);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Glass polish — plain-CSS companions to the token utilities. These match the
+   generated class names, so components need no extra markup.
+--------------------------------------------------------------------------- */
+@layer components {
+  /* frosted sidebar and modal/login glass (few elements → cheap blur) */
+  .bg-sidebar {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .shadow-modal {
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+  /* subtle top highlight on every glass card (shadow-* utilities override) */
+  .bg-card {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+  /* glowing accents: primary buttons, active nav entry, active tab pill */
+  .bg-accent {
+    box-shadow: 0 0 22px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+  .bg-nav-active {
+    box-shadow: 0 0 18px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  .bg-pill {
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+  /* brand wordmark gradient (shell + auth pages) */
+  .logo-accent {
+    background: linear-gradient(100deg, var(--logo-from), var(--logo-to));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -164,7 +254,7 @@ body {
 @layer base {
   /* Uniform press feedback on every enabled button. */
   button:not(:disabled) {
-    transition-property: transform, color, background-color, border-color, opacity, filter;
+    transition-property: transform, color, background-color, border-color, opacity, filter, box-shadow;
     transition-duration: 150ms;
     transition-timing-function: ease-out;
   }
@@ -207,5 +297,8 @@ body {
   }
   button:not(:disabled):active {
     transform: none;
+  }
+  body::before {
+    animation: none;
   }
 }
