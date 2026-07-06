@@ -4,11 +4,208 @@
    `dark:` utilities follow that class instead of prefers-color-scheme. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ---------------------------------------------------------------------------
+   Design tokens — the single source of truth for colors, radii and shadows.
+   Each semantic token has a light and a dark value; components use ONLY the
+   semantic utilities (bg-card, text-ink, border-edge, …), never raw palette
+   classes, so a palette change happens here and nowhere else.
+--------------------------------------------------------------------------- */
+:root {
+  /* surfaces */
+  --surface-canvas: #f1f5f9;            /* page background            (slate-100) */
+  --surface-card: #ffffff;              /* cards, modals, tables               */
+  --surface-card-dim: rgba(255, 255, 255, 0.5);  /* disabled tiles             */
+  --surface-sidebar: rgba(255, 255, 255, 0.7);
+  --surface-field: #f1f5f9;             /* inputs, chips, segments  (slate-100) */
+  --surface-field-soft: #f1f5f9;
+  --surface-row-hover: #f8fafc;         /* table row hover           (slate-50) */
+  --surface-nav-hover: rgba(226, 232, 240, 0.7);
+  --surface-nav-active: #e0e7ff;        /* active nav/chip         (indigo-100) */
+  --surface-pill: #0f172a;              /* active tab pill          (slate-900) */
+  --surface-today: rgba(224, 231, 255, 0.5);     /* calendar today column      */
+  --surface-backdrop: rgba(0, 0, 0, 0.4);
+
+  /* borders */
+  --edge-default: #e2e8f0;              /* card borders             (slate-200) */
+  --edge-soft: rgba(226, 232, 240, 0.7);
+  --edge-strong: #cbd5e1;               /* input/button borders     (slate-300) */
+  --edge-hover: #94a3b8;                /*                          (slate-400) */
+
+  /* text */
+  --ink-default: #0f172a;               /* headings, body           (slate-900) */
+  --ink-soft: #334155;                  /* labels                   (slate-700) */
+  --ink-muted: #475569;                 /* secondary text           (slate-600) */
+  --ink-faint: #64748b;                 /* hints, timestamps        (slate-500) */
+  --ink-nav-active: #1e1b4b;            /*                         (indigo-950) */
+  --ink-link: #4f46e5;                  /* links                   (indigo-600) */
+
+  /* status */
+  --status-danger: #dc2626;             /*                            (red-600) */
+  --status-danger-surface: #fef2f2;
+  --status-danger-edge: #fecaca;
+  --status-success: #059669;            /*                        (emerald-600) */
+  --status-success-surface: #ecfdf5;
+  --status-success-edge: #a7f3d0;
+  --status-warn: #d97706;               /*                          (amber-600) */
+  --status-warn-surface: #fffbeb;
+  --status-warn-edge: #fcd34d;
+  --status-warn-hover: #fef3c7;
+  --status-info-surface: #eef2ff;       /*                          (indigo-50) */
+  --status-info-edge: #c7d2fe;
+  --status-info-ink: #4338ca;
+}
+
+.dark {
+  --surface-canvas: #020617;            /* slate-950 */
+  --surface-card: #0f172a;              /* slate-900 */
+  --surface-card-dim: rgba(15, 23, 42, 0.4);
+  --surface-sidebar: rgba(15, 23, 42, 0.6);
+  --surface-field: #1e293b;             /* slate-800 */
+  --surface-field-soft: rgba(30, 41, 59, 0.5);
+  --surface-row-hover: rgba(30, 41, 59, 0.3);
+  --surface-nav-hover: rgba(30, 41, 59, 0.7);
+  --surface-nav-active: #1e293b;
+  --surface-pill: #334155;              /* slate-700 */
+  --surface-today: rgba(30, 41, 59, 0.2);
+  --surface-backdrop: rgba(0, 0, 0, 0.6);
+
+  --edge-default: #1e293b;              /* slate-800 */
+  --edge-soft: rgba(30, 41, 59, 0.6);
+  --edge-strong: #334155;               /* slate-700 */
+  --edge-hover: #64748b;                /* slate-500 */
+
+  --ink-default: #f1f5f9;               /* slate-100 */
+  --ink-soft: #cbd5e1;                  /* slate-300 */
+  --ink-muted: #94a3b8;                 /* slate-400 */
+  --ink-faint: #64748b;                 /* slate-500 */
+  --ink-nav-active: #ffffff;
+  --ink-link: #818cf8;                  /* indigo-400 */
+
+  --status-danger: #f87171;             /* red-400 */
+  --status-danger-surface: rgba(69, 10, 10, 0.5);
+  --status-danger-edge: #7f1d1d;
+  --status-success: #34d399;            /* emerald-400 */
+  --status-success-surface: rgba(2, 44, 34, 0.45);
+  --status-success-edge: #065f46;
+  --status-warn: #fbbf24;               /* amber-400 */
+  --status-warn-surface: rgba(69, 26, 3, 0.4);
+  --status-warn-edge: #92400e;
+  --status-warn-hover: #78350f;
+  --status-info-surface: #1e1b4b;       /* indigo-950 */
+  --status-info-edge: #3730a3;
+  --status-info-ink: #a5b4fc;
+}
+
+@theme inline {
+  /* surfaces */
+  --color-canvas: var(--surface-canvas);
+  --color-card: var(--surface-card);
+  --color-card-dim: var(--surface-card-dim);
+  --color-sidebar: var(--surface-sidebar);
+  --color-field: var(--surface-field);
+  --color-field-soft: var(--surface-field-soft);
+  --color-row-hover: var(--surface-row-hover);
+  --color-nav-hover: var(--surface-nav-hover);
+  --color-nav-active: var(--surface-nav-active);
+  --color-pill: var(--surface-pill);
+  --color-today: var(--surface-today);
+  --color-backdrop: var(--surface-backdrop);
+  /* borders */
+  --color-edge: var(--edge-default);
+  --color-edge-soft: var(--edge-soft);
+  --color-edge-strong: var(--edge-strong);
+  --color-edge-hover: var(--edge-hover);
+  /* text */
+  --color-ink: var(--ink-default);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-nav-active-ink: var(--ink-nav-active);
+  --color-link: var(--ink-link);
+  /* brand accent (same in both themes) */
+  --color-accent: #4f46e5;              /* indigo-600 */
+  --color-accent-hover: #6366f1;        /* indigo-500 */
+  /* status */
+  --color-danger: var(--status-danger);
+  --color-danger-surface: var(--status-danger-surface);
+  --color-danger-edge: var(--status-danger-edge);
+  --color-success: var(--status-success);
+  --color-success-surface: var(--status-success-surface);
+  --color-success-edge: var(--status-success-edge);
+  --color-warn: var(--status-warn);
+  --color-warn-surface: var(--status-warn-surface);
+  --color-warn-edge: var(--status-warn-edge);
+  --color-warn-hover: var(--status-warn-hover);
+  --color-info-surface: var(--status-info-surface);
+  --color-info-edge: var(--status-info-edge);
+  --color-info-ink: var(--status-info-ink);
+
+  /* radii */
+  --radius-card: 1rem;                  /* cards, modals, tiles */
+  --radius-control: 0.5rem;             /* buttons, inputs, chips */
+
+  /* shadows */
+  --shadow-card: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-modal: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
+
 html,
 body {
   height: 100%;
 }
 
 body {
-  @apply bg-slate-100 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  @apply bg-canvas text-ink antialiased;
+}
+
+/* ---------------------------------------------------------------------------
+   Micro-interactions — consistent feedback everywhere.
+--------------------------------------------------------------------------- */
+@layer base {
+  /* Uniform press feedback on every enabled button. */
+  button:not(:disabled) {
+    transition-property: transform, color, background-color, border-color, opacity, filter;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+  }
+  button:not(:disabled):active {
+    transform: scale(0.97);
+  }
+
+  /* Visible, consistent keyboard focus. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-hover);
+    outline-offset: 2px;
+  }
+}
+
+/* Entrance for alerts and inline status messages ("pop"). */
+@keyframes fx-pop {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+}
+.fx-pop {
+  animation: fx-pop 0.18s ease-out;
+}
+
+/* Entrance for modal backdrops ("fade"). */
+@keyframes fx-fade {
+  from {
+    opacity: 0;
+  }
+}
+.fx-fade {
+  animation: fx-fade 0.15s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-pop,
+  .fx-fade {
+    animation: none;
+  }
+  button:not(:disabled):active {
+    transform: none;
+  }
 }

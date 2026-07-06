@@ -14,45 +14,45 @@ import { extractError } from '../../core/http-error';
       <div class="w-full max-w-md">
         <div class="text-center mb-8">
           <h1 class="text-4xl font-bold tracking-tight">
-            Life<span class="text-indigo-600 dark:text-indigo-400">Dash</span>
+            Life<span class="text-link">Dash</span>
           </h1>
-          <p class="text-slate-600 dark:text-slate-400 mt-2">{{ 'app.tagline' | translate }}</p>
+          <p class="text-ink-muted mt-2">{{ 'app.tagline' | translate }}</p>
         </div>
 
         <form
-          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl space-y-5"
+          class="bg-card border border-edge rounded-card p-8 shadow-modal space-y-5"
           (ngSubmit)="submit()"
         >
           <h2 class="text-xl font-semibold">{{ 'auth.signInTitle' | translate }}</h2>
 
           @if (error()) {
-            <p class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2">
+            <p class="fx-pop text-sm text-danger bg-danger-surface border border-danger-edge rounded-control px-3 py-2">
               {{ error() }}
             </p>
           }
 
           <div>
-            <label for="email" class="block text-sm text-slate-700 dark:text-slate-300 mb-1">{{ 'auth.email' | translate }}</label>
+            <label for="email" class="block text-sm text-ink-soft mb-1">{{ 'auth.email' | translate }}</label>
             <input
               id="email"
               name="email"
               type="email"
               required
               [(ngModel)]="email"
-              class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full rounded-control bg-field border border-edge-strong px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-hover"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label for="password" class="block text-sm text-slate-700 dark:text-slate-300 mb-1">{{ 'auth.password' | translate }}</label>
+            <label for="password" class="block text-sm text-ink-soft mb-1">{{ 'auth.password' | translate }}</label>
             <input
               id="password"
               name="password"
               type="password"
               required
               [(ngModel)]="password"
-              class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full rounded-control bg-field border border-edge-strong px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-hover"
               placeholder="••••••••"
             />
           </div>
@@ -60,14 +60,14 @@ import { extractError } from '../../core/http-error';
           <button
             type="submit"
             [disabled]="loading()"
-            class="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 px-4 py-2.5 font-medium transition-colors"
+            class="w-full rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2.5 font-medium transition-colors"
           >
             {{ (loading() ? 'auth.signingIn' : 'auth.signInTitle') | translate }}
           </button>
 
-          <p class="text-sm text-slate-600 dark:text-slate-400 text-center">
+          <p class="text-sm text-ink-muted text-center">
             {{ 'auth.noAccount' | translate }}
-            <a routerLink="/register" class="text-indigo-600 dark:text-indigo-400 hover:underline">{{ 'auth.createOne' | translate }}</a>
+            <a routerLink="/register" class="text-link hover:underline">{{ 'auth.createOne' | translate }}</a>
           </p>
         </form>
       </div>

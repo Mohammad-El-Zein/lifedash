@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, signal } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import { FinanceApiService } from '../../core/api/finance-api.service';
@@ -6,45 +6,46 @@ import { eur } from '../../core/format';
 import { extractError } from '../../core/http-error';
 import { Category, FixedItem, MonthlyPlan, RecurringTransaction } from '../../core/models';
 import { RecurringFormModal } from './recurring-form.modal';
+import { staggerTilesSoon } from '../../shared/animations';
 
 @Component({
   selector: 'app-monthly-plan-tab',
   imports: [RecurringFormModal, TranslatePipe],
   template: `
     @if (loading()) {
-      <p class="text-slate-600 dark:text-slate-400">{{ 'common.loading' | translate }}</p>
+      <p class="text-ink-muted">{{ 'common.loading' | translate }}</p>
     } @else if (plan(); as p) {
       @if (error()) {
-        <p class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2 mb-4">
+        <p class="fx-pop text-sm text-danger bg-danger-surface border border-danger-edge rounded-control px-3 py-2 mb-4">
           {{ error() }}
         </p>
       }
 
       <!-- Plan stat tiles -->
       <div class="grid gap-4 sm:grid-cols-3 mb-6">
-        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <p class="text-sm text-slate-600 dark:text-slate-400">{{ 'plan.totalIncome' | translate }}</p>
+        <div data-tile class="rounded-card border border-edge bg-card p-5">
+          <p class="text-sm text-ink-muted">{{ 'plan.totalIncome' | translate }}</p>
           <p class="text-2xl font-semibold mt-1">{{ eur(p.income_total) }}</p>
-          <p class="text-xs text-slate-500 mt-1">
+          <p class="text-xs text-ink-faint mt-1">
             {{ 'plan.incomeBreakdown' | translate: {
               recurring: eur(p.recurring_income_total),
               oneOff: eur(p.one_off_income_total)
             } }}
           </p>
         </div>
-        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <p class="text-sm text-slate-600 dark:text-slate-400">{{ 'plan.fixedExpenses' | translate }}</p>
+        <div data-tile class="rounded-card border border-edge bg-card p-5">
+          <p class="text-sm text-ink-muted">{{ 'plan.fixedExpenses' | translate }}</p>
           <p class="text-2xl font-semibold mt-1">{{ eur(p.fixed_expense_total) }}</p>
-          <p class="text-xs text-slate-500 mt-1">
+          <p class="text-xs text-ink-faint mt-1">
             {{ 'plan.recurringCount' | translate: { n: p.fixed_items.length } }}
           </p>
         </div>
-        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <p class="text-sm text-slate-600 dark:text-slate-400">{{ 'plan.available' | translate }}</p>
-          <p class="text-2xl font-semibold mt-1" [class]="p.available_for_variable >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'">
+        <div data-tile class="rounded-card border border-edge bg-card p-5">
+          <p class="text-sm text-ink-muted">{{ 'plan.available' | translate }}</p>
+          <p class="text-2xl font-semibold mt-1" [class]="p.available_for_variable >= 0 ? 'text-success' : 'text-danger'">
             {{ eur(p.available_for_variable) }}
           </p>
-          <p class="text-xs text-slate-500 mt-1">
+          <p class="text-xs text-ink-faint mt-1">
             {{ 'plan.alreadySpent' | translate: { amount: eur(p.variable_expense_total) } }}
           </p>
         </div>
@@ -52,27 +53,27 @@ import { RecurringFormModal } from './recurring-form.modal';
 
       <div class="grid gap-6 lg:grid-cols-2">
         <!-- Fixed expenses checklist -->
-        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+        <div class="rounded-card border border-edge bg-card p-5">
           <div class="flex items-center justify-between mb-1">
             <h2 class="font-semibold">{{ 'plan.fixedExpenses' | translate }}</h2>
-            <span class="text-sm text-slate-600 dark:text-slate-400">
+            <span class="text-sm text-ink-muted">
               {{ 'plan.paidOf' | translate: { paid: p.fixed_paid_count, total: p.fixed_items.length } }}
             </span>
           </div>
-          <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mb-4">
-            <div class="h-full rounded-full bg-emerald-500" [style.width.%]="paidPct()"></div>
+          <div class="h-2 rounded-full bg-field overflow-hidden mb-4">
+            <div class="h-full rounded-full bg-success" [style.width.%]="paidPct()"></div>
           </div>
           @if (p.fixed_items.length === 0) {
-            <p class="text-sm text-slate-500 py-6 text-center">
+            <p class="text-sm text-ink-faint py-6 text-center">
               {{ 'plan.noFixed' | translate }}
             </p>
           }
           <ul class="space-y-2">
             @for (item of p.fixed_items; track item.transaction_id) {
-              <li class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2">
+              <li class="flex items-center justify-between gap-3 rounded-control border border-edge px-3 py-2">
                 <div class="min-w-0">
                   <p class="truncate">{{ item.description || '—' }}</p>
-                  <p class="text-xs text-slate-500 tabular-nums">{{ item.date }}</p>
+                  <p class="text-xs text-ink-faint tabular-nums">{{ item.date }}</p>
                 </div>
                 <div class="flex items-center gap-3 shrink-0">
                   <span class="tabular-nums font-medium">{{ eur(item.amount) }}</span>
@@ -80,8 +81,8 @@ import { RecurringFormModal } from './recurring-form.modal';
                     (click)="toggleStatus(item)"
                     [class]="'rounded-full px-3 py-1 text-xs font-medium transition-colors ' +
                       (item.status === 'paid'
-                        ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800'
-                        : 'bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 border border-amber-300 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900')"
+                        ? 'bg-success-surface text-success border border-success-edge'
+                        : 'bg-warn-surface text-warn border border-warn-edge hover:bg-warn-hover')"
                     [title]="(item.status === 'paid' ? 'finance.markUnpaid' : 'finance.markPaid') | translate"
                   >
                     {{ (item.status === 'paid' ? 'finance.paid' : 'finance.unpaid') | translate }}
@@ -93,49 +94,49 @@ import { RecurringFormModal } from './recurring-form.modal';
         </div>
 
         <!-- Recurring templates -->
-        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+        <div class="rounded-card border border-edge bg-card p-5">
           <div class="flex items-center justify-between mb-4">
             <h2 class="font-semibold">{{ 'plan.recurringTitle' | translate }}</h2>
-            <button (click)="openAdd()" class="rounded-lg bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 text-sm font-medium transition-colors">
+            <button (click)="openAdd()" class="rounded-control bg-accent hover:bg-accent-hover px-3 py-1.5 text-sm font-medium transition-colors">
               {{ 'plan.addRecurring' | translate }}
             </button>
           </div>
           @if (recurring().length === 0) {
-            <p class="text-sm text-slate-500 py-6 text-center">
+            <p class="text-sm text-ink-faint py-6 text-center">
               {{ 'plan.noRecurring' | translate }}
             </p>
           }
           <ul class="space-y-2">
             @for (rec of recurring(); track rec.id) {
-              <li class="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2" [class.opacity-50]="!rec.is_active">
+              <li class="rounded-control border border-edge px-3 py-2" [class.opacity-50]="!rec.is_active">
                 <div class="flex items-center justify-between gap-3">
                   <div class="min-w-0">
                     <p class="truncate">
                       {{ rec.description }}
-                      @if (!rec.is_active) { <span class="text-xs text-slate-500">{{ 'plan.paused' | translate }}</span> }
+                      @if (!rec.is_active) { <span class="text-xs text-ink-faint">{{ 'plan.paused' | translate }}</span> }
                     </p>
-                    <p class="text-xs text-slate-500">
+                    <p class="text-xs text-ink-faint">
                       {{ 'plan.day' | translate: { n: rec.day_of_month } }} ·
                       {{ 'plan.since' | translate }} {{ rec.start_month.slice(0, 7) }}
                       @if (rec.end_month) { · {{ 'plan.until' | translate }} {{ rec.end_month.slice(0, 7) }} }
-                      @if (skippedThisMonth(rec)) { · <span class="text-amber-600 dark:text-amber-400">{{ 'plan.skippedThisMonth' | translate }}</span> }
+                      @if (skippedThisMonth(rec)) { · <span class="text-warn">{{ 'plan.skippedThisMonth' | translate }}</span> }
                     </p>
                   </div>
                   <div class="flex items-center gap-2 shrink-0">
-                    <span class="tabular-nums font-medium" [class]="rec.kind === 'income' ? 'text-emerald-600 dark:text-emerald-400' : ''">
+                    <span class="tabular-nums font-medium" [class]="rec.kind === 'income' ? 'text-success' : ''">
                       {{ rec.kind === 'income' ? '+' : '−' }}{{ eur(rec.amount) }}
                     </span>
                     @if (skippedThisMonth(rec)) {
-                      <button (click)="unskip(rec)" class="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-md px-2 py-1" [title]="'plan.unskipTitle' | translate">
+                      <button (click)="unskip(rec)" class="text-xs text-ink-muted hover:text-ink border border-edge-strong rounded-control px-2 py-1" [title]="'plan.unskipTitle' | translate">
                         {{ 'plan.unskip' | translate }}
                       </button>
                     } @else {
-                      <button (click)="skip(rec)" class="text-xs text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 border border-slate-300 dark:border-slate-700 rounded-md px-2 py-1" [title]="'plan.skipTitle' | translate">
+                      <button (click)="skip(rec)" class="text-xs text-ink-muted hover:text-warn border border-edge-strong rounded-control px-2 py-1" [title]="'plan.skipTitle' | translate">
                         {{ 'plan.skip' | translate }}
                       </button>
                     }
-                    <button (click)="openEdit(rec)" class="text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 px-1" [title]="'common.edit' | translate">✎</button>
-                    <button (click)="remove(rec)" class="text-slate-500 hover:text-red-600 dark:hover:text-red-400 px-1" [title]="'plan.deleteTemplate' | translate">✕</button>
+                    <button (click)="openEdit(rec)" class="text-ink-faint hover:text-ink px-1" [title]="'common.edit' | translate">✎</button>
+                    <button (click)="remove(rec)" class="text-ink-faint hover:text-danger px-1" [title]="'plan.deleteTemplate' | translate">✕</button>
                   </div>
                 </div>
               </li>
@@ -157,6 +158,7 @@ import { RecurringFormModal } from './recurring-form.modal';
 })
 export class MonthlyPlanTab {
   private readonly api = inject(FinanceApiService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly translate = inject(TranslateService);
 
   /** ISO date (any day) of the month to plan, e.g. "2026-07-01". */
@@ -200,6 +202,7 @@ export class MonthlyPlanTab {
         this.recurring.set(recurring);
         this.categories.set(categories);
         this.loading.set(false);
+        staggerTilesSoon(this.host.nativeElement);
       },
       error: (err) => {
         if (seq !== this.loadSeq) return;

@@ -11,7 +11,7 @@ import { staggerIn } from '../../shared/animations';
   template: `
     <header class="mb-8">
       <h1 class="text-3xl font-bold">{{ greetingKey() | translate }}{{ greetingSuffix() }}</h1>
-      <p class="text-slate-600 dark:text-slate-400 mt-1">{{ 'dashboard.pickModule' | translate }}</p>
+      <p class="text-ink-muted mt-1">{{ 'dashboard.pickModule' | translate }}</p>
     </header>
 
     <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
@@ -20,27 +20,27 @@ import { staggerIn } from '../../shared/animations';
           <a
             data-tile
             [routerLink]="mod.route"
-            class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 hover:border-indigo-500/60 hover:bg-white dark:hover:bg-slate-900/80 transition-all hover:-translate-y-0.5 shadow-lg"
+            class="group rounded-card border border-edge bg-card p-6 hover:border-accent/60 hover:bg-card transition-all hover:-translate-y-0.5 shadow-card"
           >
             <div class="text-3xl mb-3">{{ mod.icon }}</div>
-            <h2 class="font-semibold text-lg group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">
+            <h2 class="font-semibold text-lg group-hover:text-link transition-colors">
               {{ mod.labelKey | translate }}
             </h2>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">{{ mod.descriptionKey | translate }}</p>
+            <p class="text-sm text-ink-muted mt-1">{{ mod.descriptionKey | translate }}</p>
           </a>
         } @else {
           <div
             data-tile
-            class="relative rounded-2xl border border-slate-200/70 dark:border-slate-800/60 bg-white/50 dark:bg-slate-900/40 p-6 opacity-70"
+            class="relative rounded-card border border-edge-soft bg-card-dim p-6 opacity-70"
           >
             <span
-              class="absolute top-4 right-4 text-[10px] uppercase tracking-wide bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded px-1.5 py-0.5"
+              class="absolute top-4 right-4 text-[10px] uppercase tracking-wide bg-field text-ink-muted rounded px-1.5 py-0.5"
             >
               {{ 'common.comingSoon' | translate }}
             </span>
             <div class="text-3xl mb-3 grayscale opacity-60">{{ mod.icon }}</div>
-            <h2 class="font-semibold text-lg text-slate-600 dark:text-slate-400">{{ mod.labelKey | translate }}</h2>
-            <p class="text-sm text-slate-500 mt-1">{{ mod.descriptionKey | translate }}</p>
+            <h2 class="font-semibold text-lg text-ink-muted">{{ mod.labelKey | translate }}</h2>
+            <p class="text-sm text-ink-faint mt-1">{{ mod.descriptionKey | translate }}</p>
           </div>
         }
       }
