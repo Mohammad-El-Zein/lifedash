@@ -17,6 +17,8 @@ class User(Base, TimestampMixin):
     avatar_blob_name: Mapped[str | None] = mapped_column(String(300))
     # UI language ("de"/"en"); None = not chosen yet, frontend falls back to browser language.
     language: Mapped[str | None] = mapped_column(String(5))
+    # UI theme ("dark"/"light"/"system"); None = not chosen yet, frontend defaults to dark.
+    theme: Mapped[str | None] = mapped_column(String(10))
     role: Mapped[str] = mapped_column(String(20), default="user")
     enabled_modules: Mapped[list[str]] = mapped_column(JSON, default=lambda: list(ALL_MODULES))
     is_active: Mapped[bool] = mapped_column(default=True)

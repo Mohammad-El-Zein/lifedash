@@ -4,6 +4,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { AuthStore } from '../../core/auth/auth.store';
 import { AvatarService } from '../../core/auth/avatar.service';
 import { LanguageService } from '../../core/i18n/language.service';
+import { ThemeService } from '../../core/theme/theme.service';
 import { MODULES } from '../../core/models';
 import { pageEnter } from '../../shared/animations';
 
@@ -13,16 +14,16 @@ import { pageEnter } from '../../shared/animations';
   template: `
     <div class="min-h-screen flex">
       <!-- Sidebar -->
-      <aside class="w-64 shrink-0 border-r border-slate-800 bg-slate-900/60 flex flex-col">
+      <aside class="w-64 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 flex flex-col">
         <a routerLink="/dashboard" class="px-6 py-5 text-2xl font-bold tracking-tight">
-          Life<span class="text-indigo-400">Dash</span>
+          Life<span class="text-indigo-600 dark:text-indigo-400">Dash</span>
         </a>
 
         <nav class="flex-1 px-3 space-y-1">
           <a
             routerLink="/dashboard"
-            routerLinkActive="bg-slate-800 text-white"
-            class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800/70 transition-colors"
+            routerLinkActive="bg-indigo-100 text-indigo-950 dark:bg-slate-800 dark:text-white"
+            class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800/70 transition-colors"
           >
             <span>🏠</span> {{ 'nav.overview' | translate }}
           </a>
@@ -31,8 +32,8 @@ import { pageEnter } from '../../shared/animations';
             @if (mod.route) {
               <a
                 [routerLink]="mod.route"
-                routerLinkActive="bg-slate-800 text-white"
-                class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800/70 transition-colors"
+                routerLinkActive="bg-indigo-100 text-indigo-950 dark:bg-slate-800 dark:text-white"
+                class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800/70 transition-colors"
               >
                 <span>{{ mod.icon }}</span> {{ mod.labelKey | translate }}
               </a>
@@ -43,7 +44,7 @@ import { pageEnter } from '../../shared/animations';
               >
                 <span class="grayscale opacity-60">{{ mod.icon }}</span>
                 <span class="flex-1">{{ mod.labelKey | translate }}</span>
-                <span class="text-[10px] uppercase tracking-wide bg-slate-800 text-slate-400 rounded px-1.5 py-0.5">
+                <span class="text-[10px] uppercase tracking-wide bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded px-1.5 py-0.5">
                   {{ 'common.soon' | translate }}
                 </span>
               </div>
@@ -51,16 +52,16 @@ import { pageEnter } from '../../shared/animations';
           }
         </nav>
 
-        <div class="border-t border-slate-800 p-4">
+        <div class="border-t border-slate-200 dark:border-slate-800 p-4">
           <a
             routerLink="/profile"
-            class="flex items-center gap-3 rounded-lg p-1.5 -m-1.5 mb-1.5 hover:bg-slate-800/70 transition-colors"
+            class="flex items-center gap-3 rounded-lg p-1.5 -m-1.5 mb-1.5 hover:bg-slate-200/70 dark:hover:bg-slate-800/70 transition-colors"
             [title]="'nav.editProfile' | translate"
           >
             @if (avatar.url(); as url) {
-              <img [src]="url" alt="" class="h-10 w-10 rounded-full object-cover border border-slate-700 shrink-0" />
+              <img [src]="url" alt="" class="h-10 w-10 rounded-full object-cover border border-slate-300 dark:border-slate-700 shrink-0" />
             } @else {
-              <span class="h-10 w-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-semibold text-slate-400 shrink-0">
+              <span class="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-sm font-semibold text-slate-600 dark:text-slate-400 shrink-0">
                 {{ initials() }}
               </span>
             }
@@ -76,13 +77,20 @@ import { pageEnter } from '../../shared/animations';
           <div class="mt-3 flex gap-2">
             <button
               (click)="logout()"
-              class="flex-1 rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800 transition-colors"
+              class="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               {{ 'nav.signOut' | translate }}
             </button>
             <button
+              (click)="theme.cycle()"
+              class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              [title]="'theme.switch' | translate: { mode: ('theme.' + theme.theme() | translate) }"
+            >
+              {{ themeIcon() }}
+            </button>
+            <button
               (click)="language.toggle()"
-              class="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800 transition-colors uppercase tracking-wide"
+              class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wide"
               [title]="'languages.switch' | translate"
             >
               {{ language.lang() === 'en' ? 'DE' : 'EN' }}
@@ -106,6 +114,11 @@ export class ShellComponent {
   private readonly content = viewChild.required<ElementRef<HTMLElement>>('content');
   readonly avatar = inject(AvatarService);
   readonly language = inject(LanguageService);
+  readonly theme = inject(ThemeService);
+
+  readonly themeIcon = computed(() =>
+    this.theme.theme() === 'dark' ? '🌙' : this.theme.theme() === 'light' ? '☀️' : '🖥️',
+  );
 
   onRouteActivate(): void {
     pageEnter(this.content().nativeElement);

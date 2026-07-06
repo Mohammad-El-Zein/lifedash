@@ -31,12 +31,12 @@ interface PositionedOccurrence {
     <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div>
         <h1 class="text-3xl font-bold">{{ 'calendar.title' | translate }}</h1>
-        <p class="text-slate-400 mt-1">{{ weekLabel() }}</p>
+        <p class="text-slate-600 dark:text-slate-400 mt-1">{{ weekLabel() }}</p>
       </div>
       <div class="flex items-center gap-2">
-        <button (click)="shiftWeek(-1)" class="rounded-lg border border-slate-700 px-3 py-2 hover:bg-slate-800 transition-colors" [attr.aria-label]="'calendar.prevWeek' | translate">←</button>
-        <button (click)="goToday()" class="rounded-lg border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800 transition-colors">{{ 'common.today' | translate }}</button>
-        <button (click)="shiftWeek(1)" class="rounded-lg border border-slate-700 px-3 py-2 hover:bg-slate-800 transition-colors" [attr.aria-label]="'calendar.nextWeek' | translate">→</button>
+        <button (click)="shiftWeek(-1)" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" [attr.aria-label]="'calendar.prevWeek' | translate">←</button>
+        <button (click)="goToday()" class="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">{{ 'common.today' | translate }}</button>
+        <button (click)="shiftWeek(1)" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" [attr.aria-label]="'calendar.nextWeek' | translate">→</button>
         <button
           (click)="openCreate(null)"
           class="ml-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-sm font-medium transition-colors"
@@ -47,22 +47,22 @@ interface PositionedOccurrence {
     </header>
 
     @if (loading()) {
-      <p class="text-slate-400">{{ 'calendar.loadingWeek' | translate }}</p>
+      <p class="text-slate-600 dark:text-slate-400">{{ 'calendar.loadingWeek' | translate }}</p>
     } @else {
-      <div class="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden">
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         <!-- Day headers -->
         <div class="grid" style="grid-template-columns: 3.5rem repeat(7, 1fr)">
-          <div class="border-b border-slate-800"></div>
+          <div class="border-b border-slate-200 dark:border-slate-800"></div>
           @for (day of days(); track day.date) {
             <button
               (click)="openCreate(day.date)"
-              class="border-b border-l border-slate-800 px-2 py-3 text-center hover:bg-slate-800/50 transition-colors"
+              class="border-b border-l border-slate-200 dark:border-slate-800 px-2 py-3 text-center hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors"
               [title]="'calendar.addEventOn' | translate: { date: day.date }"
             >
-              <span class="text-xs text-slate-400 uppercase">{{ dayLabel(day.date) }}</span>
+              <span class="text-xs text-slate-600 dark:text-slate-400 uppercase">{{ dayLabel(day.date) }}</span>
               <span
                 class="ml-1.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-sm"
-                [class]="day.isToday ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-200'"
+                [class]="day.isToday ? 'bg-indigo-600 text-white font-semibold' : 'text-slate-800 dark:text-slate-200'"
               >
                 {{ day.dayOfMonth }}
               </span>
@@ -85,9 +85,9 @@ interface PositionedOccurrence {
           </div>
 
           @for (day of days(); track day.date) {
-            <div class="relative border-l border-slate-800" [class.bg-slate-800/20]="day.isToday">
+            <div class="relative border-l border-slate-200 dark:border-slate-800" [class]="day.isToday ? 'bg-indigo-100/50 dark:bg-slate-800/20' : ''">
               @for (hour of hours; track hour) {
-                <div class="absolute inset-x-0 border-t border-slate-800/60" [style.top.%]="hourTopPct(hour)"></div>
+                <div class="absolute inset-x-0 border-t border-slate-200/70 dark:border-slate-800/60" [style.top.%]="hourTopPct(hour)"></div>
               }
               @for (
                 item of day.occurrences;
@@ -117,66 +117,66 @@ interface PositionedOccurrence {
 
     <!-- Occurrence detail / actions panel -->
     @if (selected(); as occ) {
-      <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-4" (click)="selected.set(null)">
+      <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 dark:bg-black/60 p-4" (click)="selected.set(null)">
         <div
-          class="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl"
+          class="w-full max-w-md rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-2xl"
           (click)="$event.stopPropagation()"
         >
           <div class="flex items-start justify-between">
             <div>
               <h2 class="text-lg font-semibold">{{ occ.title }}</h2>
-              <p class="text-sm text-slate-400 mt-0.5">
+              <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
                 {{ occ.date }} · {{ occ.start_time.slice(0, 5) }}–{{ occ.end_time.slice(0, 5) }}
                 @if (occ.location) { · {{ occ.location }} }
               </p>
               @if (occ.is_moved) {
-                <p class="text-xs text-amber-400 mt-1">{{ 'calendar.movedNote' | translate }}</p>
+                <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">{{ 'calendar.movedNote' | translate }}</p>
               }
             </div>
             <span class="h-4 w-4 rounded-full mt-1" [style.background]="occ.color"></span>
           </div>
 
           @if (occ.description) {
-            <p class="text-sm text-slate-300 mt-3">{{ occ.description }}</p>
+            <p class="text-sm text-slate-700 dark:text-slate-300 mt-3">{{ occ.description }}</p>
           }
 
           @if (moveMode()) {
-            <div class="mt-4 space-y-3 rounded-xl border border-slate-700 bg-slate-800/50 p-4">
+            <div class="mt-4 space-y-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 p-4">
               <p class="text-sm font-medium">{{ 'calendar.moveTo' | translate }}</p>
-              <input type="date" [(ngModel)]="moveDate" class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm" />
+              <input type="date" [(ngModel)]="moveDate" class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm" />
               <div class="grid grid-cols-2 gap-2">
-                <input type="time" [(ngModel)]="moveStart" class="rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm" />
-                <input type="time" [(ngModel)]="moveEnd" class="rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 text-sm" />
+                <input type="time" [(ngModel)]="moveStart" class="rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm" />
+                <input type="time" [(ngModel)]="moveEnd" class="rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm" />
               </div>
               @if (actionError()) {
-                <p class="text-xs text-red-400">{{ actionError() }}</p>
+                <p class="text-xs text-red-600 dark:text-red-400">{{ actionError() }}</p>
               }
               <div class="flex justify-end gap-2">
-                <button (click)="moveMode.set(false)" class="rounded-lg border border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-800">{{ 'common.back' | translate }}</button>
+                <button (click)="moveMode.set(false)" class="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">{{ 'common.back' | translate }}</button>
                 <button (click)="confirmMove(occ)" class="rounded-lg bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 text-sm font-medium">{{ 'calendar.move' | translate }}</button>
               </div>
             </div>
           } @else {
             <div class="mt-5 grid gap-2">
-              <button (click)="editSeries(occ)" class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-left hover:bg-slate-800 transition-colors">
+              <button (click)="editSeries(occ)" class="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm text-left hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                 ✏️ {{ (occ.is_recurring ? 'calendar.editSeries' : 'calendar.editEvent') | translate }}
               </button>
               @if (occ.is_recurring || occ.is_moved) {
                 @if (occ.is_moved && occ.exception_id) {
-                  <button (click)="revertMove(occ)" class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-left hover:bg-slate-800 transition-colors">
+                  <button (click)="revertMove(occ)" class="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm text-left hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                     ↩️ {{ 'calendar.revert' | translate }}
                   </button>
                 } @else {
-                  <button (click)="startMove(occ)" class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-left hover:bg-slate-800 transition-colors">
+                  <button (click)="startMove(occ)" class="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm text-left hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                     📆 {{ 'calendar.moveOnly' | translate }}
                   </button>
-                  <button (click)="cancelOccurrence(occ)" class="rounded-lg border border-amber-900 text-amber-400 px-4 py-2 text-sm text-left hover:bg-amber-950/30 transition-colors">
+                  <button (click)="cancelOccurrence(occ)" class="rounded-lg border border-amber-300 dark:border-amber-900 text-amber-600 dark:text-amber-400 px-4 py-2 text-sm text-left hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors">
                     🚫 {{ 'calendar.cancelOnly' | translate }}
                   </button>
                 }
               }
               @if (actionError()) {
-                <p class="text-xs text-red-400">{{ actionError() }}</p>
+                <p class="text-xs text-red-600 dark:text-red-400">{{ actionError() }}</p>
               }
             </div>
           }

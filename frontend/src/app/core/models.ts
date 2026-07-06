@@ -5,6 +5,7 @@ export interface User {
   job_title: string | null;
   bio: string | null;
   language: string | null;
+  theme: string | null;
   has_avatar: boolean;
   role: string;
   enabled_modules: string[];
@@ -16,6 +17,7 @@ export interface ProfilePayload {
   job_title?: string | null;
   bio?: string | null;
   language?: string;
+  theme?: string;
 }
 
 export interface TokenResponse {

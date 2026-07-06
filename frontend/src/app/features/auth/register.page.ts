@@ -14,50 +14,50 @@ import { extractError } from '../../core/http-error';
       <div class="w-full max-w-md">
         <div class="text-center mb-8">
           <h1 class="text-4xl font-bold tracking-tight">
-            Life<span class="text-indigo-400">Dash</span>
+            Life<span class="text-indigo-600 dark:text-indigo-400">Dash</span>
           </h1>
-          <p class="text-slate-400 mt-2">{{ 'app.tagline' | translate }}</p>
+          <p class="text-slate-600 dark:text-slate-400 mt-2">{{ 'app.tagline' | translate }}</p>
         </div>
 
         <form
-          class="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl space-y-5"
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl space-y-5"
           (ngSubmit)="submit()"
         >
           <h2 class="text-xl font-semibold">{{ 'auth.createTitle' | translate }}</h2>
 
           @if (error()) {
-            <p class="text-sm text-red-400 bg-red-950/50 border border-red-900 rounded-lg px-3 py-2">
+            <p class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2">
               {{ error() }}
             </p>
           }
 
           <div>
-            <label for="fullName" class="block text-sm text-slate-300 mb-1">{{ 'auth.name' | translate }}</label>
+            <label for="fullName" class="block text-sm text-slate-700 dark:text-slate-300 mb-1">{{ 'auth.name' | translate }}</label>
             <input
               id="fullName"
               name="fullName"
               type="text"
               [(ngModel)]="fullName"
-              class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               [placeholder]="'auth.namePlaceholder' | translate"
             />
           </div>
 
           <div>
-            <label for="email" class="block text-sm text-slate-300 mb-1">{{ 'auth.email' | translate }}</label>
+            <label for="email" class="block text-sm text-slate-700 dark:text-slate-300 mb-1">{{ 'auth.email' | translate }}</label>
             <input
               id="email"
               name="email"
               type="email"
               required
               [(ngModel)]="email"
-              class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label for="password" class="block text-sm text-slate-300 mb-1">{{ 'auth.password' | translate }}</label>
+            <label for="password" class="block text-sm text-slate-700 dark:text-slate-300 mb-1">{{ 'auth.password' | translate }}</label>
             <input
               id="password"
               name="password"
@@ -65,7 +65,7 @@ import { extractError } from '../../core/http-error';
               required
               minlength="8"
               [(ngModel)]="password"
-              class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              class="w-full rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               [placeholder]="'auth.passwordPlaceholder' | translate"
             />
           </div>
@@ -78,9 +78,9 @@ import { extractError } from '../../core/http-error';
             {{ (loading() ? 'auth.creating' : 'auth.createTitle') | translate }}
           </button>
 
-          <p class="text-sm text-slate-400 text-center">
+          <p class="text-sm text-slate-600 dark:text-slate-400 text-center">
             {{ 'auth.alreadyRegistered' | translate }}
-            <a routerLink="/login" class="text-indigo-400 hover:underline">{{ 'auth.signInTitle' | translate }}</a>
+            <a routerLink="/login" class="text-indigo-600 dark:text-indigo-400 hover:underline">{{ 'auth.signInTitle' | translate }}</a>
           </p>
         </form>
       </div>

@@ -26,6 +26,13 @@
     "total": "Gesamt",
     "genericError": "Etwas ist schiefgelaufen. Bitte versuch es erneut."
   },
+  "theme": {
+    "label": "Design",
+    "dark": "Dunkel",
+    "light": "Hell",
+    "system": "System",
+    "switch": "Design wechseln (aktuell: {{mode}})"
+  },
   "languages": {
     "label": "Sprache",
     "en": "English",
