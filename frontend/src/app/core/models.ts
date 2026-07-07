@@ -460,6 +460,22 @@ export interface MilestonePayload {
   due_date: string | null;
 }
 
+// --- Habits --------------------------------------------------------------------
+
+export interface Habit {
+  id: number;
+  name: string;
+  schedule_days: number[] | null; // 0=Monday .. 6=Sunday; null = daily
+  is_archived: boolean;
+  streak: number;
+  week_logs: Record<string, boolean>;
+}
+
+export interface HabitPayload {
+  name: string;
+  schedule_days: number[] | null;
+}
+
 export interface ModuleInfo {
   key: string;
   labelKey: string;
@@ -516,6 +532,6 @@ export const MODULES: ModuleInfo[] = [
     labelKey: 'modules.habits.label',
     descriptionKey: 'modules.habits.description',
     icon: 'flame',
-    route: null,
+    route: '/habits',
   },
 ];

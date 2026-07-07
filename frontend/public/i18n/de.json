@@ -529,5 +529,30 @@
       "required": "Ein Titel ist erforderlich.",
       "save": "Ziel konnte nicht gespeichert werden."
     }
+  },
+  "habits": {
+    "title": "Gewohnheiten",
+    "addHabit": "Gewohnheit hinzufügen",
+    "prevWeek": "Vorherige Woche",
+    "nextWeek": "Nächste Woche",
+    "showArchived": "Archivierte anzeigen",
+    "noHabits": "Noch keine Gewohnheiten — starte deinen ersten Streak!",
+    "habit": "Gewohnheit",
+    "streak": "Streak",
+    "archived": "Archiviert",
+    "deleteConfirm": "Gewohnheit „{{name}}“ inklusive kompletter Historie löschen?",
+    "form": {
+      "newTitle": "Neue Gewohnheit",
+      "editTitle": "Gewohnheit bearbeiten",
+      "name": "Name",
+      "namePlaceholder": "Meditieren, Dehnen, Lesen, …",
+      "schedule": "Geplante Tage",
+      "scheduleHint": "Alle Tage ausgewählt = täglich.",
+      "archived": "Archiviert (aus der Wochenansicht ausgeblendet)"
+    },
+    "errors": {
+      "required": "Name und mindestens ein Tag sind Pflicht.",
+      "save": "Gewohnheit konnte nicht gespeichert werden."
+    }
   }
 }

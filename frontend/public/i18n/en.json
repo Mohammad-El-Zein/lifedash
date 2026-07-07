@@ -529,5 +529,30 @@
       "required": "A title is required.",
       "save": "Could not save the goal."
     }
+  },
+  "habits": {
+    "title": "Habits",
+    "addHabit": "Add habit",
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "showArchived": "Show archived",
+    "noHabits": "No habits yet — start your first streak!",
+    "habit": "Habit",
+    "streak": "Streak",
+    "archived": "Archived",
+    "deleteConfirm": "Delete the habit “{{name}}” including its whole history?",
+    "form": {
+      "newTitle": "New habit",
+      "editTitle": "Edit habit",
+      "name": "Name",
+      "namePlaceholder": "Meditate, stretch, read, …",
+      "schedule": "Scheduled days",
+      "scheduleHint": "All days selected = daily.",
+      "archived": "Archived (hidden from the week view)"
+    },
+    "errors": {
+      "required": "A name and at least one day are required.",
+      "save": "Could not save the habit."
+    }
   }
 }
