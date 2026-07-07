@@ -398,5 +398,37 @@
       "saveExercise": "Übung konnte nicht gespeichert werden.",
       "exerciseInUse": "Diese Übung wird in Workouts verwendet und kann nicht gelöscht werden."
     }
+  },
+  "meals": {
+    "title": "Mahlzeiten",
+    "addMeal": "Mahlzeit hinzufügen",
+    "prevDay": "Vorheriger Tag",
+    "nextDay": "Nächster Tag",
+    "totalCalories": "Kalorien",
+    "totalProtein": "Protein",
+    "totalCarbs": "Kohlenhydrate",
+    "proteinShort": "P {{g}} g",
+    "carbsShort": "KH {{g}} g",
+    "noMeals": "Für diesen Tag sind noch keine Mahlzeiten erfasst.",
+    "deleteConfirm": "„{{name}}“ löschen?",
+    "type": {
+      "breakfast": "Frühstück",
+      "lunch": "Mittagessen",
+      "dinner": "Abendessen",
+      "snack": "Snack"
+    },
+    "form": {
+      "newTitle": "Mahlzeit hinzufügen",
+      "editTitle": "Mahlzeit bearbeiten",
+      "name": "Name",
+      "namePlaceholder": "Haferflocken mit Beeren, …",
+      "calories": "Kalorien (kcal)",
+      "protein": "Protein (g)",
+      "carbs": "Kohlenhydrate (g)"
+    },
+    "errors": {
+      "required": "Name und Kalorien sind Pflichtfelder.",
+      "save": "Mahlzeit konnte nicht gespeichert werden."
+    }
   }
 }

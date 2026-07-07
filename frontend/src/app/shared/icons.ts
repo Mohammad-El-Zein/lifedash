@@ -1,4 +1,5 @@
 import {
+  Apple,
   Ban,
   BriefcaseBusiness,
   CalendarClock,
@@ -6,6 +7,8 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Coffee,
+  CookingPot,
   CornerDownRight,
   Dumbbell,
   FileText,
@@ -13,6 +16,7 @@ import {
   GraduationCap,
   House,
   LucideAngularModule,
+  Sandwich,
   Monitor,
   Moon,
   Pencil,
@@ -33,6 +37,7 @@ import {
  * `<lucide-icon name="…">`; sizing/stroke conventions live in styles.css.
  */
 export const APP_ICONS = LucideAngularModule.pick({
+  Apple,
   Ban,
   BriefcaseBusiness,
   CalendarClock,
@@ -40,6 +45,8 @@ export const APP_ICONS = LucideAngularModule.pick({
   Check,
   ChevronLeft,
   ChevronRight,
+  Coffee,
+  CookingPot,
   CornerDownRight,
   Dumbbell,
   FileText,
@@ -51,6 +58,7 @@ export const APP_ICONS = LucideAngularModule.pick({
   Pencil,
   Plus,
   Repeat,
+  Sandwich,
   Sun,
   TrendingUp,
   Trash2,
