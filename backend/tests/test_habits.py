@@ -173,3 +173,16 @@ def test_toggle_duplicate_insert_hits_unique_constraint(client, auth_headers, db
         raise AssertionError("duplicate (habit_id, date) insert must be rejected")
     except IntegrityError:
         db_session.rollback()
+
+
+def test_streak_longer_than_first_window_still_counts(client, auth_headers):
+    """Streaks spanning the bounded first-pass window trigger the full-depth
+    second pass instead of being cut off at the window edge."""
+    from app.routers import habits as habits_router
+
+    habit = _habit(client, auth_headers)
+    days = habits_router.STREAK_WINDOW_DAYS + 5
+    for offset in range(days):
+        _toggle(client, auth_headers, habit["id"], TODAY - timedelta(days=offset))
+    result = client.get("/api/habits", headers=auth_headers).json()
+    assert result[0]["streak"] == days

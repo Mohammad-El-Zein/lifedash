@@ -26,6 +26,16 @@ from app.schemas.meals import (
 router = APIRouter(prefix="/api/meals", tags=["meals"])
 
 
+# One explicit rounding mode for ALL recipe math (items, totals, snapshots) so
+# backend display, frontend preview (JS Math.round = half-up) and logged
+# snapshots agree at .5 boundaries.
+TENTH = Decimal("0.1")
+
+
+def _round_tenth(value: Decimal) -> Decimal:
+    return value.quantize(TENTH, ROUND_HALF_UP)
+
+
 def _item_grams(item: MealTemplateItem) -> Decimal:
     if item.unit == "g":
         return item.amount
@@ -44,7 +54,7 @@ def _template_out(template: MealTemplate) -> TemplateOut:
     for item in template.items:
         grams = _item_grams(item)
         factor = grams / Decimal(100)
-        calories = (item.ingredient.calories_per_100g * factor).quantize(Decimal("0.1"))
+        calories = _round_tenth(item.ingredient.calories_per_100g * factor)
         totals["calories"] += calories
         totals["protein_g"] += item.ingredient.protein_per_100g * factor
         totals["carbs_g"] += item.ingredient.carbs_per_100g * factor
@@ -56,7 +66,7 @@ def _template_out(template: MealTemplate) -> TemplateOut:
                 ingredient_name=item.ingredient.name,
                 unit=item.unit,
                 amount=item.amount,
-                grams=grams.quantize(Decimal("0.1")),
+                grams=_round_tenth(grams),
                 calories=calories,
             )
         )
@@ -64,7 +74,7 @@ def _template_out(template: MealTemplate) -> TemplateOut:
         id=template.id,
         name=template.name,
         items=items,
-        totals=NutritionTotals(**{k: v.quantize(Decimal("0.1")) for k, v in totals.items()}),
+        totals=NutritionTotals(**{k: _round_tenth(v) for k, v in totals.items()}),
     )
 
 
@@ -147,6 +157,7 @@ def update_ingredient(
     if payload.piece_grams is None:
         in_piece_use = db.scalar(
             select(exists().where(
+                MealTemplateItem.user_id == current_user.id,
                 MealTemplateItem.ingredient_id == ingredient.id,
                 MealTemplateItem.unit == "piece",
             ))
@@ -168,7 +179,14 @@ def delete_ingredient(ingredient_id: int, current_user: CurrentUser, db: DbDep) 
     ingredient = get_owned_or_404(
         db, Ingredient, current_user.id, ingredient_id, detail="Ingredient not found"
     )
-    in_use = db.scalar(select(exists().where(MealTemplateItem.ingredient_id == ingredient.id)))
+    in_use = db.scalar(
+        select(
+            exists().where(
+                MealTemplateItem.user_id == current_user.id,
+                MealTemplateItem.ingredient_id == ingredient.id,
+            )
+        )
+    )
     if in_use:
         raise HTTPException(
             status.HTTP_409_CONFLICT, "Ingredient is used in dishes; remove it there first"
@@ -307,6 +325,9 @@ def update_meal(
     meal = get_owned_or_404(db, Meal, current_user.id, meal_id, detail="Meal not found")
     for field, value in payload.model_dump().items():
         setattr(meal, field, value)
+    # A hand-edited entry no longer reflects the dish it was logged from —
+    # sever the provenance link so the UI stops claiming dish origin.
+    meal.template_id = None
     db.commit()
     db.refresh(meal)
     return meal
