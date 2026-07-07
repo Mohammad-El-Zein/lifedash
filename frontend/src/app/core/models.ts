@@ -270,6 +270,61 @@ export interface ApplicationPayload {
   description: string | null;
 }
 
+// --- Fitness -------------------------------------------------------------------
+
+export interface Exercise {
+  id: number;
+  name: string;
+  muscle_group: string | null;
+}
+
+export interface ExercisePayload {
+  name: string;
+  muscle_group: string | null;
+}
+
+export interface WorkoutSet {
+  id: number;
+  exercise_id: number;
+  set_number: number;
+  reps: number;
+  weight_kg: string | null;
+}
+
+export interface Workout {
+  id: number;
+  date: string;
+  name: string;
+  notes: string | null;
+  sets: WorkoutSet[];
+}
+
+export interface WorkoutSetPayload {
+  exercise_id: number;
+  reps: number;
+  weight_kg: string | null;
+}
+
+export interface WorkoutPayload {
+  date: string;
+  name: string;
+  notes: string | null;
+  sets: WorkoutSetPayload[];
+}
+
+export interface ProgressPoint {
+  date: string;
+  workout_id: number;
+  top_weight: string;
+  reps_at_top: number;
+}
+
+export interface ExerciseProgress {
+  exercise_id: number;
+  name: string;
+  points: ProgressPoint[];
+}
+
 export interface ModuleInfo {
   key: string;
   labelKey: string;
@@ -298,7 +353,7 @@ export const MODULES: ModuleInfo[] = [
     labelKey: 'modules.fitness.label',
     descriptionKey: 'modules.fitness.description',
     icon: 'dumbbell',
-    route: null,
+    route: '/fitness',
   },
   {
     key: 'meals',

@@ -46,13 +46,34 @@
     "editProfile": "Profil bearbeiten"
   },
   "modules": {
-    "calendar": { "label": "Kalender", "description": "Wochenplan mit wiederkehrenden Terminen" },
-    "finance": { "label": "Finanzen", "description": "Transaktionen, Budgets & Diagramme" },
-    "fitness": { "label": "Fitness", "description": "Workouts, Sätze & Fortschritt" },
-    "meals": { "label": "Mahlzeiten", "description": "Essensplanung & Kalorien" },
-    "jobs": { "label": "Bewerbungen", "description": "Bewerbungspipeline & Statusverlauf" },
-    "learning": { "label": "Lernen", "description": "Ziele, Deadlines & Meilensteine" },
-    "habits": { "label": "Gewohnheiten", "description": "Tägliche Gewohnheiten & Streaks" }
+    "calendar": {
+      "label": "Kalender",
+      "description": "Wochenplan mit wiederkehrenden Terminen"
+    },
+    "finance": {
+      "label": "Finanzen",
+      "description": "Transaktionen, Budgets & Diagramme"
+    },
+    "fitness": {
+      "label": "Fitness",
+      "description": "Workouts, Sätze & Fortschritt"
+    },
+    "meals": {
+      "label": "Mahlzeiten",
+      "description": "Essensplanung & Kalorien"
+    },
+    "jobs": {
+      "label": "Bewerbungen",
+      "description": "Bewerbungspipeline & Statusverlauf"
+    },
+    "learning": {
+      "label": "Lernen",
+      "description": "Ziele, Deadlines & Meilensteine"
+    },
+    "habits": {
+      "label": "Gewohnheiten",
+      "description": "Tägliche Gewohnheiten & Streaks"
+    }
   },
   "auth": {
     "signInTitle": "Anmelden",
@@ -332,6 +353,50 @@
       "upload": "Die Datei konnte nicht hochgeladen werden.",
       "download": "Die Datei konnte nicht heruntergeladen werden.",
       "deleteDoc": "Die Datei konnte nicht gelöscht werden."
+    }
+  },
+  "fitness": {
+    "title": "Fitness",
+    "count": "{{n}} Workout(s)",
+    "newWorkout": "Neues Workout",
+    "manageExercises": "Übungen",
+    "progressTitle": "Fortschritt pro Übung",
+    "noProgress": "Für diese Übung sind noch keine Sätze mit Gewicht erfasst.",
+    "noWorkouts": "Noch keine Workouts — leg dein erstes an!",
+    "noSets": "Keine Sätze erfasst.",
+    "deleteWorkoutConfirm": "Workout „{{name}}“ löschen?",
+    "deleteExerciseConfirm": "Übung „{{name}}“ löschen?",
+    "exercises": {
+      "title": "Übungen",
+      "empty": "Noch keine Übungen — lege unten die erste an.",
+      "addTitle": "Übung hinzufügen",
+      "editTitle": "Übung bearbeiten",
+      "name": "Name",
+      "muscleGroup": "Muskelgruppe"
+    },
+    "form": {
+      "newTitle": "Neues Workout",
+      "editTitle": "Workout bearbeiten",
+      "name": "Name",
+      "namePlaceholder": "Push Day, Leg Day, …",
+      "date": "Datum",
+      "notes": "Notizen",
+      "sets": "Sätze",
+      "addSet": "Satz hinzufügen",
+      "duplicateSet": "Satz duplizieren",
+      "exercise": "Übung",
+      "reps": "Wdh.",
+      "weight": "Gewicht",
+      "noExercises": "Lege zuerst eine Übung an („Schnell Übung anlegen“ unten).",
+      "noSetsYet": "Noch keine Sätze — füge den ersten hinzu.",
+      "quickExercise": "Schnell Übung anlegen"
+    },
+    "errors": {
+      "required": "Name und Datum sind Pflichtfelder.",
+      "incompleteSets": "Jeder Satz braucht eine Übung und mindestens 1 Wiederholung.",
+      "saveWorkout": "Workout konnte nicht gespeichert werden.",
+      "saveExercise": "Übung konnte nicht gespeichert werden.",
+      "exerciseInUse": "Diese Übung wird in Workouts verwendet und kann nicht gelöscht werden."
     }
   }
 }

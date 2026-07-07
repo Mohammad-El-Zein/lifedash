@@ -46,13 +46,34 @@
     "editProfile": "Edit your profile"
   },
   "modules": {
-    "calendar": { "label": "Calendar", "description": "Weekly schedule with recurring events" },
-    "finance": { "label": "Finance", "description": "Transactions, budgets & charts" },
-    "fitness": { "label": "Fitness", "description": "Workouts, sets & progress" },
-    "meals": { "label": "Meals", "description": "Meal planning & calories" },
-    "jobs": { "label": "Job Applications", "description": "Application pipeline & status history" },
-    "learning": { "label": "Learning", "description": "Goals, deadlines & milestones" },
-    "habits": { "label": "Habits", "description": "Daily habits & streaks" }
+    "calendar": {
+      "label": "Calendar",
+      "description": "Weekly schedule with recurring events"
+    },
+    "finance": {
+      "label": "Finance",
+      "description": "Transactions, budgets & charts"
+    },
+    "fitness": {
+      "label": "Fitness",
+      "description": "Workouts, sets & progress"
+    },
+    "meals": {
+      "label": "Meals",
+      "description": "Meal planning & calories"
+    },
+    "jobs": {
+      "label": "Job Applications",
+      "description": "Application pipeline & status history"
+    },
+    "learning": {
+      "label": "Learning",
+      "description": "Goals, deadlines & milestones"
+    },
+    "habits": {
+      "label": "Habits",
+      "description": "Daily habits & streaks"
+    }
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -332,6 +353,50 @@
       "upload": "Could not upload the file.",
       "download": "Could not download the file.",
       "deleteDoc": "Could not delete the file."
+    }
+  },
+  "fitness": {
+    "title": "Fitness",
+    "count": "{{n}} workout(s)",
+    "newWorkout": "New workout",
+    "manageExercises": "Exercises",
+    "progressTitle": "Progress per exercise",
+    "noProgress": "No weighted sets logged for this exercise yet.",
+    "noWorkouts": "No workouts yet — log your first one!",
+    "noSets": "No sets logged.",
+    "deleteWorkoutConfirm": "Delete the workout “{{name}}”?",
+    "deleteExerciseConfirm": "Delete the exercise “{{name}}”?",
+    "exercises": {
+      "title": "Exercises",
+      "empty": "No exercises yet — create your first one below.",
+      "addTitle": "Add exercise",
+      "editTitle": "Edit exercise",
+      "name": "Name",
+      "muscleGroup": "Muscle group"
+    },
+    "form": {
+      "newTitle": "New workout",
+      "editTitle": "Edit workout",
+      "name": "Name",
+      "namePlaceholder": "Push day, leg day, …",
+      "date": "Date",
+      "notes": "Notes",
+      "sets": "Sets",
+      "addSet": "Add set",
+      "duplicateSet": "Duplicate set",
+      "exercise": "Exercise",
+      "reps": "Reps",
+      "weight": "Weight",
+      "noExercises": "Create an exercise first (“Quick-add exercise” below).",
+      "noSetsYet": "No sets yet — add the first one.",
+      "quickExercise": "Quick-add exercise"
+    },
+    "errors": {
+      "required": "Name and date are required.",
+      "incompleteSets": "Every set needs an exercise and at least 1 rep.",
+      "saveWorkout": "Could not save the workout.",
+      "saveExercise": "Could not save the exercise.",
+      "exerciseInUse": "This exercise is used in workouts and cannot be deleted."
     }
   }
 }

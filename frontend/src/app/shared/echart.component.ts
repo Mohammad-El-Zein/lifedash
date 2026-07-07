@@ -7,7 +7,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { BarChart, PieChart } from 'echarts/charts';
+import { BarChart, LineChart, PieChart } from 'echarts/charts';
 import {
   GridComponent,
   LegendComponent,
@@ -20,6 +20,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 echarts.use([
   PieChart,
   BarChart,
+  LineChart,
   GridComponent,
   LegendComponent,
   TooltipComponent,
