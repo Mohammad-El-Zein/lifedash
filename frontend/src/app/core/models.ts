@@ -421,6 +421,45 @@ export interface TemplatePayload {
   items: TemplateItemPayload[];
 }
 
+// --- Learning ------------------------------------------------------------------
+
+export type GoalStatus = 'active' | 'paused' | 'done';
+
+export const GOAL_STATUSES: { value: GoalStatus; labelKey: string; color: string }[] = [
+  { value: 'active', labelKey: 'learning.status.active', color: '#3987e5' },
+  { value: 'paused', labelKey: 'learning.status.paused', color: '#c98500' },
+  { value: 'done', labelKey: 'learning.status.done', color: '#0ca30c' },
+];
+
+export interface Milestone {
+  id: number;
+  title: string;
+  done: boolean;
+  due_date: string | null;
+  position: number;
+}
+
+export interface LearningGoal {
+  id: number;
+  title: string;
+  description: string | null;
+  target_date: string | null;
+  status: GoalStatus;
+  created_at: string;
+  milestones: Milestone[];
+}
+
+export interface GoalPayload {
+  title: string;
+  description: string | null;
+  target_date: string | null;
+}
+
+export interface MilestonePayload {
+  title: string;
+  due_date: string | null;
+}
+
 export interface ModuleInfo {
   key: string;
   labelKey: string;
@@ -470,7 +509,7 @@ export const MODULES: ModuleInfo[] = [
     labelKey: 'modules.learning.label',
     descriptionKey: 'modules.learning.description',
     icon: 'graduation-cap',
-    route: null,
+    route: '/learning',
   },
   {
     key: 'habits',

@@ -49,6 +49,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/meals/meals.page').then((m) => m.MealsPage),
       },
       {
+        path: 'learning',
+        loadComponent: () =>
+          import('./features/learning/learning.page').then((m) => m.LearningPage),
+      },
+      {
         path: 'jobs',
         loadComponent: () => import('./features/jobs/jobs.page').then((m) => m.JobsPage),
       },

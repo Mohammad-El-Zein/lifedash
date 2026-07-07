@@ -493,5 +493,41 @@
         "save": "Gericht konnte nicht gespeichert werden."
       }
     }
+  },
+  "learning": {
+    "title": "Lernen",
+    "count": "{{n}} Ziel(e)",
+    "addGoal": "Ziel hinzufügen",
+    "noGoals": "Noch keine Lernziele — setz dir das erste!",
+    "noGoalsFiltered": "Keine Ziele mit diesem Status.",
+    "targetDate": "Ziel: {{date}}",
+    "status": {
+      "active": "Aktiv",
+      "paused": "Pausiert",
+      "done": "Fertig"
+    },
+    "setStatus": {
+      "active": "Fortsetzen",
+      "paused": "Pausieren",
+      "done": "Abschließen"
+    },
+    "markDone": "Als erledigt markieren",
+    "markOpen": "Als offen markieren",
+    "milestonePlaceholder": "Neuer Meilenstein…",
+    "addMilestone": "Hinzufügen",
+    "deleteConfirm": "Ziel „{{title}}“ inklusive aller Meilensteine löschen?",
+    "deleteMilestoneConfirm": "Meilenstein „{{title}}“ löschen?",
+    "form": {
+      "newTitle": "Neues Ziel",
+      "editTitle": "Ziel bearbeiten",
+      "title": "Titel",
+      "titlePlaceholder": "Rust lernen, AWS-Zertifizierung, …",
+      "targetDate": "Zieldatum",
+      "description": "Beschreibung"
+    },
+    "errors": {
+      "required": "Ein Titel ist erforderlich.",
+      "save": "Ziel konnte nicht gespeichert werden."
+    }
   }
 }
