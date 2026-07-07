@@ -96,7 +96,14 @@ def delete_exercise(exercise_id: int, current_user: CurrentUser, db: DbDep) -> N
     exercise = get_owned_or_404(
         db, Exercise, current_user.id, exercise_id, detail="Exercise not found"
     )
-    in_use = db.scalar(select(exists().where(WorkoutSet.exercise_id == exercise.id)))
+    in_use = db.scalar(
+        select(
+            exists().where(
+                WorkoutSet.user_id == current_user.id,
+                WorkoutSet.exercise_id == exercise.id,
+            )
+        )
+    )
     if in_use:
         raise HTTPException(
             status.HTTP_409_CONFLICT,

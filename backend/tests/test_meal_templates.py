@@ -292,3 +292,52 @@ def test_from_template_at_the_bound_still_works(client, auth_headers):
     )
     assert res.status_code == 201
     assert res.json()["calories"] == 10000
+
+
+def test_manual_edit_severs_template_link(client, auth_headers):
+    _, _, template = _shawarma_setup(client, auth_headers)
+    res = client.post(
+        "/api/meals/from-template",
+        headers=auth_headers,
+        json={"date": "2026-07-07", "meal_type": "lunch", "template_id": template["id"]},
+    )
+    meal = res.json()
+    assert meal["template_id"] == template["id"]
+
+    res = client.put(
+        f"/api/meals/{meal['id']}",
+        headers=auth_headers,
+        json={
+            "date": "2026-07-07",
+            "meal_type": "lunch",
+            "name": meal["name"],
+            "calories": 500,
+            "protein_g": None,
+            "carbs_g": None,
+            "fat_g": None,
+        },
+    )
+    assert res.status_code == 200
+    assert res.json()["template_id"] is None
+
+
+def test_totals_round_half_up(client, auth_headers):
+    """4.9 kcal/100g × 50 g = 2.45 → half-up 2.5 (half-even would give 2.4)."""
+    ing = _ingredient(
+        client,
+        auth_headers,
+        name="Boundary",
+        calories_per_100g="4.9",
+        protein_per_100g="0",
+        carbs_per_100g="0",
+        fat_per_100g="0",
+    )
+    res = client.post(
+        "/api/meals/templates",
+        headers=auth_headers,
+        json={
+            "name": "Boundary dish",
+            "items": [{"ingredient_id": ing["id"], "unit": "g", "amount": "50"}],
+        },
+    )
+    assert res.json()["totals"]["calories"] == "2.5"
