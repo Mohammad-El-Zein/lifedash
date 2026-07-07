@@ -325,6 +325,36 @@ export interface ExerciseProgress {
   points: ProgressPoint[];
 }
 
+// --- Meals ---------------------------------------------------------------------
+
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+
+export const MEAL_TYPES: { value: MealType; labelKey: string; icon: string }[] = [
+  { value: 'breakfast', labelKey: 'meals.type.breakfast', icon: 'coffee' },
+  { value: 'lunch', labelKey: 'meals.type.lunch', icon: 'sandwich' },
+  { value: 'dinner', labelKey: 'meals.type.dinner', icon: 'cooking-pot' },
+  { value: 'snack', labelKey: 'meals.type.snack', icon: 'apple' },
+];
+
+export interface Meal {
+  id: number;
+  date: string;
+  meal_type: MealType;
+  name: string;
+  calories: number;
+  protein_g: number | null;
+  carbs_g: number | null;
+}
+
+export interface MealPayload {
+  date: string;
+  meal_type: MealType;
+  name: string;
+  calories: number;
+  protein_g: number | null;
+  carbs_g: number | null;
+}
+
 export interface ModuleInfo {
   key: string;
   labelKey: string;
@@ -360,7 +390,7 @@ export const MODULES: ModuleInfo[] = [
     labelKey: 'modules.meals.label',
     descriptionKey: 'modules.meals.description',
     icon: 'utensils',
-    route: null,
+    route: '/meals',
   },
   {
     key: 'jobs',

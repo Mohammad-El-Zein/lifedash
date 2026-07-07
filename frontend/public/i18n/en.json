@@ -398,5 +398,37 @@
       "saveExercise": "Could not save the exercise.",
       "exerciseInUse": "This exercise is used in workouts and cannot be deleted."
     }
+  },
+  "meals": {
+    "title": "Meals",
+    "addMeal": "Add meal",
+    "prevDay": "Previous day",
+    "nextDay": "Next day",
+    "totalCalories": "Calories",
+    "totalProtein": "Protein",
+    "totalCarbs": "Carbs",
+    "proteinShort": "P {{g}} g",
+    "carbsShort": "C {{g}} g",
+    "noMeals": "No meals logged for this day yet.",
+    "deleteConfirm": "Delete “{{name}}”?",
+    "type": {
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "dinner": "Dinner",
+      "snack": "Snack"
+    },
+    "form": {
+      "newTitle": "Add meal",
+      "editTitle": "Edit meal",
+      "name": "Name",
+      "namePlaceholder": "Oatmeal with berries, …",
+      "calories": "Calories (kcal)",
+      "protein": "Protein (g)",
+      "carbs": "Carbs (g)"
+    },
+    "errors": {
+      "required": "Name and calories are required.",
+      "save": "Could not save the meal."
+    }
   }
 }
