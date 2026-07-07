@@ -239,3 +239,56 @@ def test_template_tenancy(client, auth_headers):
         json={"date": "2026-07-07", "meal_type": "lunch", "template_id": template["id"]},
     )
     assert res.status_code == 404
+
+
+def test_from_template_enforces_meal_bounds(client, auth_headers):
+    """Computed snapshots must respect the same limits as manual meals instead
+    of overflowing the INTEGER columns (500 before the guard)."""
+    ing = _ingredient(
+        client,
+        auth_headers,
+        name="Bulk oil",
+        calories_per_100g="1000",
+        fat_per_100g="100",
+        piece_grams="10000",
+    )
+    res = client.post(
+        "/api/meals/templates",
+        headers=auth_headers,
+        json={
+            "name": "Overflow dish",
+            "items": [{"ingredient_id": ing["id"], "unit": "piece", "amount": "100000"}],
+        },
+    )
+    assert res.status_code == 201
+    res = client.post(
+        "/api/meals/from-template",
+        headers=auth_headers,
+        json={
+            "date": "2026-07-07",
+            "meal_type": "snack",
+            "template_id": res.json()["id"],
+            "portion_factor": "10",
+        },
+    )
+    assert res.status_code == 422
+    assert "portion" in res.json()["detail"].lower()
+
+
+def test_from_template_at_the_bound_still_works(client, auth_headers):
+    ing = _ingredient(client, auth_headers, name="Dense", calories_per_100g="1000")
+    res = client.post(
+        "/api/meals/templates",
+        headers=auth_headers,
+        json={
+            "name": "Exactly 10000",
+            "items": [{"ingredient_id": ing["id"], "unit": "g", "amount": "1000"}],
+        },
+    )
+    res = client.post(
+        "/api/meals/from-template",
+        headers=auth_headers,
+        json={"date": "2026-07-07", "meal_type": "lunch", "template_id": res.json()["id"]},
+    )
+    assert res.status_code == 201
+    assert res.json()["calories"] == 10000

@@ -154,3 +154,22 @@ def test_tenancy(client, auth_headers):
 
 def test_requires_auth(client):
     assert client.get("/api/habits").status_code == 401
+
+
+def test_toggle_duplicate_insert_hits_unique_constraint(client, auth_headers, db_session):
+    """The (habit_id, date) unique constraint is what commit_or_409 in the
+    toggle endpoint relies on to turn a concurrent double-toggle into a 409
+    instead of a 500 — assert it actually exists."""
+    from sqlalchemy.exc import IntegrityError
+
+    from app.models.habits import HabitLog
+
+    habit = _habit(client, auth_headers)
+    assert _toggle(client, auth_headers, habit["id"], TODAY)["done"] is True
+
+    db_session.add(HabitLog(user_id=1, habit_id=habit["id"], date=TODAY, done=True))
+    try:
+        db_session.commit()
+        raise AssertionError("duplicate (habit_id, date) insert must be rejected")
+    except IntegrityError:
+        db_session.rollback()
