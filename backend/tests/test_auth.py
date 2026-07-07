@@ -67,3 +67,46 @@ def test_update_enabled_modules(client, auth_headers):
         "/api/users/me", headers=auth_headers, json={"enabled_modules": ["nope"]}
     )
     assert res.status_code == 422
+
+
+# --- Hardening: secret-key guard & rate limiting -----------------------------------
+
+
+def test_settings_reject_dev_secret_outside_dev():
+    import pytest
+
+    from app.core.config import DEV_SECRET_KEY, Settings
+
+    with pytest.raises(ValueError, match="SECRET_KEY must be set explicitly"):
+        Settings(environment="production", secret_key=DEV_SECRET_KEY, _env_file=None)
+
+    # explicit key is fine, and dev keeps working with the default
+    Settings(environment="production", secret_key="x" * 48, _env_file=None)
+    Settings(environment="dev", _env_file=None)
+
+
+def test_login_rate_limited_after_repeated_attempts(client):
+    from app.core.rate_limit import login_limiter
+
+    payload = {"email": "nobody@example.com", "password": "wrong-password"}
+    for _ in range(login_limiter.limit):
+        assert client.post("/api/auth/login", json=payload).status_code == 401
+    res = client.post("/api/auth/login", json=payload)
+    assert res.status_code == 429
+    assert "Retry-After" in res.headers
+
+
+def test_register_rate_limited(client):
+    from app.core.rate_limit import register_limiter
+
+    for i in range(register_limiter.limit):
+        res = client.post(
+            "/api/auth/register",
+            json={"email": f"user{i}@example.com", "password": "supersecret1"},
+        )
+        assert res.status_code == 201
+    res = client.post(
+        "/api/auth/register",
+        json={"email": "toolate@example.com", "password": "supersecret1"},
+    )
+    assert res.status_code == 429
