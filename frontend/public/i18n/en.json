@@ -493,5 +493,41 @@
         "save": "Could not save the dish."
       }
     }
+  },
+  "learning": {
+    "title": "Learning",
+    "count": "{{n}} goal(s)",
+    "addGoal": "Add goal",
+    "noGoals": "No learning goals yet — set your first one!",
+    "noGoalsFiltered": "No goals with this status.",
+    "targetDate": "Target: {{date}}",
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "done": "Done"
+    },
+    "setStatus": {
+      "active": "Resume",
+      "paused": "Pause",
+      "done": "Complete"
+    },
+    "markDone": "Mark as done",
+    "markOpen": "Mark as open",
+    "milestonePlaceholder": "New milestone…",
+    "addMilestone": "Add",
+    "deleteConfirm": "Delete the goal “{{title}}” including all milestones?",
+    "deleteMilestoneConfirm": "Delete the milestone “{{title}}”?",
+    "form": {
+      "newTitle": "New goal",
+      "editTitle": "Edit goal",
+      "title": "Title",
+      "titlePlaceholder": "Learn Rust, AWS certification, …",
+      "targetDate": "Target date",
+      "description": "Description"
+    },
+    "errors": {
+      "required": "A title is required.",
+      "save": "Could not save the goal."
+    }
   }
 }
