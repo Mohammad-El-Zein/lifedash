@@ -424,11 +424,74 @@
       "namePlaceholder": "Oatmeal with berries, …",
       "calories": "Calories (kcal)",
       "protein": "Protein (g)",
-      "carbs": "Carbs (g)"
+      "carbs": "Carbs (g)",
+      "fromDish": "Saved dish",
+      "manual": "Manual entry",
+      "dish": "Dish",
+      "dishPlaceholder": "Choose a dish…",
+      "noDishes": "No dishes saved yet — create one in the Dishes tab, or switch to manual entry.",
+      "portion": "Portion",
+      "fat": "Fat (g)"
     },
     "errors": {
       "required": "Name and calories are required.",
-      "save": "Could not save the meal."
+      "save": "Could not save the meal.",
+      "dishRequired": "Choose a dish and a portion."
+    },
+    "totalFat": "Fat",
+    "fatShort": "F {{g}} g",
+    "protein": "Protein",
+    "carbs": "Carbs",
+    "fat": "Fat",
+    "fromDish": "Logged from a dish",
+    "tabs": {
+      "diary": "Diary",
+      "dishes": "Dishes",
+      "ingredients": "Ingredients",
+      "dishesSubtitle": "Reusable dishes with auto-computed nutrition",
+      "ingredientsSubtitle": "Your ingredient database (per 100 g)"
+    },
+    "ingredients": {
+      "hint": "Nutrition is stored per 100 g; the piece weight enables piece-based amounts in dishes.",
+      "add": "Add ingredient",
+      "addTitle": "Add ingredient",
+      "editTitle": "Edit ingredient",
+      "per100g": "All nutrition values refer to 100 g.",
+      "empty": "No ingredients yet — create your first one.",
+      "name": "Name",
+      "namePlaceholder": "Chicken breast, tortilla, rice, …",
+      "pieceGrams": "1 piece",
+      "pieceGramsLabel": "Weight per piece (g)",
+      "pieceGramsHint": "Set this to enter amounts as pieces in dishes (e.g. tortilla = 90 g).",
+      "errors": {
+        "required": "Name and all nutrition values are required.",
+        "save": "Could not save the ingredient.",
+        "inUse": "This ingredient is used in dishes and cannot be deleted."
+      }
+    },
+    "dishes": {
+      "hint": "Compose dishes from ingredients — nutrition is computed automatically.",
+      "add": "New dish",
+      "addTitle": "New dish",
+      "editTitle": "Edit dish",
+      "empty": "No dishes yet — compose your first one from ingredients.",
+      "name": "Name",
+      "namePlaceholder": "Shawarma, chili con carne, …",
+      "ingredients": "Ingredients",
+      "addIngredient": "Add ingredient",
+      "noIngredients": "Create ingredients first (Ingredients tab).",
+      "noRows": "No ingredients yet — add the first one.",
+      "ingredient": "Ingredient",
+      "amount": "Amount",
+      "pieces": "pcs",
+      "pieceUnavailable": "This ingredient has no piece weight",
+      "preview": "Total:",
+      "deleteConfirm": "Delete the dish “{{name}}”? Logged meals keep their values.",
+      "errors": {
+        "required": "Name and at least one ingredient are required.",
+        "incompleteRows": "Every row needs an ingredient and an amount.",
+        "save": "Could not save the dish."
+      }
     }
   }
 }

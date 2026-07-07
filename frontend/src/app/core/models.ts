@@ -344,6 +344,8 @@ export interface Meal {
   calories: number;
   protein_g: number | null;
   carbs_g: number | null;
+  fat_g: number | null;
+  template_id: number | null;
 }
 
 export interface MealPayload {
@@ -353,6 +355,70 @@ export interface MealPayload {
   calories: number;
   protein_g: number | null;
   carbs_g: number | null;
+  fat_g: number | null;
+}
+
+export interface MealFromTemplatePayload {
+  date: string;
+  meal_type: MealType;
+  template_id: number;
+  portion_factor: number;
+}
+
+export interface Ingredient {
+  id: number;
+  name: string;
+  calories_per_100g: string;
+  protein_per_100g: string;
+  carbs_per_100g: string;
+  fat_per_100g: string;
+  piece_grams: string | null;
+}
+
+export interface IngredientPayload {
+  name: string;
+  calories_per_100g: number;
+  protein_per_100g: number;
+  carbs_per_100g: number;
+  fat_per_100g: number;
+  piece_grams: number | null;
+}
+
+export type TemplateUnit = 'g' | 'piece';
+
+export interface TemplateItem {
+  id: number;
+  ingredient_id: number;
+  ingredient_name: string;
+  unit: TemplateUnit;
+  amount: string;
+  grams: string;
+  calories: string;
+}
+
+export interface NutritionTotals {
+  calories: string;
+  protein_g: string;
+  carbs_g: string;
+  fat_g: string;
+}
+
+export interface MealTemplate {
+  id: number;
+  name: string;
+  items: TemplateItem[];
+  totals: NutritionTotals;
+}
+
+export interface TemplateItemPayload {
+  ingredient_id: number;
+  unit: TemplateUnit;
+  amount: number;
+}
+
+export interface TemplatePayload {
+  name: string;
+  items: TemplateItemPayload[];
 }
 
 export interface ModuleInfo {
