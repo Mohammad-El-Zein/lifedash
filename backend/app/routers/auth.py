@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 
 from app.api.deps import DbDep, commit_or_409
+from app.core.rate_limit import limit_login, limit_register
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
 from app.schemas.auth import TokenResponse, UserLogin, UserRegister
@@ -9,7 +10,12 @@ from app.schemas.auth import TokenResponse, UserLogin, UserRegister
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=TokenResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(limit_register)],
+)
 def register(payload: UserRegister, db: DbDep) -> TokenResponse:
     existing = db.scalar(select(User).where(User.email == payload.email.lower()))
     if existing is not None:
@@ -27,7 +33,7 @@ def register(payload: UserRegister, db: DbDep) -> TokenResponse:
     return TokenResponse(access_token=create_access_token(user.id), user=user)
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, dependencies=[Depends(limit_login)])
 def login(payload: UserLogin, db: DbDep) -> TokenResponse:
     user = db.scalar(select(User).where(User.email == payload.email.lower()))
     if user is None or not verify_password(payload.password, user.hashed_password):
