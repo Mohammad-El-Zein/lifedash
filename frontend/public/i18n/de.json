@@ -424,11 +424,74 @@
       "namePlaceholder": "Haferflocken mit Beeren, …",
       "calories": "Kalorien (kcal)",
       "protein": "Protein (g)",
-      "carbs": "Kohlenhydrate (g)"
+      "carbs": "Kohlenhydrate (g)",
+      "fromDish": "Gespeichertes Gericht",
+      "manual": "Manuell eingeben",
+      "dish": "Gericht",
+      "dishPlaceholder": "Gericht wählen…",
+      "noDishes": "Noch keine Gerichte gespeichert — lege eines im Tab „Gerichte“ an oder wechsle zu „Manuell eingeben“.",
+      "portion": "Portion",
+      "fat": "Fett (g)"
     },
     "errors": {
       "required": "Name und Kalorien sind Pflichtfelder.",
-      "save": "Mahlzeit konnte nicht gespeichert werden."
+      "save": "Mahlzeit konnte nicht gespeichert werden.",
+      "dishRequired": "Wähle ein Gericht und eine Portion."
+    },
+    "totalFat": "Fett",
+    "fatShort": "F {{g}} g",
+    "protein": "Protein",
+    "carbs": "Kohlenhydrate",
+    "fat": "Fett",
+    "fromDish": "Aus einem Gericht geloggt",
+    "tabs": {
+      "diary": "Tagebuch",
+      "dishes": "Gerichte",
+      "ingredients": "Zutaten",
+      "dishesSubtitle": "Wiederverwendbare Gerichte mit automatischen Nährwerten",
+      "ingredientsSubtitle": "Deine Zutaten-Datenbank (pro 100 g)"
+    },
+    "ingredients": {
+      "hint": "Nährwerte gelten pro 100 g; das Stückgewicht ermöglicht Stück-Angaben in Gerichten.",
+      "add": "Zutat hinzufügen",
+      "addTitle": "Zutat hinzufügen",
+      "editTitle": "Zutat bearbeiten",
+      "per100g": "Alle Nährwerte beziehen sich auf 100 g.",
+      "empty": "Noch keine Zutaten — lege die erste an.",
+      "name": "Name",
+      "namePlaceholder": "Hähnchenbrust, Tortilla, Reis, …",
+      "pieceGrams": "1 Stück",
+      "pieceGramsLabel": "Gewicht pro Stück (g)",
+      "pieceGramsHint": "Ausfüllen, um Mengen in Gerichten als Stück anzugeben (z. B. Tortilla = 90 g).",
+      "errors": {
+        "required": "Name und alle Nährwerte sind Pflichtfelder.",
+        "save": "Zutat konnte nicht gespeichert werden.",
+        "inUse": "Diese Zutat wird in Gerichten verwendet und kann nicht gelöscht werden."
+      }
+    },
+    "dishes": {
+      "hint": "Gerichte aus Zutaten zusammenstellen — Nährwerte werden automatisch berechnet.",
+      "add": "Neues Gericht",
+      "addTitle": "Neues Gericht",
+      "editTitle": "Gericht bearbeiten",
+      "empty": "Noch keine Gerichte — stelle das erste aus Zutaten zusammen.",
+      "name": "Name",
+      "namePlaceholder": "Shawarma, Chili con Carne, …",
+      "ingredients": "Zutaten",
+      "addIngredient": "Zutat hinzufügen",
+      "noIngredients": "Lege zuerst Zutaten an (Tab „Zutaten“).",
+      "noRows": "Noch keine Zutaten — füge die erste hinzu.",
+      "ingredient": "Zutat",
+      "amount": "Menge",
+      "pieces": "Stk",
+      "pieceUnavailable": "Diese Zutat hat kein Stückgewicht",
+      "preview": "Gesamt:",
+      "deleteConfirm": "Gericht „{{name}}“ löschen? Geloggte Mahlzeiten behalten ihre Werte.",
+      "errors": {
+        "required": "Name und mindestens eine Zutat sind Pflicht.",
+        "incompleteRows": "Jede Zeile braucht eine Zutat und eine Menge.",
+        "save": "Gericht konnte nicht gespeichert werden."
+      }
     }
   }
 }
