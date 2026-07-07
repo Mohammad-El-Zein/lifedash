@@ -13,14 +13,14 @@ import { pageEnter } from '../../shared/animations';
   selector: 'app-shell',
   imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, LucideAngularModule],
   template: `
-    <div class="min-h-screen flex">
+    <div class="h-screen flex overflow-hidden">
       <!-- Sidebar -->
       <aside class="w-64 shrink-0 border-r border-edge bg-sidebar flex flex-col">
         <a routerLink="/dashboard" class="px-6 py-5 text-2xl font-bold tracking-tight">
           Life<span class="logo-accent">Dash</span>
         </a>
 
-        <nav class="flex-1 px-3 space-y-1">
+        <nav class="flex-1 min-h-0 overflow-y-auto px-3 space-y-1">
           <a
             routerLink="/dashboard"
             routerLinkActive="bg-nav-active text-nav-active-ink"
@@ -101,7 +101,7 @@ import { pageEnter } from '../../shared/animations';
       </aside>
 
       <!-- Content -->
-      <main class="flex-1 min-w-0 p-6 lg:p-10">
+      <main class="flex-1 min-w-0 overflow-y-auto p-6 lg:p-10">
         <div #content>
           <router-outlet (activate)="onRouteActivate()" />
         </div>
