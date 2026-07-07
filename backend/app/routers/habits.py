@@ -6,7 +6,7 @@ from fastapi import APIRouter, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import CurrentUser, DbDep, get_owned_or_404
+from app.api.deps import CurrentUser, DbDep, commit_or_409, get_owned_or_404
 from app.models.habits import Habit, HabitLog
 from app.schemas.habits import HabitCreate, HabitOut, HabitUpdate, LogOut, ToggleLog
 
@@ -132,5 +132,7 @@ def toggle_log(
         db.commit()
         return LogOut(date=payload.date, done=False)
     db.add(HabitLog(user_id=current_user.id, habit_id=habit.id, date=payload.date, done=True))
-    db.commit()
+    # A concurrent toggle (double-click) can insert the same (habit, date) first;
+    # the unique constraint turns that into a clean 409 instead of a 500.
+    commit_or_409(db, "This day was toggled concurrently; please retry")
     return LogOut(date=payload.date, done=True)

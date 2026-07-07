@@ -1,3 +1,5 @@
+import re
+from urllib.parse import quote
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Query, Response, UploadFile, status
@@ -20,6 +22,15 @@ router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
 MAX_DOCUMENT_BYTES = 10 * 1024 * 1024  # 10 MB
 PDF_MAGIC = b"%PDF-"
+MAX_FILENAME_LENGTH = 255  # matches the JobDocument.filename column
+
+
+def _content_disposition(filename: str) -> str:
+    """RFC 6266/5987 attachment header. Response headers are latin-1, so a
+    non-ASCII filename must go into the encoded filename* parameter with a
+    plain-ASCII fallback — otherwise the download 500s on e.g. CJK names."""
+    fallback = re.sub(r"[^A-Za-z0-9._ -]", "_", filename).strip() or "document.pdf"
+    return f'attachment; filename="{fallback}"; filename*=UTF-8\'\'{quote(filename)}'
 
 
 def _get_application(db: DbDep, user_id: int, application_id: int) -> JobApplication:
@@ -151,7 +162,7 @@ async def upload_document(
     document = JobDocument(
         user_id=current_user.id,
         application_id=application.id,
-        filename=file.filename or "document.pdf",
+        filename=(file.filename or "document.pdf")[:MAX_FILENAME_LENGTH],
         content_type="application/pdf",
         size_bytes=len(data),
         blob_name=blob_name,
@@ -173,11 +184,10 @@ def download_document(
         data = storage.download(document.blob_name)
     except FileNotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Stored file is missing") from None
-    quoted = document.filename.replace('"', "")
     return Response(
         content=data,
         media_type=document.content_type,
-        headers={"Content-Disposition": f'attachment; filename="{quoted}"'},
+        headers={"Content-Disposition": _content_disposition(document.filename)},
     )
 
 

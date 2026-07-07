@@ -96,3 +96,22 @@ def test_documents_are_owner_scoped(client, auth_headers, storage, application_i
     )
     assert client.delete(f"/api/jobs/documents/{doc['id']}", headers=other).status_code == 404
     assert upload(client, other, application_id).status_code == 404
+
+
+def test_download_with_non_ascii_filename(client, auth_headers, storage, application_id):
+    """Response headers are latin-1; non-ASCII names must use RFC 5987 encoding
+    instead of 500ing."""
+    res = upload(client, auth_headers, application_id, filename="Lebenslauf Prüfung 履歴書.pdf")
+    doc = res.json()
+    res = client.get(f"/api/jobs/documents/{doc['id']}/download", headers=auth_headers)
+    assert res.status_code == 200
+    disposition = res.headers["content-disposition"]
+    assert "filename*=UTF-8''" in disposition
+    assert 'filename="Lebenslauf Pr_fung' in disposition  # ASCII fallback present
+    assert res.content == PDF
+
+
+def test_upload_truncates_overlong_filename(client, auth_headers, storage, application_id):
+    long_name = "x" * 300 + ".pdf"
+    doc = upload(client, auth_headers, application_id, filename=long_name).json()
+    assert len(doc["filename"]) == 255

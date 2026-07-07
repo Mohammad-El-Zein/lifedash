@@ -9,6 +9,8 @@ from sqlalchemy.orm import selectinload
 from app.api.deps import CurrentUser, DbDep, commit_or_409, get_owned_or_404
 from app.models.meals import Ingredient, Meal, MealTemplate, MealTemplateItem
 from app.schemas.meals import (
+    MAX_MEAL_CALORIES,
+    MAX_MEAL_MACRO_G,
     IngredientCreate,
     IngredientOut,
     MealCreate,
@@ -267,15 +269,29 @@ def create_meal_from_template(
     def scaled(value: Decimal) -> int:
         return int((value * payload.portion_factor).quantize(Decimal("1"), ROUND_HALF_UP))
 
+    calories = scaled(totals.calories)
+    protein_g = scaled(totals.protein_g)
+    carbs_g = scaled(totals.carbs_g)
+    fat_g = scaled(totals.fat_g)
+    # Enforce the same bounds as manual meals (MealCreate); without this the
+    # computed snapshot can exceed the INTEGER columns entirely.
+    if calories > MAX_MEAL_CALORIES or max(protein_g, carbs_g, fat_g) > MAX_MEAL_MACRO_G:
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            "Portion exceeds the meal limits "
+            f"(max {MAX_MEAL_CALORIES} kcal, {MAX_MEAL_MACRO_G} g per macro); "
+            "use a smaller portion factor",
+        )
+
     meal = Meal(
         user_id=current_user.id,
         date=payload.date,
         meal_type=payload.meal_type,
         name=template.name,
-        calories=scaled(totals.calories),
-        protein_g=scaled(totals.protein_g),
-        carbs_g=scaled(totals.carbs_g),
-        fat_g=scaled(totals.fat_g),
+        calories=calories,
+        protein_g=protein_g,
+        carbs_g=carbs_g,
+        fat_g=fat_g,
         template_id=template.id,
     )
     db.add(meal)
