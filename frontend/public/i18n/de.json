@@ -554,5 +554,15 @@
       "required": "Name und mindestens ein Tag sind Pflicht.",
       "save": "Gewohnheit konnte nicht gespeichert werden."
     }
+  },
+  "landing": {
+    "heroTitle": "Dein ganzes Leben,",
+    "heroTitleAccent": "ein Dashboard.",
+    "heroSubtitle": "LifeDash vereint Kalender, Finanzen, Workouts, Mahlzeiten, Bewerbungen, Lernziele und Gewohnheiten in einem aufgeräumten, privaten Dashboard.",
+    "cta": "Jetzt starten",
+    "ctaHint": "Kostenlos, self-hosted, ohne Werbung — deine Daten bleiben deine.",
+    "signIn": "Anmelden",
+    "modulesTitle": "Alles an einem Ort",
+    "modulesSubtitle": "Sieben Module für den Alltag — jedes für sich einfach, zusammen richtig stark."
   }
 }

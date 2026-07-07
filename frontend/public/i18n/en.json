@@ -554,5 +554,15 @@
       "required": "A name and at least one day are required.",
       "save": "Could not save the habit."
     }
+  },
+  "landing": {
+    "heroTitle": "Your whole life,",
+    "heroTitleAccent": "one dashboard.",
+    "heroSubtitle": "LifeDash brings your calendar, finances, workouts, meals, job applications, learning goals and habits together in one clean, private dashboard.",
+    "cta": "Get started",
+    "ctaHint": "Free, self-hosted, no ads — your data stays yours.",
+    "signIn": "Sign in",
+    "modulesTitle": "Everything in one place",
+    "modulesSubtitle": "Seven modules that cover the everyday stuff — each one simple on its own, powerful together."
   }
 }
