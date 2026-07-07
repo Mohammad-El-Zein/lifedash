@@ -130,7 +130,9 @@ def exercise_progress(exercise_id: int, current_user: CurrentUser, db: DbDep) ->
         if points and points[-1].workout_id == workout_id:
             continue
         points.append(
-            ProgressPoint(date=workout_date, workout_id=workout_id, top_weight=weight, reps_at_top=reps)
+            ProgressPoint(
+                date=workout_date, workout_id=workout_id, top_weight=weight, reps_at_top=reps
+            )
         )
     return ExerciseProgress(exercise_id=exercise.id, name=exercise.name, points=points)
 
