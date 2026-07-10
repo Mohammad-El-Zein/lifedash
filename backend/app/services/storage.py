@@ -30,7 +30,14 @@ class BlobStorage(Protocol):
 
 class AzureBlobStorage:
     def __init__(self, connection_string: str, container: str) -> None:
-        service = BlobServiceClient.from_connection_string(connection_string)
+        # Bounded retries/timeouts: with the SDK defaults a storage outage makes
+        # upload/download requests hang for minutes instead of failing fast.
+        service = BlobServiceClient.from_connection_string(
+            connection_string,
+            retry_total=3,
+            connection_timeout=5,
+            read_timeout=30,
+        )
         self._container = service.get_container_client(container)
         try:
             self._container.create_container()

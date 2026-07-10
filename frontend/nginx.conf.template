@@ -5,7 +5,10 @@ server {
 
     location /api/ {
         proxy_pass ${BACKEND_URL};
-        proxy_set_header Host $host;
+        # Container Apps ingress routes by Host/SNI: the Host header must be the
+        # upstream's (nginx derives it from proxy_pass — do NOT override it with
+        # $host), and TLS to the backend needs SNI.
+        proxy_ssl_server_name on;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;

@@ -72,16 +72,42 @@ def test_update_enabled_modules(client, auth_headers):
 # --- Hardening: secret-key guard & rate limiting -----------------------------------
 
 
-def test_settings_reject_dev_secret_outside_dev():
+def test_settings_reject_dev_defaults_outside_dev():
     import pytest
 
     from app.core.config import DEV_SECRET_KEY, Settings
 
-    with pytest.raises(ValueError, match="SECRET_KEY must be set explicitly"):
-        Settings(environment="production", secret_key=DEV_SECRET_KEY, _env_file=None)
+    prod_overrides = {
+        "secret_key": "x" * 48,
+        "database_url": "postgresql+psycopg://app:pw@prod-host:5432/lifedash",
+        "azure_storage_connection_string": (
+            "DefaultEndpointsProtocol=https;AccountName=prodacct;"
+            "AccountKey=k;EndpointSuffix=core.windows.net"
+        ),
+    }
 
-    # explicit key is fine, and dev keeps working with the default
-    Settings(environment="production", secret_key="x" * 48, _env_file=None)
+    # each dev default on its own must fail loudly, naming the variable
+    with pytest.raises(ValueError, match="SECRET_KEY"):
+        Settings(
+            environment="production",
+            _env_file=None,
+            **{**prod_overrides, "secret_key": DEV_SECRET_KEY},
+        )
+    with pytest.raises(ValueError, match="DATABASE_URL"):
+        Settings(
+            environment="production",
+            _env_file=None,
+            **{k: v for k, v in prod_overrides.items() if k != "database_url"},
+        )
+    with pytest.raises(ValueError, match="AZURE_STORAGE_CONNECTION_STRING"):
+        Settings(
+            environment="production",
+            _env_file=None,
+            **{k: v for k, v in prod_overrides.items() if k != "azure_storage_connection_string"},
+        )
+
+    # fully configured production is fine, and dev keeps working with defaults
+    Settings(environment="production", _env_file=None, **prod_overrides)
     Settings(environment="dev", _env_file=None)
 
 
@@ -94,6 +120,45 @@ def test_login_rate_limited_after_repeated_attempts(client):
     res = client.post("/api/auth/login", json=payload)
     assert res.status_code == 429
     assert "Retry-After" in res.headers
+
+
+def test_login_rate_limit_uses_forwarded_client_ip(client):
+    """Behind the prod proxies every request shares one socket IP; the limiter
+    must key on X-Forwarded-For so one client can't exhaust everyone's budget."""
+    from app.core.rate_limit import login_limiter
+
+    def attempt(ip: str, email: str) -> int:
+        return client.post(
+            "/api/auth/login",
+            json={"email": email, "password": "wrong-password"},
+            headers={"X-Forwarded-For": f"{ip}, 10.0.0.1"},
+        ).status_code
+
+    for i in range(login_limiter.limit):
+        assert attempt("203.0.113.5", f"a{i}@example.com") == 401
+    assert attempt("203.0.113.5", "a-final@example.com") == 429
+    # a different forwarded client is unaffected
+    assert attempt("203.0.113.99", "b@example.com") == 401
+
+
+def test_login_rate_limited_per_email_across_ips(client):
+    """Rotating (spoofed) client IPs must not allow unlimited attempts against
+    a single account."""
+    from app.core.rate_limit import login_email_limiter
+
+    for i in range(login_email_limiter.limit):
+        res = client.post(
+            "/api/auth/login",
+            json={"email": "victim@example.com", "password": "wrong-password"},
+            headers={"X-Forwarded-For": f"198.51.100.{i}"},
+        )
+        assert res.status_code == 401
+    res = client.post(
+        "/api/auth/login",
+        json={"email": "victim@example.com", "password": "wrong-password"},
+        headers={"X-Forwarded-For": "198.51.100.200"},
+    )
+    assert res.status_code == 429
 
 
 def test_register_rate_limited(client):
