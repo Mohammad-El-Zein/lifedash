@@ -160,7 +160,9 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
           ]
         }
       ]
-      scale: { minReplicas: 0, maxReplicas: 2 }
+      // Single instance: the auth rate limiter is in-process; a second replica
+      // would halve its effect.
+      scale: { minReplicas: 0, maxReplicas: 1 }
     }
   }
 }
