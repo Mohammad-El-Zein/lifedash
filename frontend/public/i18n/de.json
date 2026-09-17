@@ -156,6 +156,15 @@
     "afternoon": "Guten Tag",
     "evening": "Guten Abend"
   },
+  "insights": {
+    "title": "Life Insights",
+    "refresh": "Aktualisieren",
+    "refreshHint": "Erzeugt einen neuen Satz (max. 5 pro Tag).",
+    "empty": "Noch zu wenig Daten — erfasse ein paar Tage in mehreren Modulen, dann erscheinen hier Insights.",
+    "errors": {
+      "load": "Insights konnten nicht geladen werden."
+    }
+  },
   "profile": {
     "title": "Dein Profil",
     "subtitle": "So erscheinst du überall in LifeDash.",

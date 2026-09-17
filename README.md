@@ -92,6 +92,13 @@ Safari), so no audio passes through LifeDash or any third party.
 Cost control: parsing runs once per submitted note - never while typing - and
 is rate limited to 30 notes per hour per user.
 
+Life insights are the second AI feature: 2-4 short observations that connect
+two modules ("you logged 3 meals this week but spent 120 EUR on eating out"),
+shown at the top of the dashboard. Only aggregates are sent - counts, sums and
+short titles, never whole tables. A set is generated on the first dashboard
+visit of a day and served from `insight_sets` for every visit after that, so a
+day of browsing costs one call; the refresh button is capped at 5 per day.
+
 ## Calendar recurrence model
 
 Events are either one-off (`recurrence_days = null`, happens on `start_date`) or

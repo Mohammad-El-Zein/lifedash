@@ -156,6 +156,15 @@
     "afternoon": "Good afternoon",
     "evening": "Good evening"
   },
+  "insights": {
+    "title": "Life insights",
+    "refresh": "Refresh",
+    "refreshHint": "Generates a new set (limited to 5 per day).",
+    "empty": "Not enough data yet — log a few days across modules and insights will appear.",
+    "errors": {
+      "load": "Insights could not be loaded."
+    }
+  },
   "profile": {
     "title": "Your profile",
     "subtitle": "How you appear across LifeDash.",
