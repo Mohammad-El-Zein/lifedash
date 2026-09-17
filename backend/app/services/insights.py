@@ -85,12 +85,15 @@ def _finance(db: Session, user_id: int, today: datetime.date) -> dict:
     ]
 
     settings = db.scalar(select(FinanceSettings).where(FinanceSettings.user_id == user_id))
+    # Key names carry the period: the model otherwise reports month-to-date
+    # figures as "this week".
     return {
-        "month": month_start.isoformat(),
-        "income_so_far": income,
-        "expenses_so_far": expenses,
-        "net_so_far": round(income - expenses, 2),
-        "top_expense_categories": categories,
+        "period": "month_to_date",
+        "month_started_on": month_start.isoformat(),
+        "income_month_to_date": income,
+        "expenses_month_to_date": expenses,
+        "net_month_to_date": round(income - expenses, 2),
+        "top_expense_categories_month_to_date": categories,
         "monthly_savings_target": _money(settings.monthly_savings_target) if settings else None,
     }
 
@@ -122,9 +125,9 @@ def _meals(db: Session, user_id: int, week_start: datetime.date, today: datetime
         )
     )
     return {
-        "meals_this_week": count(week_start, today),
-        "meals_last_week": count(last_week, week_start - datetime.timedelta(days=1)),
-        "days_logged_this_week": days_logged,
+        "meals_this_week_so_far": count(week_start, today),
+        "meals_last_week_total": count(last_week, week_start - datetime.timedelta(days=1)),
+        "days_logged_this_week_so_far": days_logged,
         "avg_calories_per_logged_day": (
             round(float(calories) / days_logged) if calories and days_logged else None
         ),
@@ -146,9 +149,10 @@ def _fitness(db: Session, user_id: int, week_start: datetime.date, today: dateti
         )
 
     return {
-        "workouts_this_week": count(week_start, today),
-        "workouts_last_week": count(last_week, week_start - datetime.timedelta(days=1)),
-        "workouts_last_4_weeks": count(four_weeks_ago, today),
+        "workouts_this_week_so_far": count(week_start, today),
+        "workouts_last_week_total": count(last_week, week_start - datetime.timedelta(days=1)),
+        # A total, not an average - spelled out because it was read as one.
+        "workouts_total_over_last_4_weeks": count(four_weeks_ago, today),
     }
 
 
@@ -176,9 +180,9 @@ def _jobs(db: Session, user_id: int, week_start: datetime.date, today: datetime.
         )
     }
     return {
-        "applications_this_week": count(week_start, today),
-        "applications_last_week": count(last_week, week_start - datetime.timedelta(days=1)),
-        "applications_by_status": by_status,
+        "applications_this_week_so_far": count(week_start, today),
+        "applications_last_week_total": count(last_week, week_start - datetime.timedelta(days=1)),
+        "applications_by_status_all_time": by_status,
     }
 
 
@@ -235,11 +239,11 @@ def _habits(db: Session, user_id: int, week_start: datetime.date, today: datetim
         "habits": [
             {
                 "name": habit.name,
-                "done_this_week": done.get(habit.id, 0),
-                "scheduled_days_per_week": (
+                "days_done_this_week_so_far": done.get(habit.id, 0),
+                "scheduled_days_per_full_week": (
                     len(habit.schedule_days) if habit.schedule_days else 7
                 ),
-                "days_elapsed_this_week": days_so_far,
+                "days_elapsed_this_week_so_far": days_so_far,
             }
             for habit in habits
         ]
@@ -290,11 +294,11 @@ def has_enough_data(snapshot: dict) -> bool:
     """A brand-new account has nothing to connect; don't pay for a call that can
     only produce platitudes."""
     signals = (
-        snapshot["finance"]["income_so_far"] > 0,
-        snapshot["finance"]["expenses_so_far"] > 0,
-        snapshot["meals"]["meals_this_week"] > 0,
-        snapshot["fitness"]["workouts_last_4_weeks"] > 0,
-        bool(snapshot["jobs"]["applications_by_status"]),
+        snapshot["finance"]["income_month_to_date"] > 0,
+        snapshot["finance"]["expenses_month_to_date"] > 0,
+        snapshot["meals"]["meals_this_week_so_far"] > 0,
+        snapshot["fitness"]["workouts_total_over_last_4_weeks"] > 0,
+        bool(snapshot["jobs"]["applications_by_status_all_time"]),
         bool(snapshot["learning"]["active_goals"]),
         bool(snapshot["habits"]["habits"]),
         snapshot["calendar"]["events_this_week"] > 0,
@@ -315,13 +319,22 @@ observation is not an insight - skip it.
 trend that is not in the data.
 - Say something the user can act on or decide from, not a compliment.
 - title: at most 6 words. body: one or two sentences, at most 220 characters.
-- modules: the module keys the insight draws on (2 or more).
+- modules: only the module keys whose numbers you actually cite (2 or more). \
+Do not pad the list to reach two - drop the insight instead.
 - tone: "positive" when it reports something going well, "warning" when it \
 points at a risk or a drop, otherwise "neutral".
 - Prefer fewer, sharper insights over filling the quota. If the data supports \
 only one honest insight, return only that one.
 - Amounts are euros; the week starts on Monday and "this week" is Monday \
-through today, so a partial week is normal - do not read it as a decline."""
+through today, so a partial week is normal - do not read it as a decline.
+- Every field name states its own period ("_month_to_date", "_this_week_so_far", \
+"_last_week_total", "_over_last_4_weeks", "_all_time"). Respect it: never call a \
+month-to-date figure "this week", and never turn a total into an average.
+- Write those periods as natural prose in the output language ("bisher diesen \
+Monat", "diese Woche", "in den letzten vier Wochen"). Never put a raw field \
+name or an English suffix like "month-to-date" or "all-time" into the text.
+- This is the user's own dashboard: address them informally and consistently \
+("du"/"dein" in German), and write fluent, grammatical prose."""
 
 
 def system_prompt(language: str | None) -> str:

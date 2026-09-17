@@ -159,16 +159,34 @@ def test_reports_unavailable_without_a_key(client, auth_headers):
 
 def test_unknown_module_keys_are_dropped(client, auth_headers, fake_ai):
     seed(client, auth_headers)
-    fake_ai.answer = answer({**INSIGHT, "modules": ["finance", "astrology"]})
+    fake_ai.answer = answer(
+        {**INSIGHT, "modules": ["finance", "astrology", "meals"]},
+    )
 
     body = client.get("/api/insights", headers=auth_headers).json()
 
-    assert body["insights"][0]["modules"] == ["finance"]
+    assert body["insights"][0]["modules"] == ["finance", "meals"]
+
+
+def test_single_module_insights_are_dropped(client, auth_headers, fake_ai):
+    """Cross-module is the premise; live runs showed the model ignoring the rule."""
+    seed(client, auth_headers)
+    fake_ai.answer = answer(
+        {**INSIGHT, "title": "Nur Jobs", "modules": ["jobs"]},
+        {**INSIGHT, "title": "Echt verbunden", "modules": ["finance", "meals"]},
+        # An unknown key leaves too few real modules behind.
+        {**INSIGHT, "title": "Nur Astrologie", "modules": ["habits", "astrology"]},
+    )
+
+    body = client.get("/api/insights", headers=auth_headers).json()
+
+    assert [insight["title"] for insight in body["insights"]] == ["Echt verbunden"]
 
 
 def test_at_most_four_insights_are_kept(client, auth_headers, fake_ai):
     seed(client, auth_headers)
     fake_ai.answer = answer(*[{**INSIGHT, "title": f"Nr {i}"} for i in range(9)])
+    # INSIGHT already draws on finance + meals, so none are dropped.
 
     body = client.get("/api/insights", headers=auth_headers).json()
 
@@ -227,11 +245,13 @@ def test_snapshot_only_contains_the_users_own_aggregates(client, auth_headers, d
     snapshot = build_snapshot(db_session, user_id, TODAY)
 
     assert snapshot["week_start"] == monday_of(TODAY).isoformat()
-    assert snapshot["finance"]["expenses_so_far"] == 120.0
-    assert snapshot["meals"]["meals_this_week"] == 1
+    assert snapshot["finance"]["expenses_month_to_date"] == 120.0
+    assert snapshot["meals"]["meals_this_week_so_far"] == 1
     assert has_enough_data(snapshot) is True
     # No raw rows, only aggregates.
     assert "transactions" not in snapshot["finance"]
+    # Every figure names its own period, so the model cannot mislabel it.
+    assert snapshot["finance"]["period"] == "month_to_date"
 
 
 def test_empty_snapshot_is_not_worth_a_call(db_session):

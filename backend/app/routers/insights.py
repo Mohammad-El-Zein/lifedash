@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/insights", tags=["insights"])
 
 MODULE_KEYS = {"calendar", "finance", "fitness", "meals", "jobs", "learning", "habits"}
+MIN_MODULES_PER_INSIGHT = 2
 
 
 def _language_of(user: User) -> str:
@@ -81,17 +82,25 @@ def _generate(
     )
 
     items = []
-    for insight in answer.insights[:MAX_INSIGHTS]:
-        modules = [module for module in insight.modules if module in MODULE_KEYS]
+    for insight in answer.insights:
+        # Unknown module keys would break the icon lookup in the UI.
+        modules = sorted({module for module in insight.modules if module in MODULE_KEYS})
+        if len(modules) < MIN_MODULES_PER_INSIGHT:
+            # Connecting two modules is the whole premise of the feature; the
+            # prompt asks for it, and live runs show it is not always honoured.
+            # A single-module observation is dropped rather than shown.
+            logger.info("Dropping single-module insight: %s", insight.title)
+            continue
         items.append(
             {
                 "title": insight.title.strip()[:80],
                 "body": insight.body.strip()[:300],
-                # Unknown module keys would break the icon lookup in the UI.
                 "modules": modules,
                 "tone": insight.tone,
             }
         )
+        if len(items) == MAX_INSIGHTS:
+            break
     if not items:
         return None
 
