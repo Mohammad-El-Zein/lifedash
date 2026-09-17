@@ -5,15 +5,18 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { AuthStore } from '../../core/auth/auth.store';
 import { MODULES } from '../../core/models';
 import { staggerIn } from '../../shared/animations';
+import { LifeInsightsComponent } from './life-insights.component';
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [RouterLink, TranslatePipe, LucideAngularModule],
+  imports: [RouterLink, TranslatePipe, LucideAngularModule, LifeInsightsComponent],
   template: `
     <header class="mb-8">
       <h1 class="text-3xl font-bold">{{ greetingKey() | translate }}{{ greetingSuffix() }}</h1>
       <p class="text-ink-muted mt-1">{{ 'dashboard.pickModule' | translate }}</p>
     </header>
+
+    <app-life-insights />
 
     <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
       @for (mod of modules(); track mod.key) {

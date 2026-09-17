@@ -586,3 +586,21 @@ export interface CaptureSuggestion {
   event: CaptureEvent | null;
   job: CaptureJob | null;
 }
+
+// --- Life insights ----------------------------------------------------------------
+
+export interface Insight {
+  title: string;
+  body: string;
+  /** Module keys the insight draws on — used for the icon row. */
+  modules: string[];
+  tone: 'positive' | 'neutral' | 'warning';
+}
+
+/** GET /api/insights — `available` is false when the server has no API key. */
+export interface InsightsResponse {
+  available: boolean;
+  insights: Insight[];
+  generated_at: string | null;
+  language: string | null;
+}
