@@ -8,6 +8,7 @@ import { toIsoDate } from '../../core/date-utils';
 import { LanguageService } from '../../core/i18n/language.service';
 import { CalendarEvent, Occurrence } from '../../core/models';
 import { EventFormModal } from './event-form.modal';
+import { deepLink } from '../../shared/deep-link';
 
 const DAY_START_HOUR = 6;
 const DAY_END_HOUR = 23;
@@ -197,6 +198,22 @@ interface PositionedOccurrence {
   `,
 })
 export class CalendarWeekPage {
+  /** One-shot params from the command palette (?new=1, ?tab=…, …).
+   * A constructor body runs after every field initializer, so the
+   * synchronous first emission sees fully built state. */
+  constructor() {
+    deepLink(['new', 'date'], (params) => {
+      const date = params.get('date');
+      if (date) {
+        const [year, month, day] = date.split('-').map(Number);
+        this.weekStart.set(mondayOf(new Date(year, month - 1, day)));
+        // On the first (pre-ngOnInit) emission the initial load already picks this up.
+        if (this.started) this.load();
+      }
+      if (params.get('new')) this.openCreate(date);
+    });
+  }
+
   private readonly api = inject(CalendarApiService);
   private readonly translate = inject(TranslateService);
   private readonly language = inject(LanguageService);
@@ -230,8 +247,12 @@ export class CalendarWeekPage {
     return `${fmt(start)} – ${fmt(end)}`;
   });
 
+  /** False until ngOnInit has run its first load. */
+  private started = false;
+
   ngOnInit(): void {
     this.load();
+    this.started = true;
   }
 
   dayLabel(iso: string): string {

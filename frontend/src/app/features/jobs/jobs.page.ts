@@ -13,6 +13,7 @@ import {
   JobDocument,
   JobStatus,
 } from '../../core/models';
+import { deepLink } from '../../shared/deep-link';
 
 const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend limit
 
@@ -245,6 +246,13 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
   `,
 })
 export class JobsPage {
+  /** One-shot params from the command palette (?new=1, ?tab=…, …).
+   * A constructor body runs after every field initializer, so the
+   * synchronous first emission sees fully built state. */
+  constructor() {
+    deepLink(['new'], () => this.openForm(null));
+  }
+
   private readonly api = inject(JobsApiService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly translate = inject(TranslateService);
