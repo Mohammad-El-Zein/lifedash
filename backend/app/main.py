@@ -2,7 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import DEV_ENVIRONMENTS, get_settings
-from app.routers import auth, calendar, finance, fitness, habits, jobs, learning, meals, users
+from app.routers import (
+    auth,
+    calendar,
+    finance,
+    fitness,
+    habits,
+    jobs,
+    learning,
+    meals,
+    search,
+    users,
+)
 
 settings = get_settings()
 _is_dev = settings.environment in DEV_ENVIRONMENTS
@@ -34,6 +45,7 @@ app.include_router(jobs.router)
 app.include_router(meals.router)
 app.include_router(learning.router)
 app.include_router(habits.router)
+app.include_router(search.router)
 
 
 @app.get("/api/health", tags=["health"])

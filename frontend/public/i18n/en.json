@@ -45,6 +45,46 @@
     "signOut": "Sign out",
     "editProfile": "Edit your profile"
   },
+  "palette": {
+    "open": "Search or jump to…",
+    "placeholder": "Search, navigate or create…",
+    "searching": "Searching…",
+    "empty": "No matches.",
+    "untitled": "(no description)",
+    "groups": {
+      "actions": "Actions",
+      "navigation": "Go to",
+      "results": "Your data"
+    },
+    "hints": {
+      "navigate": "navigate",
+      "select": "select",
+      "close": "close"
+    },
+    "actions": {
+      "newTransaction": "New transaction",
+      "newApplication": "New application",
+      "newWorkout": "New workout",
+      "newMeal": "New meal",
+      "newEvent": "New event",
+      "newHabit": "New habit",
+      "newGoal": "New learning goal"
+    },
+    "entities": {
+      "event": "Event",
+      "transaction": "Transaction",
+      "recurring": "Recurring",
+      "application": "Application",
+      "meal": "Meal",
+      "dish": "Dish",
+      "ingredient": "Ingredient",
+      "workout": "Workout",
+      "exercise": "Exercise",
+      "goal": "Goal",
+      "milestone": "Milestone",
+      "habit": "Habit"
+    }
+  },
   "modules": {
     "calendar": {
       "label": "Calendar",

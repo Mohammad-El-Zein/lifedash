@@ -21,6 +21,7 @@ import { EchartComponent } from '../../shared/echart.component';
 import { BudgetReportTab } from './budget-report.tab';
 import { MonthlyPlanTab } from './monthly-plan.tab';
 import { SavingsTab } from './savings.tab';
+import { deepLink } from '../../shared/deep-link';
 
 const DARK_SURFACE = '#12152a'; // effective glass-card surface over the night canvas
 
@@ -326,6 +327,29 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
   `,
 })
 export class FinancePage {
+  /** One-shot params from the command palette (?new=1, ?tab=…, …).
+   * A constructor body runs after every field initializer, so the
+   * synchronous first emission sees fully built state. */
+  constructor() {
+    deepLink(['new', 'tab', 'month'], (params) => {
+      const tab = params.get('tab');
+      if (tab === 'overview' || tab === 'plan' || tab === 'budgets' || tab === 'savings') {
+        this.tab.set(tab);
+      }
+      const month = params.get('month');
+      if (month) {
+        const [year, monthNumber] = month.split('-').map(Number);
+        this.monthAnchor.set(new Date(year, monthNumber - 1, 1));
+        // On the first (pre-ngOnInit) emission the initial load already picks this up.
+        if (this.started) this.load();
+      }
+      if (params.get('new')) {
+        this.tab.set('overview');
+        this.openAdd();
+      }
+    });
+  }
+
   private readonly api = inject(FinanceApiService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly translate = inject(TranslateService);
@@ -418,8 +442,12 @@ export class FinancePage {
     };
   });
 
+  /** False until ngOnInit has run its first load. */
+  private started = false;
+
   ngOnInit(): void {
     this.load();
+    this.started = true;
   }
 
   load(): void {

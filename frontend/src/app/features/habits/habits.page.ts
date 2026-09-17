@@ -7,6 +7,7 @@ import { extractError } from '../../core/http-error';
 import { LanguageService } from '../../core/i18n/language.service';
 import { Habit } from '../../core/models';
 import { FxModal, staggerTilesSoon } from '../../shared/animations';
+import { deepLink } from '../../shared/deep-link';
 
 function toIsoDate(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -184,6 +185,13 @@ function mondayOf(date: Date): Date {
   `,
 })
 export class HabitsPage {
+  /** One-shot params from the command palette (?new=1, ?tab=…, …).
+   * A constructor body runs after every field initializer, so the
+   * synchronous first emission sees fully built state. */
+  constructor() {
+    deepLink(['new'], () => this.openForm(null));
+  }
+
   private readonly api = inject(HabitsApiService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly translate = inject(TranslateService);
