@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from fastapi import HTTPException
 
 from app.main import app
 from app.schemas.insights import AiInsights
@@ -15,6 +16,7 @@ class FakeAi:
 
     def __init__(self, answer: AiInsights | None = None, configured: bool = True):
         self.answer = answer
+        self.error: Exception | None = None
         self._configured = configured
         self.calls: list[dict] = []
 
@@ -24,6 +26,8 @@ class FakeAi:
 
     def parse(self, *, system, prompt, schema, max_tokens=1024):
         self.calls.append({"system": system, "prompt": prompt})
+        if self.error is not None:
+            raise self.error
         return self.answer
 
 
@@ -184,6 +188,28 @@ def test_insights_are_per_user(client, auth_headers, fake_ai):
 
     assert body["insights"] == []  # the other account has no data of its own
     assert len(fake_ai.calls) == 1
+
+
+def test_a_failed_regeneration_keeps_serving_the_cached_set(client, auth_headers, fake_ai):
+    seed(client, auth_headers)
+    first = client.get("/api/insights", headers=auth_headers).json()
+
+    # Force the next generation attempt to fail, as an Anthropic outage would.
+    fake_ai.error = HTTPException(502, "The AI service is currently unavailable")
+    stale = client.post("/api/insights/refresh", headers=auth_headers)
+
+    assert stale.status_code == 502  # an explicit refresh reports the failure
+
+    body = client.get("/api/insights", headers=auth_headers).json()
+    assert body["insights"] == first["insights"]  # the dashboard keeps working
+
+
+def test_a_first_generation_failure_is_reported(client, auth_headers, fake_ai):
+    seed(client, auth_headers)
+    fake_ai.error = HTTPException(502, "The AI service is currently unavailable")
+
+    # Nothing cached yet, so there is nothing to fall back to.
+    assert client.get("/api/insights", headers=auth_headers).status_code == 502
 
 
 def test_requires_authentication(client):

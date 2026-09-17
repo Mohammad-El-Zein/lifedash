@@ -10,7 +10,7 @@ import datetime
 import json
 import logging
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 
 from app.api.deps import CurrentUser, DbDep
@@ -124,7 +124,17 @@ def get_insights(current_user: CurrentUser, db: DbDep, ai: AiDep) -> InsightsRes
     if _is_fresh(cached, language, today):
         return _to_response(cached, available=True)
 
-    generated = _generate(db, ai, current_user, language, today, cached)
+    try:
+        generated = _generate(db, ai, current_user, language, today, cached)
+    except HTTPException:
+        # An upstream hiccup should not blank the dashboard: yesterday's set is
+        # still useful, and the UI shows when it was generated. With nothing
+        # cached there is nothing to fall back to, so the error stands.
+        if cached is None:
+            raise
+        logger.warning("Insight generation failed; serving the cached set")
+        return _to_response(cached, available=True)
+
     # Nothing new to say: keep serving the previous set rather than an empty row.
     return _to_response(generated or cached, available=True)
 
