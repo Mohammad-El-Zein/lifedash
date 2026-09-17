@@ -7,11 +7,19 @@ import { AvatarService } from '../../core/auth/avatar.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ThemeService } from '../../core/theme/theme.service';
 import { MODULES } from '../../core/models';
+import { QuickCaptureComponent } from '../capture/quick-capture.component';
 import { pageEnter } from '../../shared/animations';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, LucideAngularModule],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    TranslatePipe,
+    LucideAngularModule,
+    QuickCaptureComponent,
+  ],
   template: `
     <div class="h-screen flex overflow-hidden">
       <!-- Sidebar -->
@@ -107,6 +115,8 @@ import { pageEnter } from '../../shared/animations';
         </div>
       </main>
     </div>
+
+    <app-quick-capture />
   `,
 })
 export class ShellComponent {

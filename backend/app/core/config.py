@@ -54,6 +54,15 @@ class Settings(BaseSettings):
     storage_container: str = "job-documents"
     avatar_container: str = "avatars"
 
+    # --- AI (Anthropic) ---------------------------------------------------------
+    # Server-side only; the key never reaches the frontend. Empty means the AI
+    # features are switched off and their endpoints answer 503.
+    anthropic_api_key: str = ""
+    # Haiku is the cost-efficient choice for the short, structured prompts this
+    # app sends; override per environment without touching code.
+    anthropic_model: str = "claude-haiku-4-5"
+    anthropic_timeout_seconds: float = 30.0
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
