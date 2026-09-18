@@ -10,3 +10,4 @@ PyJWT>=2.8
 bcrypt>=4.1
 azure-storage-blob>=12.19
 python-multipart>=0.0.9
+anthropic>=1.0,<2.0

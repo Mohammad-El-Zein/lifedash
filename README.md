@@ -71,6 +71,34 @@ The database schema for **all** modules ships in Phase 1 so later phases only ad
 routers and UI. Users have a `role` and an `enabled_modules` list from day one
 (freemium/multi-tenancy groundwork).
 
+## AI features
+
+Quick capture turns one spoken or typed line ("spent 50 euros on food today")
+into a ready-to-confirm entry in the right module. It is the first feature to
+use the Anthropic API, through the single service in
+`backend/app/services/ai.py` (model: `claude-haiku-4-5`, overridable via
+`ANTHROPIC_MODEL`).
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-... docker compose up
+```
+
+Without a key the app runs exactly as before: the endpoint answers 503 and the
+UI says AI features are off. The key is read server-side only - it never
+reaches the browser, and the frontend only ever sends the recognised *text*.
+Speech recognition itself is the browser's own Web Speech API (Chrome, Edge,
+Safari), so no audio passes through LifeDash or any third party.
+
+Cost control: parsing runs once per submitted note - never while typing - and
+is rate limited to 30 notes per hour per user.
+
+Life insights are the second AI feature: 2-4 short observations that connect
+two modules ("you logged 3 meals this week but spent 120 EUR on eating out"),
+shown at the top of the dashboard. Only aggregates are sent - counts, sums and
+short titles, never whole tables. A set is generated on the first dashboard
+visit of a day and served from `insight_sets` for every visit after that, so a
+day of browsing costs one call; the refresh button is capped at 5 per day.
+
 ## Calendar recurrence model
 
 Events are either one-off (`recurrence_days = null`, happens on `start_date`) or

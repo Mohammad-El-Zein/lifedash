@@ -7,6 +7,7 @@ import { AvatarService } from '../../core/auth/avatar.service';
 import { LanguageService } from '../../core/i18n/language.service';
 import { ThemeService } from '../../core/theme/theme.service';
 import { MODULES } from '../../core/models';
+import { QuickCaptureComponent } from '../capture/quick-capture.component';
 import { CommandPaletteComponent } from '../palette/command-palette.component';
 import { pageEnter } from '../../shared/animations';
 
@@ -19,6 +20,7 @@ import { pageEnter } from '../../shared/animations';
     TranslatePipe,
     LucideAngularModule,
     CommandPaletteComponent,
+    QuickCaptureComponent,
   ],
   template: `
     <div class="h-screen flex overflow-hidden">
@@ -128,6 +130,7 @@ import { pageEnter } from '../../shared/animations';
     </div>
 
     <app-command-palette #palette />
+    <app-quick-capture />
   `,
 })
 export class ShellComponent {

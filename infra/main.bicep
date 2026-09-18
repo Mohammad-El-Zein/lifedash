@@ -22,6 +22,10 @@ param postgresAdminPassword string
 @secure()
 param jwtSecretKey string
 
+@description('Anthropic API key for the AI features. Leave empty to ship with them disabled.')
+@secure()
+param anthropicApiKey string = ''
+
 @description('Container image tags to deploy. Use "bootstrap" before the first CI push.')
 param backendImage string = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
 param frontendImage string = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
@@ -143,6 +147,7 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
         { name: 'database-url', value: databaseUrl }
         { name: 'jwt-secret', value: jwtSecretKey }
         { name: 'storage-connection', value: storageConnectionString }
+        { name: 'anthropic-api-key', value: anthropicApiKey }
       ]
     }
     template: {
@@ -155,6 +160,7 @@ resource backendApp 'Microsoft.App/containerApps@2024-03-01' = {
             { name: 'DATABASE_URL', secretRef: 'database-url' }
             { name: 'SECRET_KEY', secretRef: 'jwt-secret' }
             { name: 'AZURE_STORAGE_CONNECTION_STRING', secretRef: 'storage-connection' }
+            { name: 'ANTHROPIC_API_KEY', secretRef: 'anthropic-api-key' }
             { name: 'ENVIRONMENT', value: environment }
             { name: 'CORS_ORIGINS', value: 'https://${suffix}-web.${containerAppsEnv.properties.defaultDomain}' }
           ]

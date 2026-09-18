@@ -5,9 +5,11 @@ from app.core.config import DEV_ENVIRONMENTS, get_settings
 from app.routers import (
     auth,
     calendar,
+    capture,
     finance,
     fitness,
     habits,
+    insights,
     jobs,
     learning,
     meals,
@@ -46,6 +48,8 @@ app.include_router(meals.router)
 app.include_router(learning.router)
 app.include_router(habits.router)
 app.include_router(search.router)
+app.include_router(capture.router)
+app.include_router(insights.router)
 
 
 @app.get("/api/health", tags=["health"])

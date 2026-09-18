@@ -85,6 +85,64 @@
       "habit": "Gewohnheit"
     }
   },
+  "capture": {
+    "open": "Schnellerfassung",
+    "title": "Schnellerfassung",
+    "subtitle": "Eine Zeile sprechen oder tippen — wir ordnen sie dem richtigen Modul zu.",
+    "placeholder": "z.B. 50 Euro für Essen ausgegeben heute",
+    "dictate": "Diktieren",
+    "stopDictation": "Stopp",
+    "parse": "Weiter",
+    "parsing": "Wird gelesen…",
+    "save": "Speichern",
+    "saved": "Gespeichert.",
+    "captureAnother": "Noch etwas erfassen",
+    "openModule": "Modul öffnen",
+    "editText": "Zurück zum Text",
+    "unknownHint": "Diese Notiz passte zu keinem Modul. Text anpassen und erneut versuchen.",
+    "modules": {
+      "finance": "Finanzen",
+      "meals": "Mahlzeiten",
+      "calendar": "Kalender",
+      "jobs": "Bewerbungen",
+      "unknown": "Unklar"
+    },
+    "confidence": {
+      "high": "sicher",
+      "medium": "teils erschlossen",
+      "low": "größtenteils geraten"
+    },
+    "fields": {
+      "kind": "Art",
+      "amount": "Betrag",
+      "description": "Beschreibung",
+      "date": "Datum",
+      "category": "Kategorie",
+      "noCategory": "Keine Kategorie",
+      "createCategory": "„{{name}}“ anlegen",
+      "name": "Name",
+      "mealType": "Mahlzeit",
+      "calories": "kcal",
+      "protein": "Eiweiß (g)",
+      "title": "Titel",
+      "start": "Von",
+      "end": "Bis",
+      "location": "Ort",
+      "company": "Firma",
+      "position": "Position",
+      "status": "Status"
+    },
+    "speech": {
+      "unsupported": "Diktieren braucht Chrome, Edge oder Safari — Tippen geht überall.",
+      "denied": "Zugriff auf das Mikrofon wurde verweigert.",
+      "noSpeech": "Es wurde nichts erkannt.",
+      "failed": "Diktat fehlgeschlagen. Bitte tippen."
+    },
+    "errors": {
+      "parse": "Die Notiz konnte nicht gelesen werden. Bitte erneut versuchen.",
+      "save": "Der Eintrag konnte nicht gespeichert werden."
+    }
+  },
   "modules": {
     "calendar": {
       "label": "Kalender",
@@ -137,6 +195,15 @@
     "morning": "Guten Morgen",
     "afternoon": "Guten Tag",
     "evening": "Guten Abend"
+  },
+  "insights": {
+    "title": "Life Insights",
+    "refresh": "Aktualisieren",
+    "refreshHint": "Erzeugt einen neuen Satz (max. 5 pro Tag).",
+    "empty": "Noch zu wenig Daten — erfasse ein paar Tage in mehreren Modulen, dann erscheinen hier Insights.",
+    "errors": {
+      "load": "Insights konnten nicht geladen werden."
+    }
   },
   "profile": {
     "title": "Dein Profil",

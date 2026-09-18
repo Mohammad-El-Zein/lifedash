@@ -85,6 +85,64 @@
       "habit": "Habit"
     }
   },
+  "capture": {
+    "open": "Quick capture",
+    "title": "Quick capture",
+    "subtitle": "Say or type one line — we'll sort it into the right module.",
+    "placeholder": "e.g. spent 50 euros on food today",
+    "dictate": "Dictate",
+    "stopDictation": "Stop",
+    "parse": "Continue",
+    "parsing": "Reading…",
+    "save": "Save",
+    "saved": "Saved.",
+    "captureAnother": "Capture another",
+    "openModule": "Open module",
+    "editText": "Back to text",
+    "unknownHint": "This note didn't match a module. Edit the text and try again.",
+    "modules": {
+      "finance": "Finance",
+      "meals": "Meals",
+      "calendar": "Calendar",
+      "jobs": "Jobs",
+      "unknown": "Unclear"
+    },
+    "confidence": {
+      "high": "confident",
+      "medium": "partly inferred",
+      "low": "mostly guessed"
+    },
+    "fields": {
+      "kind": "Type",
+      "amount": "Amount",
+      "description": "Description",
+      "date": "Date",
+      "category": "Category",
+      "noCategory": "No category",
+      "createCategory": "Create “{{name}}”",
+      "name": "Name",
+      "mealType": "Meal",
+      "calories": "kcal",
+      "protein": "Protein (g)",
+      "title": "Title",
+      "start": "From",
+      "end": "To",
+      "location": "Location",
+      "company": "Company",
+      "position": "Position",
+      "status": "Status"
+    },
+    "speech": {
+      "unsupported": "Dictation needs Chrome, Edge or Safari — typing works everywhere.",
+      "denied": "Microphone access was denied.",
+      "noSpeech": "Nothing was picked up.",
+      "failed": "Dictation failed. Please type instead."
+    },
+    "errors": {
+      "parse": "Could not read that note. Please try again.",
+      "save": "Could not save the entry."
+    }
+  },
   "modules": {
     "calendar": {
       "label": "Calendar",
@@ -137,6 +195,15 @@
     "morning": "Good morning",
     "afternoon": "Good afternoon",
     "evening": "Good evening"
+  },
+  "insights": {
+    "title": "Life insights",
+    "refresh": "Refresh",
+    "refreshHint": "Generates a new set (limited to 5 per day).",
+    "empty": "Not enough data yet — log a few days across modules and insights will appear.",
+    "errors": {
+      "load": "Insights could not be loaded."
+    }
   },
   "profile": {
     "title": "Your profile",

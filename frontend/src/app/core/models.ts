@@ -563,3 +563,72 @@ export interface SearchResponse {
   query: string;
   results: SearchHit[];
 }
+
+// --- Quick capture ----------------------------------------------------------------
+
+export type CaptureModule = 'finance' | 'meals' | 'calendar' | 'jobs' | 'unknown';
+export type CaptureConfidence = 'high' | 'medium' | 'low';
+
+export interface CaptureFinance {
+  kind: 'income' | 'expense';
+  amount: number;
+  description: string;
+  date: string;
+  category_id: number | null;
+  /** The model's own wording — offered as a new category when unresolved. */
+  category: string | null;
+}
+
+export interface CaptureMeal {
+  name: string;
+  meal_type: MealType;
+  calories: number | null;
+  protein_g: number | null;
+  carbs_g: number | null;
+  fat_g: number | null;
+  date: string;
+}
+
+export interface CaptureEvent {
+  title: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  location: string | null;
+}
+
+export interface CaptureJob {
+  company: string;
+  position: string;
+  status: JobStatus;
+  applied_date: string;
+}
+
+/** POST /api/capture/parse — a suggestion only; nothing is saved server-side. */
+export interface CaptureSuggestion {
+  module: CaptureModule;
+  confidence: CaptureConfidence;
+  summary: string;
+  finance: CaptureFinance | null;
+  meal: CaptureMeal | null;
+  event: CaptureEvent | null;
+  job: CaptureJob | null;
+}
+
+// --- Life insights ----------------------------------------------------------------
+
+export interface Insight {
+  title: string;
+  body: string;
+  /** Module keys the insight draws on — used for the icon row. */
+  modules: string[];
+  tone: 'positive' | 'neutral' | 'warning';
+}
+
+/** GET /api/insights — `available` is false when the server has no API key. */
+export interface InsightsResponse {
+  available: boolean;
+  insights: Insight[];
+  generated_at: string | null;
+  language: string | null;
+}
