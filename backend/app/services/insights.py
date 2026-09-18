@@ -332,7 +332,13 @@ through today, so a partial week is normal - do not read it as a decline.
 month-to-date figure "this week", and never turn a total into an average.
 - Write those periods as natural prose in the output language ("bisher diesen \
 Monat", "diese Woche", "in den letzten vier Wochen"). Never put a raw field \
-name or an English suffix like "month-to-date" or "all-time" into the text.
+name or an English suffix like "month-to-date" or "all-time" into anything you \
+write, the title included.
+- The period rules apply to the title exactly as they do to the body. A title \
+that names a period must name the period its numbers actually come from, and \
+the same period the body uses - a "this week" headline over a month-to-date \
+number is wrong even when the body gets it right. If the period does not fit \
+in a six-word title, leave it out of the title rather than guess.
 - This is the user's own dashboard: address them informally and consistently \
 ("du"/"dein" in German), and write fluent, grammatical prose."""
 
