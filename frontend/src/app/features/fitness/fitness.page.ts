@@ -10,6 +10,7 @@ import { CATEGORY_COLORS, Exercise, ExerciseProgress, Workout } from '../../core
 import { FxModal, staggerTilesSoon } from '../../shared/animations';
 import { EchartComponent } from '../../shared/echart.component';
 import { WorkoutFormModal } from './workout-form.modal';
+import { deepLink } from '../../shared/deep-link';
 
 const DARK_SURFACE = '#12152a'; // effective glass-card surface over the night canvas
 const LINE_COLOR = CATEGORY_COLORS[0];
@@ -186,6 +187,13 @@ const LINE_COLOR = CATEGORY_COLORS[0];
   `,
 })
 export class FitnessPage {
+  /** One-shot params from the command palette (?new=1, ?tab=…, …).
+   * A constructor body runs after every field initializer, so the
+   * synchronous first emission sees fully built state. */
+  constructor() {
+    deepLink(['new'], () => this.openWorkoutForm(null));
+  }
+
   private readonly api = inject(FitnessApiService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly translate = inject(TranslateService);

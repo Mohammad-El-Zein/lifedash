@@ -536,6 +536,34 @@ export const MODULES: ModuleInfo[] = [
   },
 ];
 
+// --- Search (command palette) -----------------------------------------------------
+
+export type SearchModule =
+  | 'calendar'
+  | 'finance'
+  | 'jobs'
+  | 'meals'
+  | 'fitness'
+  | 'learning'
+  | 'habits';
+
+/** A row matched by GET /api/search. `amount` is signed (expenses are negative)
+ * and arrives as a decimal string; `entity` keys the label shown on the hit. */
+export interface SearchHit {
+  module: SearchModule;
+  entity: string;
+  id: number;
+  title: string;
+  subtitle: string | null;
+  amount: string | null;
+  date: string | null;
+}
+
+export interface SearchResponse {
+  query: string;
+  results: SearchHit[];
+}
+
 // --- Quick capture ----------------------------------------------------------------
 
 export type CaptureModule = 'finance' | 'meals' | 'calendar' | 'jobs' | 'unknown';

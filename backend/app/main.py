@@ -12,6 +12,7 @@ from app.routers import (
     jobs,
     learning,
     meals,
+    search,
     users,
 )
 
@@ -45,6 +46,7 @@ app.include_router(jobs.router)
 app.include_router(meals.router)
 app.include_router(learning.router)
 app.include_router(habits.router)
+app.include_router(search.router)
 app.include_router(capture.router)
 
 

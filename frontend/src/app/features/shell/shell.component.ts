@@ -8,6 +8,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 import { ThemeService } from '../../core/theme/theme.service';
 import { MODULES } from '../../core/models';
 import { QuickCaptureComponent } from '../capture/quick-capture.component';
+import { CommandPaletteComponent } from '../palette/command-palette.component';
 import { pageEnter } from '../../shared/animations';
 
 @Component({
@@ -18,6 +19,7 @@ import { pageEnter } from '../../shared/animations';
     RouterLinkActive,
     TranslatePipe,
     LucideAngularModule,
+    CommandPaletteComponent,
     QuickCaptureComponent,
   ],
   template: `
@@ -27,6 +29,17 @@ import { pageEnter } from '../../shared/animations';
         <a routerLink="/dashboard" class="px-6 py-5 text-2xl font-bold tracking-tight">
           Life<span class="logo-accent">Dash</span>
         </a>
+
+        <button
+          (click)="palette.openPalette()"
+          class="mx-3 mb-3 flex items-center gap-2 rounded-control border border-edge-strong px-3 py-2 text-sm text-ink-faint hover:bg-nav-hover transition-colors"
+        >
+          <lucide-icon name="search" [size]="16" />
+          <span class="flex-1 text-left">{{ 'palette.open' | translate }}</span>
+          <kbd class="rounded border border-edge-strong bg-field px-1.5 py-0.5 text-[10px] tracking-wide">
+            {{ paletteShortcut }}
+          </kbd>
+        </button>
 
         <nav class="flex-1 min-h-0 overflow-y-auto px-3 space-y-1">
           <a
@@ -116,6 +129,7 @@ import { pageEnter } from '../../shared/animations';
       </main>
     </div>
 
+    <app-command-palette #palette />
     <app-quick-capture />
   `,
 })
@@ -126,6 +140,9 @@ export class ShellComponent {
   readonly avatar = inject(AvatarService);
   readonly language = inject(LanguageService);
   readonly theme = inject(ThemeService);
+
+  /** Mac shows the Command glyph; every other platform Ctrl. */
+  readonly paletteShortcut = /Mac|iPhone|iPad/i.test(navigator.platform) ? '⌘K' : 'Ctrl K';
 
   readonly themeIcon = computed(() =>
     this.theme.theme() === 'dark' ? 'moon' : this.theme.theme() === 'light' ? 'sun' : 'monitor',

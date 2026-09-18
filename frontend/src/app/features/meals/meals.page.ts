@@ -9,6 +9,7 @@ import { MEAL_TYPES, Meal, MealPayload, MealTemplate, MealType } from '../../cor
 import { FxModal, staggerTilesSoon } from '../../shared/animations';
 import { DishesTab } from './dishes.tab';
 import { IngredientsTab } from './ingredients.tab';
+import { deepLink } from '../../shared/deep-link';
 
 function toIsoDate(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -286,6 +287,26 @@ const PORTION_CHIPS = [0.5, 1, 1.5, 2];
   `,
 })
 export class MealsPage {
+  /** One-shot params from the command palette (?new=1, ?tab=…, …).
+   * A constructor body runs after every field initializer, so the
+   * synchronous first emission sees fully built state. */
+  constructor() {
+    deepLink(['new', 'tab', 'day'], (params) => {
+      const tab = params.get('tab');
+      if (tab === 'diary' || tab === 'dishes' || tab === 'ingredients') this.tab.set(tab);
+      const day = params.get('day');
+      if (day) {
+        this.day.set(day);
+        // On the first (pre-ngOnInit) emission the initial load already picks this up.
+        if (this.started) this.load();
+      }
+      if (params.get('new')) {
+        this.tab.set('diary');
+        this.openForm(null);
+      }
+    });
+  }
+
   private readonly api = inject(MealsApiService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly translate = inject(TranslateService);
@@ -340,8 +361,12 @@ export class MealsPage {
     }),
   );
 
+  /** False until ngOnInit has run its first load. */
+  private started = false;
+
   ngOnInit(): void {
     this.load();
+    this.started = true;
   }
 
   load(): void {

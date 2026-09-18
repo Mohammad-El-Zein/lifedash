@@ -45,6 +45,46 @@
     "signOut": "Abmelden",
     "editProfile": "Profil bearbeiten"
   },
+  "palette": {
+    "open": "Suchen oder springen…",
+    "placeholder": "Suchen, navigieren oder anlegen…",
+    "searching": "Suche…",
+    "empty": "Keine Treffer.",
+    "untitled": "(ohne Beschreibung)",
+    "groups": {
+      "actions": "Aktionen",
+      "navigation": "Gehe zu",
+      "results": "Deine Daten"
+    },
+    "hints": {
+      "navigate": "navigieren",
+      "select": "auswählen",
+      "close": "schließen"
+    },
+    "actions": {
+      "newTransaction": "Neue Transaktion",
+      "newApplication": "Neue Bewerbung",
+      "newWorkout": "Neues Workout",
+      "newMeal": "Neue Mahlzeit",
+      "newEvent": "Neuer Termin",
+      "newHabit": "Neue Gewohnheit",
+      "newGoal": "Neues Lernziel"
+    },
+    "entities": {
+      "event": "Termin",
+      "transaction": "Transaktion",
+      "recurring": "Dauerauftrag",
+      "application": "Bewerbung",
+      "meal": "Mahlzeit",
+      "dish": "Gericht",
+      "ingredient": "Zutat",
+      "workout": "Workout",
+      "exercise": "Übung",
+      "goal": "Lernziel",
+      "milestone": "Meilenstein",
+      "habit": "Gewohnheit"
+    }
+  },
   "capture": {
     "open": "Schnellerfassung",
     "title": "Schnellerfassung",
