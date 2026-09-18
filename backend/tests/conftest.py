@@ -7,6 +7,7 @@ from sqlalchemy.pool import StaticPool
 import app.models as _all_models  # noqa: F401  (register all tables on Base.metadata)
 from app.core.rate_limit import (
     capture_limiter,
+    insights_refresh_limiter,
     login_email_limiter,
     login_limiter,
     register_limiter,
@@ -68,6 +69,7 @@ def client(db_session, storage, avatar_storage):
     login_email_limiter.reset()
     register_limiter.reset()
     capture_limiter.reset()
+    insights_refresh_limiter.reset()
     app.dependency_overrides[get_db] = lambda: db_session
     app.dependency_overrides[get_storage] = lambda: storage
     app.dependency_overrides[get_avatar_storage] = lambda: avatar_storage

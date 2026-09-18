@@ -9,6 +9,7 @@ from app.models.finance import (
 )
 from app.models.fitness import Exercise, Workout, WorkoutSet
 from app.models.habits import Habit, HabitLog
+from app.models.insights import InsightSet
 from app.models.jobs import JobApplication, JobDocument, JobStatusHistory
 from app.models.learning import LearningGoal, LearningMilestone
 from app.models.meals import Meal
@@ -24,6 +25,7 @@ __all__ = [
     "RecurringTransaction",
     "Habit",
     "HabitLog",
+    "InsightSet",
     "JobApplication",
     "JobDocument",
     "JobStatusHistory",

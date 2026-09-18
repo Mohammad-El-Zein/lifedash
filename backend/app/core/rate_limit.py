@@ -50,6 +50,9 @@ register_limiter = RateLimiter(limit=5, window_seconds=60)
 # Quick capture costs one Anthropic call per request, so it is capped per
 # user (not per IP) - the endpoint is authenticated.
 capture_limiter = RateLimiter(limit=30, window_seconds=3600)
+# Insights regenerate once a day on their own; the manual refresh button is
+# the only way to pay for more, so cap it per user and day.
+insights_refresh_limiter = RateLimiter(limit=5, window_seconds=86400)
 
 
 def _client_ip(request: Request) -> str:

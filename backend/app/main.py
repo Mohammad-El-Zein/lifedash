@@ -9,6 +9,7 @@ from app.routers import (
     finance,
     fitness,
     habits,
+    insights,
     jobs,
     learning,
     meals,
@@ -48,6 +49,7 @@ app.include_router(learning.router)
 app.include_router(habits.router)
 app.include_router(search.router)
 app.include_router(capture.router)
+app.include_router(insights.router)
 
 
 @app.get("/api/health", tags=["health"])
