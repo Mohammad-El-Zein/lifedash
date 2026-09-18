@@ -19,6 +19,7 @@ project with a clear path to a multi-tenant product.
 ## Getting started
 
 ```bash
+cp .env.example .env   # optional: add your Anthropic key to switch the AI features on
 docker compose up --build
 ```
 
@@ -79,9 +80,15 @@ use the Anthropic API, through the single service in
 `backend/app/services/ai.py` (model: `claude-haiku-4-5`, overridable via
 `ANTHROPIC_MODEL`).
 
-```bash
-ANTHROPIC_API_KEY=sk-ant-... docker compose up
+Put the key in the repository-root `.env` (the file Docker Compose reads —
+`cp .env.example .env` gives you the template):
+
 ```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+`backend/.env.example` is a different file: it is for running the backend
+directly, without Docker.
 
 Without a key the app runs exactly as before: the endpoint answers 503 and the
 UI says AI features are off. The key is read server-side only - it never
