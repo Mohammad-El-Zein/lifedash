@@ -52,6 +52,7 @@ jobs:
         with:
           context: backend
           push: false
+          provenance: false
           cache-from: type=gha,scope=backend
           cache-to: type=gha,scope=backend,mode=max
       - name: Build frontend image
@@ -59,9 +60,163 @@ jobs:
         with:
           context: frontend
           push: false
+          provenance: false
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,scope=frontend,mode=max
 
-  # Phase 2+: push images to Azure Container Registry and deploy to Container Apps.
-  # Requires the AZURE_CREDENTIALS and AZURE_RESOURCE_GROUP repository secrets and
-  # the infra from /infra to be deployed first (see infra/README.md).
+  deploy:
+    name: Deploy · ACR + Container Apps
+    runs-on: ubuntu-latest
+    needs: [docker-images]
+    # Only real pushes to main deploy; pull requests never touch production.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Never let two deployments interleave on the same apps, and never cancel one
+    # half-way through — a cancelled deploy is exactly the ambiguous state we
+    # don't want.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    env:
+      RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+      API_APP: lifedash-prod-api
+      WEB_APP: lifedash-prod-web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Resolve registry
+        id: acr
+        run: |
+          set -euo pipefail
+          name=$(az acr list -g "$RESOURCE_GROUP" --query "[0].name" -o tsv)
+          if [ -z "$name" ]; then
+            echo "::error::No container registry found in resource group $RESOURCE_GROUP"
+            exit 1
+          fi
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "server=$name.azurecr.io" >> "$GITHUB_OUTPUT"
+          echo "Registry: $name.azurecr.io"
+
+      - name: Record the currently deployed images
+        id: current
+        run: |
+          set -euo pipefail
+          api=$(az containerapp show -n "$API_APP" -g "$RESOURCE_GROUP" \
+                  --query "properties.template.containers[0].image" -o tsv)
+          web=$(az containerapp show -n "$WEB_APP" -g "$RESOURCE_GROUP" \
+                  --query "properties.template.containers[0].image" -o tsv)
+          echo "api=$api" >> "$GITHUB_OUTPUT"
+          echo "web=$web" >> "$GITHUB_OUTPUT"
+          # Printed so a manual rollback is a copy-paste away if this run fails.
+          echo "Currently deployed API image: $api"
+          echo "Currently deployed web image: $web"
+
+      - name: Registry login
+        run: az acr login -n "${{ steps.acr.outputs.name }}"
+
+      - uses: docker/setup-buildx-action@v3
+
+      # provenance: false — ACR/Container Apps want a plain image manifest, not an
+      # attestation index.
+      - name: Build and push backend
+        id: backend
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          push: true
+          provenance: false
+          tags: |
+            ${{ steps.acr.outputs.server }}/lifedash-backend:${{ github.sha }}
+            ${{ steps.acr.outputs.server }}/lifedash-backend:latest
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
+
+      - name: Build and push frontend
+        id: frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          push: true
+          provenance: false
+          tags: |
+            ${{ steps.acr.outputs.server }}/lifedash-frontend:${{ github.sha }}
+            ${{ steps.acr.outputs.server }}/lifedash-frontend:latest
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,scope=frontend,mode=max
+
+      # Deploy by digest, not by tag. Container Apps resolves a tag to a digest
+      # once, when the revision is created, and keeps it — pushing a new :latest
+      # does not update a running app, it just silently keeps serving the old
+      # image. The digest is unambiguous.
+      - name: Deploy backend
+        run: |
+          set -euo pipefail
+          image="${{ steps.acr.outputs.server }}/lifedash-backend@${{ steps.backend.outputs.digest }}"
+          echo "Deploying $image"
+          az containerapp update -n "$API_APP" -g "$RESOURCE_GROUP" --image "$image" -o none
+
+      - name: Deploy frontend
+        run: |
+          set -euo pipefail
+          image="${{ steps.acr.outputs.server }}/lifedash-frontend@${{ steps.frontend.outputs.digest }}"
+          echo "Deploying $image"
+          az containerapp update -n "$WEB_APP" -g "$RESOURCE_GROUP" --image "$image" -o none
+
+      # A green "az containerapp update" only means the config was accepted. It
+      # says nothing about whether the image can be pulled or the app can start,
+      # so the deploy is not called successful until production answers.
+      - name: Smoke test
+        run: |
+          set -uo pipefail
+          api=$(az containerapp show -n "$API_APP" -g "$RESOURCE_GROUP" \
+                  --query "properties.configuration.ingress.fqdn" -o tsv)
+          web=$(az containerapp show -n "$WEB_APP" -g "$RESOURCE_GROUP" \
+                  --query "properties.configuration.ingress.fqdn" -o tsv)
+
+          check() {
+            local name="$1" url="$2" expected="$3"
+            # Apps scale to zero, so the first request is a cold start and may
+            # also be running database migrations. Retry rather than flake.
+            for attempt in $(seq 1 10); do
+              code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 120 "$url" || echo "000")
+              if [ "$code" = "$expected" ]; then
+                echo "$name: HTTP $code"
+                return 0
+              fi
+              echo "$name: HTTP $code (attempt $attempt/10), retrying in 15s"
+              sleep 15
+            done
+            echo "::error::$name did not return $expected after 10 attempts (last: HTTP $code) at $url"
+            return 1
+          }
+
+          failed=0
+          check "API health" "https://$api/api/health" 200 || failed=1
+          check "Frontend" "https://$web/" 200 || failed=1
+          exit $failed
+
+      # Deliberately no automatic rollback: on this environment type there are no
+      # extra revisions to roll back to, and a silent auto-revert would hide that
+      # production is not running what main says it runs. Fail loudly instead and
+      # print exactly what a human needs to intervene.
+      - name: Report failure
+        if: failure()
+        run: |
+          echo "::error::Deployment failed — production may be serving a broken or outdated image."
+          echo ""
+          echo "Previously deployed images (roll back by re-pinning these):"
+          echo "  API: ${{ steps.current.outputs.api }}"
+          echo "  Web: ${{ steps.current.outputs.web }}"
+          echo ""
+          echo "Manual rollback:"
+          echo "  az containerapp update -n $API_APP -g $RESOURCE_GROUP --image '${{ steps.current.outputs.api }}'"
+          echo "  az containerapp update -n $WEB_APP -g $RESOURCE_GROUP --image '${{ steps.current.outputs.web }}'"
+          echo ""
+          echo "Note: a config change alone does not replace a running replica here."
+          echo "Stop sending traffic and wait for scale-to-zero (~5 min), then one"
+          echo "request cold-starts the container with the rolled-back image."
+          echo "Logs: Log Analytics -> ContainerAppConsoleLogs_CL, ContainerAppName_s == '$API_APP'"
