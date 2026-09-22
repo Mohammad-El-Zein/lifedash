@@ -188,7 +188,8 @@
     "alreadyRegistered": "Already registered?",
     "loginFailed": "Login failed. Please try again.",
     "registerFailed": "Registration failed. Please try again.",
-    "registerInvalid": "Please enter a valid email and a password with at least 8 characters."
+    "registerInvalid": "Please enter a valid email and a password with at least 8 characters.",
+    "backToHome": "Back to home"
   },
   "dashboard": {
     "pickModule": "Pick a module to get started.",
