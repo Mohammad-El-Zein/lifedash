@@ -125,8 +125,8 @@ export class LandingFxComponent implements OnDestroy {
 
 function palette(dark: boolean): FxColors {
   return dark
-    ? { primary: 0x818cf8, secondary: 0xa78bfa, tertiary: 0x6366f1, opacity: 0.75 }
-    : { primary: 0x4f46e5, secondary: 0x7c3aed, tertiary: 0x6366f1, opacity: 0.45 };
+    ? { primary: 0x4fc3d9, secondary: 0xfbbf24, tertiary: 0x0e7490, opacity: 0.75 }
+    : { primary: 0x0e7490, secondary: 0xd97706, tertiary: 0x0f7f9b, opacity: 0.45 };
 }
 
 type Three = typeof import('three');

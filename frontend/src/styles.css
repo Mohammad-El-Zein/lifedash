@@ -7,8 +7,9 @@
 /* ---------------------------------------------------------------------------
    Design tokens — "Aurora Glass".
    One visual character throughout: translucent glass surfaces floating over a
-   slowly drifting aurora. Dark is a deep night sky with glowing indigo/violet;
-   light is the same aurora as morning mist over cool paper.
+   slowly drifting aurora. Dark is a deep night sky with glowing petrol and amber;
+   light is the same aurora as morning mist over cool paper. The brand runs on
+   petrol with amber as its warm counterpoint.
    Token NAMES are the stable API used by every component; only values and the
    ambience layer below define the look.
 --------------------------------------------------------------------------- */
@@ -20,11 +21,11 @@
   --surface-sidebar: rgba(255, 255, 255, 0.62);
   --surface-field: rgba(233, 236, 247, 0.92);
   --surface-field-soft: rgba(233, 236, 247, 0.6);
-  --surface-row-hover: rgba(99, 102, 241, 0.05);
-  --surface-nav-hover: rgba(99, 102, 241, 0.08);
-  --surface-nav-active: rgba(99, 102, 241, 0.14);
-  --surface-pill: #4f46e5;
-  --surface-today: rgba(99, 102, 241, 0.08);
+  --surface-row-hover: rgba(14, 116, 144, 0.05);
+  --surface-nav-hover: rgba(14, 116, 144, 0.08);
+  --surface-nav-active: rgba(14, 116, 144, 0.15);
+  --surface-pill: #0e7490;
+  --surface-today: rgba(217, 119, 6, 0.1);
   --surface-backdrop: rgba(15, 18, 40, 0.35);
 
   /* borders */
@@ -38,8 +39,8 @@
   --ink-soft: #3a4056;
   --ink-muted: #5b6172;
   --ink-faint: #7d8296;
-  --ink-nav-active: #312e81;
-  --ink-link: #4f46e5;
+  --ink-nav-active: #0b4553;
+  --ink-link: #0e7490;
 
   /* status */
   --status-danger: #dc2626;
@@ -48,21 +49,21 @@
   --status-success: #059669;
   --status-success-surface: rgba(5, 150, 105, 0.08);
   --status-success-edge: rgba(5, 150, 105, 0.25);
-  --status-warn: #b45309;
-  --status-warn-surface: rgba(217, 119, 6, 0.1);
-  --status-warn-edge: rgba(217, 119, 6, 0.3);
-  --status-warn-hover: rgba(217, 119, 6, 0.16);
-  --status-info-surface: rgba(99, 102, 241, 0.1);
-  --status-info-edge: rgba(99, 102, 241, 0.3);
-  --status-info-ink: #4338ca;
+  --status-warn: #c2410c;
+  --status-warn-surface: rgba(194, 65, 12, 0.1);
+  --status-warn-edge: rgba(194, 65, 12, 0.3);
+  --status-warn-hover: rgba(194, 65, 12, 0.16);
+  --status-info-surface: rgba(14, 116, 144, 0.1);
+  --status-info-edge: rgba(14, 116, 144, 0.3);
+  --status-info-ink: #0b5c6e;
 
   /* ambience */
-  --aurora-1: rgba(99, 102, 241, 0.16);
-  --aurora-2: rgba(168, 85, 247, 0.12);
-  --aurora-3: rgba(14, 165, 233, 0.1);
-  --logo-from: #4f46e5;
-  --logo-to: #9333ea;
-  --accent-glow: rgba(79, 70, 229, 0.28);
+  --aurora-1: rgba(14, 116, 144, 0.16);
+  --aurora-2: rgba(217, 119, 6, 0.13);
+  --aurora-3: rgba(13, 148, 136, 0.1);
+  --logo-from: #0e7490;
+  --logo-to: #d97706;
+  --accent-glow: rgba(14, 116, 144, 0.28);
   --fx-shadow-card: 0 12px 32px rgba(23, 28, 56, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --fx-shadow-modal: 0 30px 70px rgba(23, 28, 56, 0.22), inset 0 1px 0 #ffffff;
 }
@@ -77,9 +78,9 @@
   --surface-field-soft: rgba(255, 255, 255, 0.05);
   --surface-row-hover: rgba(255, 255, 255, 0.04);
   --surface-nav-hover: rgba(255, 255, 255, 0.06);
-  --surface-nav-active: rgba(129, 140, 248, 0.18);
-  --surface-pill: #4f46e5;
-  --surface-today: rgba(129, 140, 248, 0.08);
+  --surface-nav-active: rgba(79, 195, 217, 0.18);
+  --surface-pill: #0e7490;
+  --surface-today: rgba(245, 158, 11, 0.1);
   --surface-backdrop: rgba(2, 4, 14, 0.65);
 
   --edge-default: rgba(255, 255, 255, 0.1);
@@ -92,7 +93,7 @@
   --ink-muted: #9aa0bd;
   --ink-faint: #7c81a0;
   --ink-nav-active: #ffffff;
-  --ink-link: #a5b0ff;
+  --ink-link: #4fc3d9;
 
   --status-danger: #f87171;
   --status-danger-surface: rgba(248, 113, 113, 0.1);
@@ -100,20 +101,20 @@
   --status-success: #34d399;
   --status-success-surface: rgba(52, 211, 153, 0.1);
   --status-success-edge: rgba(52, 211, 153, 0.32);
-  --status-warn: #fbbf24;
-  --status-warn-surface: rgba(251, 191, 36, 0.1);
-  --status-warn-edge: rgba(251, 191, 36, 0.35);
-  --status-warn-hover: rgba(251, 191, 36, 0.18);
-  --status-info-surface: rgba(129, 140, 248, 0.12);
-  --status-info-edge: rgba(129, 140, 248, 0.4);
-  --status-info-ink: #b3bcff;
+  --status-warn: #fb923c;
+  --status-warn-surface: rgba(251, 146, 60, 0.1);
+  --status-warn-edge: rgba(251, 146, 60, 0.35);
+  --status-warn-hover: rgba(251, 146, 60, 0.18);
+  --status-info-surface: rgba(79, 195, 217, 0.12);
+  --status-info-edge: rgba(79, 195, 217, 0.4);
+  --status-info-ink: #8fdcec;
 
-  --aurora-1: rgba(79, 70, 229, 0.5);
-  --aurora-2: rgba(124, 58, 237, 0.38);
-  --aurora-3: rgba(14, 165, 233, 0.26);
-  --logo-from: #818cf8;
-  --logo-to: #c084fc;
-  --accent-glow: rgba(99, 102, 241, 0.45);
+  --aurora-1: rgba(14, 116, 144, 0.55);
+  --aurora-2: rgba(217, 119, 6, 0.34);
+  --aurora-3: rgba(13, 148, 136, 0.3);
+  --logo-from: #4fc3d9;
+  --logo-to: #fbbf24;
+  --accent-glow: rgba(23, 149, 180, 0.45);
   --fx-shadow-card: 0 16px 40px rgba(2, 4, 18, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   --fx-shadow-modal: 0 30px 70px rgba(1, 2, 10, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
@@ -145,8 +146,8 @@
   --color-nav-active-ink: var(--ink-nav-active);
   --color-link: var(--ink-link);
   /* brand accent (same in both themes) */
-  --color-accent: #4f46e5;
-  --color-accent-hover: #6366f1;
+  --color-accent: #0e7490;
+  --color-accent-hover: #0f7f9b;
   /* status */
   --color-danger: var(--status-danger);
   --color-danger-surface: var(--status-danger-surface);
