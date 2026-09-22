@@ -188,7 +188,8 @@
     "alreadyRegistered": "Schon registriert?",
     "loginFailed": "Anmeldung fehlgeschlagen. Bitte versuch es erneut.",
     "registerFailed": "Registrierung fehlgeschlagen. Bitte versuch es erneut.",
-    "registerInvalid": "Bitte gib eine gültige E-Mail und ein Passwort mit mindestens 8 Zeichen ein."
+    "registerInvalid": "Bitte gib eine gültige E-Mail und ein Passwort mit mindestens 8 Zeichen ein.",
+    "backToHome": "Zur Startseite"
   },
   "dashboard": {
     "pickModule": "Wähl ein Modul, um loszulegen.",

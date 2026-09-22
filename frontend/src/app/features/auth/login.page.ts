@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { AuthApiService } from '../../core/api/auth-api.service';
 import { AuthStore } from '../../core/auth/auth.store';
 import { extractError } from '../../core/http-error';
@@ -9,10 +10,22 @@ import { AuthFxComponent } from './auth-fx.component';
 
 @Component({
   selector: 'app-login-page',
-  imports: [FormsModule, RouterLink, TranslatePipe, AuthFxComponent],
+  imports: [FormsModule, RouterLink, TranslatePipe, AuthFxComponent, LucideAngularModule],
   template: `
     <div class="relative min-h-screen overflow-hidden flex items-center justify-center px-4">
       <app-auth-fx />
+      <a
+        routerLink="/"
+        class="group absolute left-6 top-6 z-10 flex items-center gap-1.5 rounded-control px-2 py-1.5 text-sm text-ink-muted transition-colors hover:bg-card hover:text-ink"
+      >
+        <lucide-icon
+          name="chevron-left"
+          [size]="16"
+          class="transition-transform group-hover:-translate-x-0.5"
+        />
+        {{ 'auth.backToHome' | translate }}
+      </a>
+
       <div class="relative z-10 w-full max-w-md">
         <div class="text-center mb-8">
           <h1 class="text-4xl font-bold tracking-tight">
