@@ -15,9 +15,9 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
   selector: 'app-event-form-modal',
   imports: [FormsModule, TranslatePipe, FxModal],
   template: `
-    <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="closed.emit()">
+    <div class="fx-fade fixed inset-0 z-50 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="closed.emit()">
       <div
-        class="w-full max-w-lg rounded-card border border-edge-strong bg-card p-6 shadow-modal max-h-[90vh] overflow-y-auto"
+        class="w-full max-w-lg max-h-[88vh] overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6 max-h-[90vh] overflow-y-auto"
         fxModal (click)="$event.stopPropagation()"
       >
         <h2 class="text-xl font-semibold mb-4">
@@ -63,7 +63,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
                 type="time"
                 required
                 [(ngModel)]="startTime"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3"
               />
             </div>
             <div>
@@ -74,7 +74,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
                 type="time"
                 required
                 [(ngModel)]="endTime"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3"
               />
             </div>
           </div>
@@ -113,7 +113,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
                   type="date"
                   required
                   [(ngModel)]="startDate"
-                  class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"
+                  class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3"
                 />
               </div>
               <div>
@@ -123,7 +123,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
                   name="endDate"
                   type="date"
                   [(ngModel)]="endDate"
-                  class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"
+                  class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3"
                 />
               </div>
             </div>
@@ -136,7 +136,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
                 type="date"
                 required
                 [(ngModel)]="startDate"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3"
               />
             </div>
           }
@@ -163,7 +163,7 @@ const COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
               name="description"
               rows="2"
               [(ngModel)]="description"
-              class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"
+              class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3"
               [placeholder]="'common.optional' | translate"
             ></textarea>
           </div>

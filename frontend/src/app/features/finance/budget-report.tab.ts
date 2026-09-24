@@ -29,8 +29,40 @@ interface BudgetRow extends CategorySummary {
       </div>
     } @else {
       <div class="rounded-card border border-edge bg-card overflow-hidden">
-        <h2 class="font-semibold px-5 pt-5 pb-3">{{ 'budgetReport.title' | translate }}</h2>
-        <div class="overflow-x-auto">
+        <h2 class="font-semibold px-4 pt-4 pb-3 sm:px-5 sm:pt-5">{{ 'budgetReport.title' | translate }}</h2>
+
+        <!-- Below sm the four columns become one card per category. -->
+        <ul class="divide-y divide-edge-soft border-t border-edge sm:hidden">
+          @for (row of rows(); track row.category_id) {
+            <li class="px-4 py-3">
+              <div class="flex items-baseline justify-between gap-3">
+                <span class="flex min-w-0 items-center gap-2">
+                  <span class="h-3 w-3 rounded-full shrink-0" [style.background]="row.color"></span>
+                  <span class="truncate font-medium">{{ row.name }}</span>
+                </span>
+                <span
+                  class="shrink-0 tabular-nums font-semibold"
+                  [class]="row.diff >= 0 ? 'text-success' : 'text-danger'"
+                >
+                  {{ row.diff >= 0 ? '+' : '' }}{{ eur(row.diff) }}
+                </span>
+              </div>
+              <p class="mt-1 text-xs text-ink-muted tabular-nums">
+                {{ 'budgetReport.spent' | translate }} {{ eur(row.spent) }}
+                <span aria-hidden="true">·</span>
+                {{ 'budgetReport.budget' | translate }} {{ eur(row.budget) }}
+              </p>
+            </li>
+          }
+          <li class="flex items-baseline justify-between gap-3 border-t border-edge-strong px-4 py-3 font-semibold">
+            <span>{{ 'common.total' | translate }}</span>
+            <span class="tabular-nums" [class]="totals().diff >= 0 ? 'text-success' : 'text-danger'">
+              {{ totals().diff >= 0 ? '+' : '' }}{{ eur(totals().diff) }}
+            </span>
+          </li>
+        </ul>
+
+        <div class="hidden overflow-x-auto sm:block">
           <table class="w-full text-sm">
             <thead>
               <tr class="text-left text-ink-muted border-t border-edge">

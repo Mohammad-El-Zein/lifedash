@@ -21,18 +21,18 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
   selector: 'app-jobs-page',
   imports: [FormsModule, TranslatePipe, FxModal, LucideAngularModule],
   template: `
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <h1 class="text-3xl font-bold">{{ 'jobs.title' | translate }}</h1>
-        <p class="text-ink-muted mt-1">{{ 'jobs.count' | translate: { n: applications().length } }}</p>
+    <header class="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div class="min-w-0">
+        <h1 class="text-2xl sm:text-3xl font-bold">{{ 'jobs.title' | translate }}</h1>
+        <p class="text-ink-muted mt-1 text-sm sm:text-base">{{ 'jobs.count' | translate: { n: applications().length } }}</p>
       </div>
-      <button (click)="openForm(null)" class="rounded-control bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium transition-colors">
+      <button (click)="openForm(null)" class="min-h-11 shrink-0 rounded-control bg-accent hover:bg-accent-hover px-4 text-sm font-medium transition-colors">
         {{ 'jobs.addApplication' | translate }}
       </button>
     </header>
 
     <!-- Status filter chips -->
-    <div class="mb-6 flex flex-wrap gap-2">
+    <div class="mb-4 sm:mb-6 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
       <button (click)="filter.set(null)"
         [class]="chipClass(filter() === null)">
         {{ 'common.all' | translate }} <span class="text-ink-faint">{{ countFor(null) }}</span>
@@ -54,7 +54,7 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
     } @else {
       <div class="space-y-3">
         @for (app of filtered(); track app.id) {
-          <div data-tile class="rounded-card border border-edge bg-card p-5">
+          <div data-tile class="rounded-card border border-edge bg-card p-4 sm:p-5">
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div class="min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
@@ -72,14 +72,14 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
                   }
                 </p>
               </div>
-              <div class="flex items-center gap-2 shrink-0">
-                <button (click)="openStatus(app)" class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field">
+              <div class="flex w-full items-center gap-2 sm:w-auto sm:shrink-0">
+                <button (click)="openStatus(app)" class="min-h-11 flex-1 rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field sm:flex-none">
                   {{ 'jobs.changeStatus' | translate }}
                 </button>
-                <button (click)="openForm(app)" class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field">
+                <button (click)="openForm(app)" class="min-h-11 flex-1 rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field sm:flex-none">
                   {{ 'common.edit' | translate }}
                 </button>
-                <button (click)="toggleExpand(app.id)" class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field">
+                <button (click)="toggleExpand(app.id)" class="min-h-11 flex-1 rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field sm:flex-none">
                   {{ (expanded() === app.id ? 'common.hide' : 'common.details') | translate }}
                   @if (app.documents.length > 0) {
                     <span class="text-ink-faint inline-flex items-center gap-1">· {{ app.documents.length }} <lucide-icon name="file-text" [size]="13" /></span>
@@ -116,7 +116,7 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
                 <div class="mt-4 border-t border-edge pt-4">
                   <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-medium text-ink-soft">{{ 'jobs.documents' | translate }}</h3>
-                    <label class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field cursor-pointer">
+                    <label class="flex min-h-11 shrink-0 items-center rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field cursor-pointer">
                       {{ (uploading() ? 'common.uploading' : 'jobs.uploadPdf') | translate }}
                       <input type="file" accept="application/pdf" class="hidden"
                         [disabled]="uploading()" (change)="onFileSelected($event, app)" />
@@ -132,19 +132,24 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
                   } @else {
                     <ul class="space-y-1.5">
                       @for (doc of app.documents; track doc.id) {
-                        <li class="flex items-center gap-3 text-sm rounded-control border border-edge px-3 py-2">
-                          <span class="text-ink-faint"><lucide-icon name="file-text" [size]="16" /></span>
-                          <span class="min-w-0 flex-1 truncate">{{ doc.filename }}</span>
-                          <span class="text-ink-faint shrink-0">{{ formatBytes(doc.size_bytes) }} · {{ formatDate(doc.created_at) }}</span>
-                          <button (click)="download(doc)" class="text-link hover:underline shrink-0">{{ 'common.download' | translate }}</button>
-                          <button (click)="removeDocument(doc)" class="text-danger hover:underline shrink-0">{{ 'common.delete' | translate }}</button>
+                        <li class="rounded-control border border-edge px-3 py-2 text-sm">
+                          <div class="flex items-center gap-2">
+                            <span class="text-ink-faint shrink-0"><lucide-icon name="file-text" [size]="16" /></span>
+                            <span class="min-w-0 flex-1 truncate">{{ doc.filename }}</span>
+                          </div>
+                          <div class="mt-1 flex items-center gap-3">
+                            <span class="text-xs text-ink-faint">{{ formatBytes(doc.size_bytes) }} · {{ formatDate(doc.created_at) }}</span>
+                            <span class="flex-1"></span>
+                            <button (click)="download(doc)" class="min-h-11 shrink-0 text-link hover:underline">{{ 'common.download' | translate }}</button>
+                            <button (click)="removeDocument(doc)" class="min-h-11 shrink-0 text-danger hover:underline">{{ 'common.delete' | translate }}</button>
+                          </div>
                         </li>
                       }
                     </ul>
                   }
                 </div>
 
-                <button (click)="remove(app)" class="mt-4 rounded-control border border-danger-edge text-danger px-3 py-1.5 text-sm hover:bg-danger-surface">
+                <button (click)="remove(app)" class="mt-4 min-h-11 rounded-control border border-danger-edge text-danger px-3 text-sm hover:bg-danger-surface">
                   {{ 'jobs.deleteApplication' | translate }}
                 </button>
               </div>
@@ -156,8 +161,8 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
 
     <!-- Add/edit modal -->
     @if (showForm()) {
-      <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="showForm.set(false)">
-        <div class="w-full max-w-md rounded-card border border-edge-strong bg-card p-6 shadow-modal" fxModal (click)="$event.stopPropagation()">
+      <div class="fx-fade fixed inset-0 z-50 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="showForm.set(false)">
+        <div class="max-h-[88vh] w-full max-w-md overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6" fxModal (click)="$event.stopPropagation()">
           <h2 class="text-xl font-semibold mb-4">
             {{ (editing() ? 'jobs.form.editTitle' : 'jobs.form.newTitle') | translate }}
           </h2>
@@ -168,39 +173,39 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
             <div>
               <label for="company" class="block text-sm text-ink-soft mb-1">{{ 'jobs.form.company' | translate }}</label>
               <input id="company" name="company" required [(ngModel)]="fCompany"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <div>
               <label for="position" class="block text-sm text-ink-soft mb-1">{{ 'jobs.form.position' | translate }}</label>
               <input id="position" name="position" required [(ngModel)]="fPosition"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <div>
               <label for="link" class="block text-sm text-ink-soft mb-1">{{ 'jobs.form.link' | translate }}</label>
               <input id="link" name="link" type="url" [(ngModel)]="fLink" placeholder="https://…"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <div>
               <label for="appliedDate" class="block text-sm text-ink-soft mb-1">{{ 'jobs.form.appliedDate' | translate }}</label>
               <input id="appliedDate" name="appliedDate" type="date" [(ngModel)]="fAppliedDate"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <div>
               <label for="description" class="block text-sm text-ink-soft mb-1">{{ 'jobs.form.description' | translate }}</label>
               <textarea id="description" name="description" rows="5" [(ngModel)]="fDescription"
                 [placeholder]="'jobs.form.descriptionPlaceholder' | translate"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"></textarea>
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3"></textarea>
             </div>
             <div>
               <label for="notes" class="block text-sm text-ink-soft mb-1">{{ 'jobs.form.notes' | translate }}</label>
               <textarea id="notes" name="notes" rows="3" [(ngModel)]="fNotes"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"></textarea>
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3"></textarea>
             </div>
             <div class="flex justify-end gap-2 pt-2">
               <button type="button" (click)="showForm.set(false)"
-                class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">{{ 'common.cancel' | translate }}</button>
+                class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field">{{ 'common.cancel' | translate }}</button>
               <button type="submit" [disabled]="saving()"
-                class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+                class="min-h-11 rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
                 {{ (saving() ? 'common.saving' : 'common.save') | translate }}
               </button>
             </div>
@@ -211,8 +216,8 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
 
     <!-- Status change modal -->
     @if (statusTarget(); as app) {
-      <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="statusTarget.set(null)">
-        <div class="w-full max-w-sm rounded-card border border-edge-strong bg-card p-6 shadow-modal" fxModal (click)="$event.stopPropagation()">
+      <div class="fx-fade fixed inset-0 z-50 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="statusTarget.set(null)">
+        <div class="max-h-[88vh] w-full max-w-sm overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6" fxModal (click)="$event.stopPropagation()">
           <h2 class="text-lg font-semibold mb-1">{{ 'jobs.statusModal.title' | translate }}</h2>
           <p class="text-sm text-ink-muted mb-4">{{ app.company }} · {{ app.position }}</p>
           @if (error()) {
@@ -222,7 +227,7 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
             @for (s of statuses; track s.value) {
               @if (s.value !== app.status) {
                 <button type="button" (click)="newStatus.set(s.value)"
-                  [class]="'flex items-center gap-2 rounded-control border px-3 py-2 text-sm text-left transition-colors ' +
+                  [class]="'flex min-h-11 items-center gap-2 rounded-control border px-3 text-sm text-left transition-colors ' +
                     (newStatus() === s.value ? 'border-accent bg-nav-active' : 'border-edge-strong hover:bg-field-soft')">
                   <span class="h-2.5 w-2.5 rounded-full" [style.background]="s.color"></span>
                   {{ s.labelKey | translate }}
@@ -231,12 +236,12 @@ const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024; // keep in sync with the backend li
             }
           </div>
           <input name="statusNote" [(ngModel)]="statusNote" [placeholder]="'jobs.statusModal.notePlaceholder' | translate"
-            class="w-full rounded-control bg-field border border-edge-strong px-3 py-2 text-sm mb-4" />
+            class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3 text-sm mb-4" />
           <div class="flex justify-end gap-2">
             <button (click)="statusTarget.set(null)"
-              class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">{{ 'common.cancel' | translate }}</button>
+              class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field">{{ 'common.cancel' | translate }}</button>
             <button (click)="submitStatus(app)" [disabled]="!newStatus() || saving()"
-              class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+              class="min-h-11 rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
               {{ 'common.update' | translate }}
             </button>
           </div>
@@ -304,7 +309,7 @@ export class JobsPage {
 
   chipClass(active: boolean): string {
     return (
-      'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors ' +
+      'inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-4 text-sm transition-colors ' +
       (active
         ? 'border-accent bg-nav-active text-nav-active-ink'
         : 'border-edge-strong text-ink-soft hover:bg-field-soft')
