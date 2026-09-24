@@ -43,7 +43,10 @@
     "overview": "Overview",
     "welcome": "Welcome",
     "signOut": "Sign out",
-    "editProfile": "Edit your profile"
+    "editProfile": "Edit your profile",
+    "openMenu": "Open the menu",
+    "expandNav": "Expand the navigation",
+    "collapseNav": "Collapse the navigation"
   },
   "palette": {
     "open": "Search or jump to…",

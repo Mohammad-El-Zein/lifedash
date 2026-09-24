@@ -43,7 +43,10 @@
     "overview": "Übersicht",
     "welcome": "Willkommen",
     "signOut": "Abmelden",
-    "editProfile": "Profil bearbeiten"
+    "editProfile": "Profil bearbeiten",
+    "openMenu": "Menü öffnen",
+    "expandNav": "Navigation ausklappen",
+    "collapseNav": "Navigation einklappen"
   },
   "palette": {
     "open": "Suchen oder springen…",
