@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { ThemeService } from '../../core/theme/theme.service';
 import { prefersReducedMotion } from '../../shared/animations';
+import { frameRateWatchdog, fxQuality, scaleCount } from '../../shared/fx-quality';
 
 interface FxColors {
   primary: number;
@@ -25,6 +26,11 @@ interface FxColors {
  */
 @Component({
   selector: 'app-auth-fx',
+  // The canvas sizes itself from this host element, so the host has to fill
+  // the positioned ancestor it sits in. Without this it measures 0x0, resize()
+  // bails out and the scene renders into the default 300x150 buffer, stretched
+  // over the page by CSS.
+  host: { class: 'absolute inset-0' },
   template: `<canvas
     #canvas
     class="pointer-events-none absolute inset-0 h-full w-full"
@@ -66,14 +72,19 @@ export class AuthFxComponent implements OnDestroy {
     const canvas = this.canvasRef().nativeElement;
     const host = canvas.parentElement as HTMLElement;
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const quality = fxQuality();
+    renderer.setPixelRatio(quality.pixelRatio);
     this.renderer = renderer;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
     camera.position.z = 10;
 
-    const { group, animate, setColors } = buildNet(THREE, palette(this.theme.effective() === 'dark'));
+    const { group, animate, setColors } = buildNet(
+      THREE,
+      palette(this.theme.effective() === 'dark'),
+      quality.detail,
+    );
     scene.add(group);
     this.applyColors = setColors;
 
@@ -90,9 +101,14 @@ export class AuthFxComponent implements OnDestroy {
     resize();
 
     this.renderOnce = () => renderer.render(scene, camera);
+
+    // If the device cannot keep up, freeze on the current frame; the CSS
+    // aurora behind the canvas carries the page from there.
+    const watchdog = frameRateWatchdog(() => cancelAnimationFrame(this.rafId));
     this.tick = (time) => {
       animate(time / 1000);
       renderer.render(scene, camera);
+      watchdog(time);
       this.rafId = requestAnimationFrame(this.tick);
     };
 
@@ -129,9 +145,11 @@ interface FxScene {
 }
 
 /** Slowly rotating particle network with a static topology. */
-function buildNet(THREE: Three, colors: FxColors): FxScene {
+function buildNet(THREE: Three, colors: FxColors, detail: number): FxScene {
   const group = new THREE.Group();
-  const count = 130;
+  // Pair-wise line building is quadratic in this count, so it drives both the
+  // build cost and how much the scene has to draw each frame.
+  const count = scaleCount(130, detail, 45);
   const radius = 6.5;
   const positions = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {

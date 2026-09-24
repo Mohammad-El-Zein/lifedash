@@ -13,19 +13,19 @@ import { deepLink } from '../../shared/deep-link';
   selector: 'app-learning-page',
   imports: [FormsModule, TranslatePipe, LucideAngularModule, FxModal],
   template: `
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <header class="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="text-3xl font-bold">{{ 'learning.title' | translate }}</h1>
-        <p class="text-ink-muted mt-1">{{ 'learning.count' | translate: { n: goals().length } }}</p>
+        <h1 class="text-2xl sm:text-3xl font-bold">{{ 'learning.title' | translate }}</h1>
+        <p class="text-ink-muted mt-1 text-sm sm:text-base">{{ 'learning.count' | translate: { n: goals().length } }}</p>
       </div>
       <button (click)="openForm(null)"
-        class="inline-flex items-center gap-1.5 rounded-control bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium transition-colors">
+        class="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-control bg-accent hover:bg-accent-hover px-4 text-sm font-medium transition-colors">
         <lucide-icon name="plus" [size]="16" /> {{ 'learning.addGoal' | translate }}
       </button>
     </header>
 
     <!-- Status filter chips -->
-    <div class="mb-6 flex flex-wrap gap-2">
+    <div class="mb-4 sm:mb-6 flex flex-wrap gap-2">
       <button (click)="filter.set(null)" [class]="chipClass(filter() === null)">
         {{ 'common.all' | translate }} <span class="text-ink-faint">{{ goals().length }}</span>
       </button>
@@ -69,15 +69,15 @@ import { deepLink } from '../../shared/deep-link';
                 @for (s of statuses; track s.value) {
                   @if (s.value !== goal.status) {
                     <button (click)="changeStatus(goal, s.value)"
-                      class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field">
+                      class="min-h-11 rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field">
                       {{ ('learning.setStatus.' + s.value) | translate }}
                     </button>
                   }
                 }
                 <button (click)="openForm(goal)" [title]="'common.edit' | translate"
-                  class="text-ink-faint hover:text-ink px-1"><lucide-icon name="pencil" [size]="15" /></button>
+                  class="inline-flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-ink"><lucide-icon name="pencil" [size]="15" /></button>
                 <button (click)="remove(goal)" [title]="'common.delete' | translate"
-                  class="text-ink-faint hover:text-danger px-1"><lucide-icon name="trash-2" [size]="15" /></button>
+                  class="inline-flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-danger"><lucide-icon name="trash-2" [size]="15" /></button>
               </div>
             </div>
 
@@ -124,11 +124,11 @@ import { deepLink } from '../../shared/deep-link';
             <form class="mt-2 flex gap-2" (ngSubmit)="addMilestone(goal)">
               <input [name]="'newMilestone' + goal.id" [(ngModel)]="newMilestone[goal.id]"
                 [placeholder]="'learning.milestonePlaceholder' | translate"
-                class="min-w-0 flex-1 rounded-control bg-field border border-edge-strong px-3 py-1.5 text-sm" />
+                class="min-h-11 min-w-0 flex-1 rounded-control bg-field border border-edge-strong px-3 text-sm" />
               <input [name]="'newMilestoneDue' + goal.id" type="date" [(ngModel)]="newMilestoneDue[goal.id]"
-                class="rounded-control bg-field border border-edge-strong px-3 py-1.5 text-sm" />
+                class="min-h-11 rounded-control bg-field border border-edge-strong px-3 text-sm" />
               <button type="submit" [disabled]="!(newMilestone[goal.id] || '').trim()"
-                class="inline-flex items-center gap-1 rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field disabled:opacity-50">
+                class="inline-flex min-h-11 items-center gap-1 rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field disabled:opacity-50">
                 <lucide-icon name="plus" [size]="14" /> {{ 'learning.addMilestone' | translate }}
               </button>
             </form>
@@ -139,8 +139,8 @@ import { deepLink } from '../../shared/deep-link';
 
     <!-- Goal add/edit modal -->
     @if (showForm()) {
-      <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="showForm.set(false)">
-        <div class="w-full max-w-md rounded-card border border-edge-strong bg-card p-6 shadow-modal" fxModal (click)="$event.stopPropagation()">
+      <div class="fx-fade fixed inset-0 z-50 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="showForm.set(false)">
+        <div class="w-full max-w-md max-h-[88vh] overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6" fxModal (click)="$event.stopPropagation()">
           <h2 class="text-xl font-semibold mb-4">
             {{ (editing() ? 'learning.form.editTitle' : 'learning.form.newTitle') | translate }}
           </h2>
@@ -152,26 +152,26 @@ import { deepLink } from '../../shared/deep-link';
               <label for="goalTitle" class="block text-sm text-ink-soft mb-1">{{ 'learning.form.title' | translate }}</label>
               <input id="goalTitle" name="goalTitle" required [(ngModel)]="fTitle"
                 [placeholder]="'learning.form.titlePlaceholder' | translate"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <div>
               <label for="goalTarget" class="block text-sm text-ink-soft mb-1">{{ 'learning.form.targetDate' | translate }}</label>
               <input id="goalTarget" name="goalTarget" type="date" [(ngModel)]="fTargetDate"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <div>
               <label for="goalDesc" class="block text-sm text-ink-soft mb-1">{{ 'learning.form.description' | translate }}</label>
               <textarea id="goalDesc" name="goalDesc" rows="3" [(ngModel)]="fDescription"
                 [placeholder]="'common.optional' | translate"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"></textarea>
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3"></textarea>
             </div>
             <div class="flex justify-end gap-2 pt-2">
               <button type="button" (click)="showForm.set(false)"
-                class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">
+                class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field">
                 {{ 'common.cancel' | translate }}
               </button>
               <button type="submit" [disabled]="saving()"
-                class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+                class="min-h-11 rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
                 {{ (saving() ? 'common.saving' : 'common.save') | translate }}
               </button>
             </div>

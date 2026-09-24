@@ -24,28 +24,28 @@ const PORTION_CHIPS = [0.5, 1, 1.5, 2];
   selector: 'app-meals-page',
   imports: [FormsModule, TranslatePipe, LucideAngularModule, FxModal, DishesTab, IngredientsTab],
   template: `
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <header class="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="text-3xl font-bold">{{ 'meals.title' | translate }}</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold">{{ 'meals.title' | translate }}</h1>
         @if (tab() === 'diary') {
-          <p class="text-ink-muted mt-1">{{ dayLabel() }}</p>
+          <p class="text-ink-muted mt-1 text-sm sm:text-base">{{ dayLabel() }}</p>
         } @else {
-          <p class="text-ink-muted mt-1">{{ ('meals.tabs.' + tab() + 'Subtitle') | translate }}</p>
+          <p class="text-ink-muted mt-1 text-sm sm:text-base">{{ ('meals.tabs.' + tab() + 'Subtitle') | translate }}</p>
         }
       </div>
       @if (tab() === 'diary') {
         <button (click)="openForm(null)"
-          class="inline-flex items-center gap-1.5 rounded-control bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium transition-colors">
+          class="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-control bg-accent hover:bg-accent-hover px-4 text-sm font-medium transition-colors">
           <lucide-icon name="plus" [size]="16" /> {{ 'meals.addMeal' | translate }}
         </button>
       }
     </header>
 
     <!-- Tabs -->
-    <div class="mb-6 inline-flex rounded-control border border-edge-strong p-1 gap-1">
+    <div class="mb-4 sm:mb-6 inline-flex rounded-control border border-edge-strong p-1 gap-1">
       @for (t of tabs; track t) {
         <button (click)="tab.set(t)"
-          [class]="'rounded-control px-4 py-1.5 text-sm transition-colors ' +
+          [class]="'min-h-11 rounded-control px-4 text-sm transition-colors ' +
             (tab() === t ? 'bg-pill text-white font-medium' : 'text-ink-muted hover:text-ink')">
           {{ ('meals.tabs.' + t) | translate }}
         </button>
@@ -57,20 +57,20 @@ const PORTION_CHIPS = [0.5, 1, 1.5, 2];
       @case ('ingredients') { <app-ingredients-tab /> }
       @default {
         <!-- Day navigation -->
-        <div class="mb-6 flex flex-wrap items-center gap-2">
+        <div class="mb-4 sm:mb-6 flex flex-wrap items-center gap-2">
           <button (click)="shiftDay(-1)" [title]="'meals.prevDay' | translate"
-            class="rounded-control border border-edge-strong p-2 text-ink-soft hover:bg-field transition-colors">
+            class="flex h-11 w-11 items-center justify-center rounded-control border border-edge-strong text-ink-soft hover:bg-field transition-colors">
             <lucide-icon name="chevron-left" [size]="16" />
           </button>
           <input type="date" name="day" [ngModel]="day()" (ngModelChange)="setDay($event)"
-            class="rounded-control bg-field border border-edge-strong px-3 py-1.5 text-sm" />
+            class="min-h-11 rounded-control bg-field border border-edge-strong px-3 text-sm" />
           <button (click)="shiftDay(1)" [title]="'meals.nextDay' | translate"
-            class="rounded-control border border-edge-strong p-2 text-ink-soft hover:bg-field transition-colors">
+            class="flex h-11 w-11 items-center justify-center rounded-control border border-edge-strong text-ink-soft hover:bg-field transition-colors">
             <lucide-icon name="chevron-right" [size]="16" />
           </button>
           @if (day() !== today) {
             <button (click)="setDay(today)"
-              class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field transition-colors">
+              class="min-h-11 rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field transition-colors">
               {{ 'common.today' | translate }}
             </button>
           }
@@ -80,24 +80,24 @@ const PORTION_CHIPS = [0.5, 1, 1.5, 2];
           <p class="text-ink-muted">{{ 'common.loading' | translate }}</p>
         } @else {
           <!-- Day totals -->
-          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-            <div data-tile class="rounded-card border border-edge bg-card p-5">
+          <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 mb-4 sm:mb-6">
+            <div data-tile class="rounded-card border border-edge bg-card p-4 sm:p-5">
               <p class="text-sm text-ink-muted inline-flex items-center gap-1.5">
                 <lucide-icon name="flame" [size]="14" /> {{ 'meals.totalCalories' | translate }}
               </p>
-              <p class="text-2xl font-semibold mt-1 tabular-nums">{{ totals().calories }} kcal</p>
+              <p class="text-xl sm:text-2xl font-semibold mt-1 tabular-nums">{{ totals().calories }} kcal</p>
             </div>
-            <div data-tile class="rounded-card border border-edge bg-card p-5">
+            <div data-tile class="rounded-card border border-edge bg-card p-4 sm:p-5">
               <p class="text-sm text-ink-muted">{{ 'meals.totalProtein' | translate }}</p>
-              <p class="text-2xl font-semibold mt-1 tabular-nums">{{ totals().protein }} g</p>
+              <p class="text-xl sm:text-2xl font-semibold mt-1 tabular-nums">{{ totals().protein }} g</p>
             </div>
-            <div data-tile class="rounded-card border border-edge bg-card p-5">
+            <div data-tile class="rounded-card border border-edge bg-card p-4 sm:p-5">
               <p class="text-sm text-ink-muted">{{ 'meals.totalCarbs' | translate }}</p>
-              <p class="text-2xl font-semibold mt-1 tabular-nums">{{ totals().carbs }} g</p>
+              <p class="text-xl sm:text-2xl font-semibold mt-1 tabular-nums">{{ totals().carbs }} g</p>
             </div>
-            <div data-tile class="rounded-card border border-edge bg-card p-5">
+            <div data-tile class="rounded-card border border-edge bg-card p-4 sm:p-5">
               <p class="text-sm text-ink-muted">{{ 'meals.totalFat' | translate }}</p>
-              <p class="text-2xl font-semibold mt-1 tabular-nums">{{ totals().fat }} g</p>
+              <p class="text-xl sm:text-2xl font-semibold mt-1 tabular-nums">{{ totals().fat }} g</p>
             </div>
           </div>
 
@@ -108,7 +108,7 @@ const PORTION_CHIPS = [0.5, 1, 1.5, 2];
           } @else {
             <div class="space-y-4">
               @for (group of grouped(); track group.type.value) {
-                <div data-tile class="rounded-card border border-edge bg-card p-5">
+                <div data-tile class="rounded-card border border-edge bg-card p-4 sm:p-5">
                   <div class="flex items-center justify-between mb-3">
                     <h2 class="font-semibold inline-flex items-center gap-2">
                       <span class="icon-chip"><lucide-icon [name]="group.type.icon" [size]="16" /></span>
@@ -118,35 +118,43 @@ const PORTION_CHIPS = [0.5, 1, 1.5, 2];
                   </div>
                   <ul class="space-y-1.5">
                     @for (meal of group.meals; track meal.id) {
-                      <li class="flex items-center gap-3 text-sm rounded-control border border-edge px-3 py-2">
-                        <span class="min-w-0 flex-1 truncate inline-flex items-center gap-1.5">
+                      <!--
+                        Name, three macro chips, calories and two buttons do not
+                        fit a phone row, so below sm the name gets a line of its
+                        own and the rest follows underneath.
+                      -->
+                      <li class="rounded-control border border-edge px-3 py-2 text-sm sm:flex sm:items-center sm:gap-3">
+                        <span class="flex min-w-0 flex-1 items-center gap-1.5 truncate">
                           {{ meal.name }}
                           @if (meal.template_id !== null) {
-                            <span class="text-ink-faint" [title]="'meals.fromDish' | translate">
+                            <span class="text-ink-faint shrink-0" [title]="'meals.fromDish' | translate">
                               <lucide-icon name="utensils" [size]="12" />
                             </span>
                           }
                         </span>
-                        @if (meal.protein_g !== null) {
-                          <span class="text-xs text-ink-faint bg-field rounded px-1.5 py-0.5 shrink-0">
-                            {{ 'meals.proteinShort' | translate: { g: meal.protein_g } }}
-                          </span>
-                        }
-                        @if (meal.carbs_g !== null) {
-                          <span class="text-xs text-ink-faint bg-field rounded px-1.5 py-0.5 shrink-0">
-                            {{ 'meals.carbsShort' | translate: { g: meal.carbs_g } }}
-                          </span>
-                        }
-                        @if (meal.fat_g !== null) {
-                          <span class="text-xs text-ink-faint bg-field rounded px-1.5 py-0.5 shrink-0">
-                            {{ 'meals.fatShort' | translate: { g: meal.fat_g } }}
-                          </span>
-                        }
-                        <span class="tabular-nums text-ink-soft shrink-0 w-20 text-right">{{ meal.calories }} kcal</span>
-                        <button (click)="openForm(meal)" [title]="'common.edit' | translate"
-                          class="text-ink-faint hover:text-ink px-1 shrink-0"><lucide-icon name="pencil" [size]="15" /></button>
-                        <button (click)="remove(meal)" [title]="'common.delete' | translate"
-                          class="text-ink-faint hover:text-danger px-1 shrink-0"><lucide-icon name="trash-2" [size]="15" /></button>
+                        <div class="mt-1.5 flex items-center gap-2 sm:mt-0 sm:gap-3">
+                          @if (meal.protein_g !== null) {
+                            <span class="text-xs text-ink-faint bg-field rounded px-1.5 py-0.5 shrink-0">
+                              {{ 'meals.proteinShort' | translate: { g: meal.protein_g } }}
+                            </span>
+                          }
+                          @if (meal.carbs_g !== null) {
+                            <span class="text-xs text-ink-faint bg-field rounded px-1.5 py-0.5 shrink-0">
+                              {{ 'meals.carbsShort' | translate: { g: meal.carbs_g } }}
+                            </span>
+                          }
+                          @if (meal.fat_g !== null) {
+                            <span class="text-xs text-ink-faint bg-field rounded px-1.5 py-0.5 shrink-0">
+                              {{ 'meals.fatShort' | translate: { g: meal.fat_g } }}
+                            </span>
+                          }
+                          <span class="flex-1 sm:hidden"></span>
+                          <span class="tabular-nums text-ink-soft shrink-0 text-right sm:w-20">{{ meal.calories }} kcal</span>
+                          <button (click)="openForm(meal)" [attr.aria-label]="'common.edit' | translate"
+                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-ink sm:h-8 sm:w-8"><lucide-icon name="pencil" [size]="15" /></button>
+                          <button (click)="remove(meal)" [attr.aria-label]="'common.delete' | translate"
+                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-danger sm:h-8 sm:w-8"><lucide-icon name="trash-2" [size]="15" /></button>
+                        </div>
                       </li>
                     }
                   </ul>
@@ -160,8 +168,8 @@ const PORTION_CHIPS = [0.5, 1, 1.5, 2];
 
     <!-- Add/edit modal -->
     @if (showForm()) {
-      <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="showForm.set(false)">
-        <div class="w-full max-w-md rounded-card border border-edge-strong bg-card p-6 shadow-modal" fxModal (click)="$event.stopPropagation()">
+      <div class="fx-fade fixed inset-0 z-50 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="showForm.set(false)">
+        <div class="w-full max-w-md max-h-[88vh] overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6" fxModal (click)="$event.stopPropagation()">
           <h2 class="text-xl font-semibold mb-4">
             {{ (editing() ? 'meals.form.editTitle' : 'meals.form.newTitle') | translate }}
           </h2>
@@ -204,7 +212,7 @@ const PORTION_CHIPS = [0.5, 1, 1.5, 2];
                 <div>
                   <label for="mealDish" class="block text-sm text-ink-soft mb-1">{{ 'meals.form.dish' | translate }}</label>
                   <select id="mealDish" name="mealDish" [(ngModel)]="fTemplateId"
-                    class="w-full rounded-control bg-field border border-edge-strong px-3 py-2 text-sm">
+                    class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3 text-sm">
                     <option [ngValue]="null" disabled>{{ 'meals.form.dishPlaceholder' | translate }}</option>
                     @for (tpl of templates(); track tpl.id) {
                       <option [ngValue]="tpl.id">{{ tpl.name }} ({{ num(tpl.totals.calories) }} kcal)</option>
@@ -241,7 +249,7 @@ const PORTION_CHIPS = [0.5, 1, 1.5, 2];
                 <label for="mealName" class="block text-sm text-ink-soft mb-1">{{ 'meals.form.name' | translate }}</label>
                 <input id="mealName" name="mealName" required [(ngModel)]="fName"
                   [placeholder]="'meals.form.namePlaceholder' | translate"
-                  class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                  class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
               </div>
               <div class="grid grid-cols-2 gap-3">
                 <div>
@@ -272,11 +280,11 @@ const PORTION_CHIPS = [0.5, 1, 1.5, 2];
 
             <div class="flex justify-end gap-2 pt-2">
               <button type="button" (click)="showForm.set(false)"
-                class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">
+                class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field">
                 {{ 'common.cancel' | translate }}
               </button>
               <button type="submit" [disabled]="saving() || (!editing() && mode() === 'template' && fTemplateId === null)"
-                class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+                class="min-h-11 rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
                 {{ (saving() ? 'common.saving' : 'common.save') | translate }}
               </button>
             </div>

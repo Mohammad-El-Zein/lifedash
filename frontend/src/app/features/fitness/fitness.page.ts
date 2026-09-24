@@ -19,18 +19,18 @@ const LINE_COLOR = CATEGORY_COLORS[0];
   selector: 'app-fitness-page',
   imports: [FormsModule, TranslatePipe, LucideAngularModule, EchartComponent, FxModal, WorkoutFormModal],
   template: `
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <header class="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="text-3xl font-bold">{{ 'fitness.title' | translate }}</h1>
-        <p class="text-ink-muted mt-1">{{ 'fitness.count' | translate: { n: workouts().length } }}</p>
+        <h1 class="text-2xl sm:text-3xl font-bold">{{ 'fitness.title' | translate }}</h1>
+        <p class="text-ink-muted mt-1 text-sm sm:text-base">{{ 'fitness.count' | translate: { n: workouts().length } }}</p>
       </div>
       <div class="flex items-center gap-2">
         <button (click)="openExercises()"
-          class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field transition-colors">
+          class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field transition-colors">
           {{ 'fitness.manageExercises' | translate }}
         </button>
         <button (click)="openWorkoutForm(null)"
-          class="inline-flex items-center gap-1.5 rounded-control bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium transition-colors">
+          class="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-control bg-accent hover:bg-accent-hover px-4 text-sm font-medium transition-colors">
           <lucide-icon name="plus" [size]="16" /> {{ 'fitness.newWorkout' | translate }}
         </button>
       </div>
@@ -49,7 +49,7 @@ const LINE_COLOR = CATEGORY_COLORS[0];
             </h2>
             <select name="progressExercise" [ngModel]="selectedExerciseId()"
               (ngModelChange)="selectExercise($event)"
-              class="rounded-control bg-field border border-edge-strong px-3 py-1.5 text-sm">
+              class="min-h-11 rounded-control bg-field border border-edge-strong px-3 text-sm">
               @for (ex of exercises(); track ex.id) {
                 <option [ngValue]="ex.id">{{ ex.name }}</option>
               }
@@ -88,11 +88,11 @@ const LINE_COLOR = CATEGORY_COLORS[0];
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                   <button (click)="openWorkoutForm(workout)"
-                    class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field">
+                    class="min-h-11 rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field">
                     {{ 'common.edit' | translate }}
                   </button>
                   <button (click)="removeWorkout(workout)"
-                    class="rounded-control border border-danger-edge text-danger px-3 py-1.5 text-sm hover:bg-danger-surface">
+                    class="min-h-11 rounded-control border border-danger-edge text-danger px-3 text-sm hover:bg-danger-surface">
                     {{ 'common.delete' | translate }}
                   </button>
                 </div>
@@ -130,8 +130,8 @@ const LINE_COLOR = CATEGORY_COLORS[0];
 
     <!-- Exercises modal -->
     @if (showExercises()) {
-      <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="showExercises.set(false)">
-        <div class="w-full max-w-md rounded-card border border-edge-strong bg-card p-6 shadow-modal" fxModal (click)="$event.stopPropagation()">
+      <div class="fx-fade fixed inset-0 z-50 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="showExercises.set(false)">
+        <div class="w-full max-w-md max-h-[88vh] overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6" fxModal (click)="$event.stopPropagation()">
           <h2 class="text-xl font-semibold mb-4">{{ 'fitness.exercises.title' | translate }}</h2>
           @if (exerciseError()) {
             <p class="fx-pop text-sm text-danger bg-danger-surface border border-danger-edge rounded-control px-3 py-2 mb-4">
@@ -149,9 +149,9 @@ const LINE_COLOR = CATEGORY_COLORS[0];
                     @if (ex.muscle_group) { <span class="text-ink-faint">· {{ ex.muscle_group }}</span> }
                   </span>
                   <button (click)="startEditExercise(ex)" [title]="'common.edit' | translate"
-                    class="text-ink-faint hover:text-ink px-1"><lucide-icon name="pencil" [size]="15" /></button>
+                    class="inline-flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-ink"><lucide-icon name="pencil" [size]="15" /></button>
                   <button (click)="removeExercise(ex)" [title]="'common.delete' | translate"
-                    class="text-ink-faint hover:text-danger px-1"><lucide-icon name="trash-2" [size]="15" /></button>
+                    class="inline-flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-danger"><lucide-icon name="trash-2" [size]="15" /></button>
                 </li>
               }
             </ul>
@@ -171,12 +171,12 @@ const LINE_COLOR = CATEGORY_COLORS[0];
             <div class="flex justify-end gap-2">
               @if (editingExercise()) {
                 <button type="button" (click)="cancelEditExercise()"
-                  class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">
+                  class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field">
                   {{ 'common.cancel' | translate }}
                 </button>
               }
               <button type="submit" [disabled]="savingExercise() || !exName.trim()"
-                class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+                class="min-h-11 rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
                 {{ (savingExercise() ? 'common.saving' : editingExercise() ? 'common.update' : 'common.save') | translate }}
               </button>
             </div>

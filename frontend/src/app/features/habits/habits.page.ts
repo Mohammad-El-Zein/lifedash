@@ -23,34 +23,34 @@ function mondayOf(date: Date): Date {
   selector: 'app-habits-page',
   imports: [FormsModule, TranslatePipe, LucideAngularModule, FxModal],
   template: `
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <header class="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="text-3xl font-bold">{{ 'habits.title' | translate }}</h1>
-        <p class="text-ink-muted mt-1">{{ weekLabel() }}</p>
+        <h1 class="text-2xl sm:text-3xl font-bold">{{ 'habits.title' | translate }}</h1>
+        <p class="text-ink-muted mt-1 text-sm sm:text-base">{{ weekLabel() }}</p>
       </div>
       <button (click)="openForm(null)"
-        class="inline-flex items-center gap-1.5 rounded-control bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium transition-colors">
+        class="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-control bg-accent hover:bg-accent-hover px-4 text-sm font-medium transition-colors">
         <lucide-icon name="plus" [size]="16" /> {{ 'habits.addHabit' | translate }}
       </button>
     </header>
 
     <!-- Week navigation -->
-    <div class="mb-6 flex flex-wrap items-center gap-2">
+    <div class="mb-4 sm:mb-6 flex flex-wrap items-center gap-2">
       <button (click)="shiftWeek(-1)" [title]="'habits.prevWeek' | translate"
-        class="rounded-control border border-edge-strong p-2 text-ink-soft hover:bg-field transition-colors">
+        class="flex h-11 w-11 items-center justify-center rounded-control border border-edge-strong text-ink-soft hover:bg-field transition-colors">
         <lucide-icon name="chevron-left" [size]="16" />
       </button>
       <button (click)="shiftWeek(1)" [title]="'habits.nextWeek' | translate"
-        class="rounded-control border border-edge-strong p-2 text-ink-soft hover:bg-field transition-colors">
+        class="flex h-11 w-11 items-center justify-center rounded-control border border-edge-strong text-ink-soft hover:bg-field transition-colors">
         <lucide-icon name="chevron-right" [size]="16" />
       </button>
       @if (!isCurrentWeek()) {
         <button (click)="goToday()"
-          class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field transition-colors">
+          class="min-h-11 rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field transition-colors">
           {{ 'common.today' | translate }}
         </button>
       }
-      <label class="ml-auto inline-flex items-center gap-2 text-sm text-ink-muted cursor-pointer">
+      <label class="ml-auto inline-flex min-h-11 items-center gap-2 text-sm text-ink-muted cursor-pointer">
         <input type="checkbox" name="showArchived" [ngModel]="showArchived()"
           (ngModelChange)="toggleArchivedVisible($event)" class="accent-current" />
         {{ 'habits.showArchived' | translate }}
@@ -64,7 +64,84 @@ function mondayOf(date: Date): Date {
         {{ 'habits.noHabits' | translate }}
       </div>
     } @else {
-      <div class="rounded-card border border-edge bg-card overflow-hidden">
+      <!--
+        The seven-day grid plus name, streak and actions cannot share a phone
+        row. Below sm each habit becomes a card whose day circles span the full
+        width, which also makes them comfortably tappable.
+      -->
+      <ul class="space-y-3 sm:hidden">
+        @for (habit of habits(); track habit.id) {
+          <li class="rounded-card border border-edge bg-card p-4" [class.opacity-60]="habit.is_archived">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="font-medium">{{ habit.name }}</p>
+                @if (habit.schedule_days !== null) {
+                  <p class="text-xs text-ink-faint">{{ scheduleLabel(habit) }}</p>
+                }
+                @if (habit.is_archived) {
+                  <p class="text-xs text-ink-faint">{{ 'habits.archived' | translate }}</p>
+                }
+              </div>
+              <span
+                class="inline-flex shrink-0 items-center gap-1 tabular-nums text-sm"
+                [class.text-ink-faint]="habit.streak === 0"
+              >
+                <lucide-icon name="flame" [size]="14" [class]="habit.streak > 0 ? 'text-warn' : ''" />
+                {{ habit.streak }}
+              </span>
+            </div>
+
+            <div class="mt-3 grid grid-cols-7 gap-1">
+              @for (day of weekDays(); track day.iso) {
+                <div class="flex flex-col items-center gap-1">
+                  <span class="text-[10px] uppercase text-ink-faint" [class.text-ink]="day.iso === today">
+                    {{ day.weekday }}
+                  </span>
+                  @if (isScheduled(habit, day.weekdayNum)) {
+                    <button
+                      (click)="toggle(habit, day.iso)"
+                      [disabled]="day.iso > today || habit.is_archived"
+                      [class]="'flex h-11 w-11 items-center justify-center rounded-full border transition-colors ' +
+                        (habit.week_logs[day.iso]
+                          ? 'bg-accent border-accent'
+                          : 'border-edge-strong') +
+                        ' disabled:opacity-40 disabled:cursor-not-allowed'"
+                      [attr.aria-label]="habit.name + ' — ' + day.iso"
+                      [attr.aria-pressed]="!!habit.week_logs[day.iso]"
+                    >
+                      @if (habit.week_logs[day.iso]) { <lucide-icon name="check" [size]="16" /> }
+                      @if (!habit.week_logs[day.iso]) {
+                        <span class="text-xs tabular-nums text-ink-faint">{{ day.dayNum }}</span>
+                      }
+                    </button>
+                  } @else {
+                    <span class="flex h-11 w-11 items-center justify-center text-ink-faint">·</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="mt-2 flex items-center justify-end gap-1">
+              <button
+                (click)="openForm(habit)"
+                class="flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-ink"
+                [attr.aria-label]="'common.edit' | translate"
+              >
+                <lucide-icon name="pencil" [size]="16" />
+              </button>
+              <button
+                (click)="remove(habit)"
+                class="flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-danger"
+                [attr.aria-label]="'common.delete' | translate"
+              >
+                <lucide-icon name="trash-2" [size]="16" />
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+
+      <div class="hidden rounded-card border border-edge bg-card overflow-hidden sm:block">
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
@@ -134,8 +211,8 @@ function mondayOf(date: Date): Date {
 
     <!-- Add/edit modal -->
     @if (showForm()) {
-      <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="showForm.set(false)">
-        <div class="w-full max-w-md rounded-card border border-edge-strong bg-card p-6 shadow-modal" fxModal (click)="$event.stopPropagation()">
+      <div class="fx-fade fixed inset-0 z-50 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="showForm.set(false)">
+        <div class="w-full max-w-md max-h-[88vh] overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6" fxModal (click)="$event.stopPropagation()">
           <h2 class="text-xl font-semibold mb-4">
             {{ (editing() ? 'habits.form.editTitle' : 'habits.form.newTitle') | translate }}
           </h2>
@@ -147,7 +224,7 @@ function mondayOf(date: Date): Date {
               <label for="habitName" class="block text-sm text-ink-soft mb-1">{{ 'habits.form.name' | translate }}</label>
               <input id="habitName" name="habitName" required [(ngModel)]="fName"
                 [placeholder]="'habits.form.namePlaceholder' | translate"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <div>
               <span class="block text-sm text-ink-soft mb-1">{{ 'habits.form.schedule' | translate }}</span>
@@ -170,11 +247,11 @@ function mondayOf(date: Date): Date {
             }
             <div class="flex justify-end gap-2 pt-2">
               <button type="button" (click)="showForm.set(false)"
-                class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">
+                class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field">
                 {{ 'common.cancel' | translate }}
               </button>
               <button type="submit" [disabled]="saving() || fDays.length === 0"
-                class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+                class="min-h-11 rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
                 {{ (saving() ? 'common.saving' : 'common.save') | translate }}
               </button>
             </div>
