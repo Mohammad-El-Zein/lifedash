@@ -9,6 +9,7 @@ import { toIsoDate, todayIso } from '../../core/date-utils';
 import { eur } from '../../core/format';
 import { extractError } from '../../core/http-error';
 import { LanguageService } from '../../core/i18n/language.service';
+import { ViewportService } from '../../core/layout/viewport.service';
 import { ThemeService } from '../../core/theme/theme.service';
 import {
   Budget,
@@ -31,20 +32,21 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
   selector: 'app-finance-page',
   imports: [FormsModule, EchartComponent, BudgetReportTab, MonthlyPlanTab, SavingsTab, TranslatePipe, FxModal, LucideAngularModule],
   template: `
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <h1 class="text-3xl font-bold">{{ 'finance.title' | translate }}</h1>
-        <p class="text-ink-muted mt-1">
+    <header class="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div class="min-w-0">
+        <h1 class="text-2xl sm:text-3xl font-bold">{{ 'finance.title' | translate }}</h1>
+        <p class="text-ink-muted mt-1 text-sm sm:text-base">
           {{ tab() === 'savings' ? ('finance.savingsGoal' | translate) : monthLabel() }}
         </p>
       </div>
       @if (tab() !== 'savings') {
-        <div class="flex items-center gap-2">
-          <button (click)="shiftMonth(-1)" class="rounded-control border border-edge-strong px-3 py-2 hover:bg-field transition-colors" [attr.aria-label]="'finance.prevMonth' | translate"><lucide-icon name="chevron-left" [size]="16" /></button>
-          <button (click)="goCurrentMonth()" class="rounded-control border border-edge-strong px-4 py-2 text-sm hover:bg-field transition-colors">{{ 'finance.thisMonth' | translate }}</button>
-          <button (click)="shiftMonth(1)" class="rounded-control border border-edge-strong px-3 py-2 hover:bg-field transition-colors" [attr.aria-label]="'finance.nextMonth' | translate"><lucide-icon name="chevron-right" [size]="16" /></button>
+        <!-- "Add transaction" is too long to share a row with the month nav on a phone. -->
+        <div class="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+          <button (click)="shiftMonth(-1)" class="flex min-h-11 items-center rounded-control border border-edge-strong px-3 hover:bg-field transition-colors" [attr.aria-label]="'finance.prevMonth' | translate"><lucide-icon name="chevron-left" [size]="16" /></button>
+          <button (click)="goCurrentMonth()" class="min-h-11 whitespace-nowrap rounded-control border border-edge-strong px-4 text-sm hover:bg-field transition-colors">{{ 'finance.thisMonth' | translate }}</button>
+          <button (click)="shiftMonth(1)" class="flex min-h-11 items-center rounded-control border border-edge-strong px-3 hover:bg-field transition-colors" [attr.aria-label]="'finance.nextMonth' | translate"><lucide-icon name="chevron-right" [size]="16" /></button>
           @if (tab() === 'overview') {
-            <button (click)="openAdd()" class="ml-2 rounded-control bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium transition-colors">
+            <button (click)="openAdd()" class="min-h-11 w-full whitespace-nowrap rounded-control bg-accent hover:bg-accent-hover px-4 text-sm font-medium transition-colors sm:ml-2 sm:w-auto">
               {{ 'finance.addTransaction' | translate }}
             </button>
           }
@@ -52,16 +54,19 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
       }
     </header>
 
-    <nav class="mb-6 flex gap-1 rounded-card bg-card border border-edge p-1 w-fit">
-      @for (t of tabs; track t.key) {
-        <button
-          (click)="setTab(t.key)"
-          [class]="'rounded-control px-4 py-2 text-sm transition-colors ' +
-            (tab() === t.key ? 'bg-pill text-white font-medium' : 'text-ink-muted hover:text-ink')"
-        >
-          {{ t.labelKey | translate }}
-        </button>
-      }
+    <!-- Four tab labels do not fit a phone; the strip scrolls sideways instead. -->
+    <nav class="mb-4 sm:mb-6 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <div class="flex w-fit gap-1 rounded-card bg-card border border-edge p-1">
+        @for (t of tabs; track t.key) {
+          <button
+            (click)="setTab(t.key)"
+            [class]="'min-h-11 shrink-0 whitespace-nowrap rounded-control px-4 text-sm transition-colors ' +
+              (tab() === t.key ? 'bg-pill text-white font-medium' : 'text-ink-muted hover:text-ink')"
+          >
+            {{ t.labelKey | translate }}
+          </button>
+        }
+      </div>
     </nav>
 
     @if (tab() === 'plan') {
@@ -74,29 +79,30 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
       <p class="text-ink-muted">{{ 'common.loading' | translate }}</p>
     } @else if (summary(); as s) {
       <!-- Stat tiles -->
-      <div class="grid gap-4 sm:grid-cols-3 mb-6">
-        <div data-tile class="rounded-card border border-edge bg-card p-5">
+      <!-- Stacked on a phone, so each tile is a label/value row rather than a card. -->
+      <div class="grid gap-2 sm:gap-4 sm:grid-cols-3 mb-4 sm:mb-6">
+        <div data-tile class="flex items-baseline justify-between gap-3 rounded-card border border-edge bg-card p-4 sm:block sm:p-5">
           <p class="text-sm text-ink-muted">{{ 'finance.income' | translate }}</p>
-          <p class="text-2xl font-semibold mt-1">{{ eur(s.income_total) }}</p>
+          <p class="text-xl sm:text-2xl font-semibold sm:mt-1">{{ eur(s.income_total) }}</p>
         </div>
-        <div data-tile class="rounded-card border border-edge bg-card p-5">
+        <div data-tile class="flex items-baseline justify-between gap-3 rounded-card border border-edge bg-card p-4 sm:block sm:p-5">
           <p class="text-sm text-ink-muted">{{ 'finance.expenses' | translate }}</p>
-          <p class="text-2xl font-semibold mt-1">{{ eur(s.expense_total) }}</p>
+          <p class="text-xl sm:text-2xl font-semibold sm:mt-1">{{ eur(s.expense_total) }}</p>
         </div>
-        <div data-tile class="rounded-card border border-edge bg-card p-5">
+        <div data-tile class="flex items-baseline justify-between gap-3 rounded-card border border-edge bg-card p-4 sm:block sm:p-5">
           <p class="text-sm text-ink-muted">{{ 'finance.net' | translate }}</p>
-          <p class="text-2xl font-semibold mt-1" [class]="s.net >= 0 ? 'text-success' : 'text-danger'">
+          <p class="text-xl sm:text-2xl font-semibold sm:mt-1" [class]="s.net >= 0 ? 'text-success' : 'text-danger'">
             {{ eur(s.net) }}
           </p>
         </div>
       </div>
 
-      <div class="grid gap-6 lg:grid-cols-2 mb-6">
+      <div class="grid gap-4 sm:gap-6 lg:grid-cols-2 mb-4 sm:mb-6">
         <!-- Expenses by category (donut) -->
-        <div class="rounded-card border border-edge bg-card p-5">
+        <div class="rounded-card border border-edge bg-card p-4 sm:p-5">
           <h2 class="font-semibold mb-2">{{ 'finance.byCategory' | translate }}</h2>
           @if (s.expenses_by_category.length > 0) {
-            <div class="h-72">
+            <div class="h-60 sm:h-72">
               <app-echart [option]="donutOption()" />
             </div>
           } @else {
@@ -105,7 +111,7 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
         </div>
 
         <!-- Budgets vs spent -->
-        <div class="rounded-card border border-edge bg-card p-5">
+        <div class="rounded-card border border-edge bg-card p-4 sm:p-5">
           <h2 class="font-semibold mb-4">{{ 'finance.budgets' | translate }}</h2>
           @if (budgetError()) {
             <p class="fx-pop text-sm text-danger bg-danger-surface border border-danger-edge rounded-control px-3 py-2 mb-4">
@@ -137,19 +143,20 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
                     [style.width.%]="budgetPct(cat.id)"
                   ></div>
                 </div>
-                <div class="mt-1 flex items-center gap-2">
+                <div class="mt-2 flex items-center gap-2">
                   <input
                     type="number"
                     min="0"
                     step="10"
+                    inputmode="decimal"
                     [name]="'budget-' + cat.id"
-                    class="w-28 rounded-control bg-field border border-edge-strong px-2 py-1 text-xs"
+                    class="min-h-11 w-28 rounded-control bg-field border border-edge-strong px-3 text-sm"
                     [placeholder]="'finance.budgetPlaceholder' | translate"
                     [(ngModel)]="pendingBudgets[cat.id]"
                   />
                   <button
                     (click)="saveBudget(cat.id)"
-                    class="rounded-control border border-edge-strong px-2 py-1 text-xs text-ink-soft hover:bg-field"
+                    class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field"
                   >
                     {{ 'common.save' | translate }}
                   </button>
@@ -166,7 +173,68 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
         @if (transactions().length === 0) {
           <p class="text-sm text-ink-faint px-5 pb-6">{{ 'finance.noTransactions' | translate }}</p>
         } @else {
-          <div class="overflow-x-auto">
+          <!--
+            Six columns cannot be read on a phone, so below sm each row becomes
+            a card: description and amount on the first line, the rest below.
+          -->
+          <ul class="divide-y divide-edge-soft border-t border-edge sm:hidden">
+            @for (tx of transactions(); track tx.id) {
+              <li class="px-4 py-3">
+                <div class="flex items-baseline justify-between gap-3">
+                  <span class="min-w-0 flex-1 truncate font-medium">
+                    {{ tx.description || '—' }}
+                    @if (tx.recurring_id !== null) {
+                      <span class="text-ink-faint" [title]="'finance.fromRecurring' | translate"><lucide-icon name="repeat" [size]="13" /></span>
+                    }
+                  </span>
+                  <span
+                    class="shrink-0 tabular-nums font-semibold"
+                    [class]="tx.kind === 'income' ? 'text-success' : 'text-ink'"
+                  >
+                    {{ tx.kind === 'income' ? '+' : '−' }}{{ eur(tx.amount) }}
+                  </span>
+                </div>
+                <div class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-muted">
+                  <span class="tabular-nums">{{ tx.date }}</span>
+                  @if (categoryOf(tx.category_id); as cat) {
+                    <span aria-hidden="true">·</span>
+                    <span class="inline-flex items-center gap-1.5">
+                      <span class="h-2 w-2 rounded-full" [style.background]="cat.color"></span>
+                      {{ cat.name }}
+                    </span>
+                  }
+                </div>
+                <div class="mt-2 flex items-center gap-2">
+                  <button
+                    (click)="toggleStatus(tx)"
+                    [class]="'inline-flex min-h-11 items-center gap-1 rounded-control px-4 text-xs font-medium transition-colors ' +
+                      (tx.status === 'paid'
+                        ? 'bg-success-surface text-success border border-success-edge'
+                        : 'bg-warn-surface text-warn border border-warn-edge')"
+                  >
+                    @if (tx.status === 'paid') {<lucide-icon name="check" [size]="12" />}{{ (tx.status === 'paid' ? 'finance.paid' : 'finance.unpaid') | translate }}
+                  </button>
+                  <span class="flex-1"></span>
+                  <button
+                    (click)="openEdit(tx)"
+                    class="flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-ink"
+                    [attr.aria-label]="'finance.editTx' | translate"
+                  >
+                    <lucide-icon name="pencil" [size]="16" />
+                  </button>
+                  <button
+                    (click)="removeTransaction(tx)"
+                    class="flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-danger"
+                    [attr.aria-label]="'finance.deleteTx' | translate"
+                  >
+                    <lucide-icon name="x" [size]="16" />
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
+
+          <div class="hidden overflow-x-auto sm:block">
             <table class="w-full text-sm">
               <thead>
                 <tr class="text-left text-ink-muted border-t border-edge">
@@ -243,8 +311,8 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
 
     <!-- Add transaction modal -->
     @if (showAdd()) {
-      <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="showAdd.set(false)">
-        <div class="w-full max-w-md rounded-card border border-edge-strong bg-card p-6 shadow-modal" fxModal (click)="$event.stopPropagation()">
+      <div class="fx-fade fixed inset-0 z-50 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="showAdd.set(false)">
+        <div class="max-h-[88vh] w-full max-w-md overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6" fxModal (click)="$event.stopPropagation()">
           <h2 class="text-xl font-semibold mb-4">
             {{ (editingTx() ? 'finance.editTxTitle' : 'finance.newTxTitle') | translate }}
           </h2>
@@ -268,19 +336,19 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
                 <label for="txAmount" class="block text-sm text-ink-soft mb-1">{{ 'finance.amountEur' | translate }}</label>
                 <input id="txAmount" name="txAmount" type="number" step="0.01" min="0.01" required
                   [(ngModel)]="txAmount"
-                  class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                  class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
               </div>
               <div>
                 <label for="txDate" class="block text-sm text-ink-soft mb-1">{{ 'finance.date' | translate }}</label>
                 <input id="txDate" name="txDate" type="date" required [(ngModel)]="txDate"
-                  class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                  class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
               </div>
             </div>
 
             <div>
               <label for="txCategory" class="block text-sm text-ink-soft mb-1">{{ 'finance.category' | translate }}</label>
               <select id="txCategory" name="txCategory" [(ngModel)]="txCategoryId"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2">
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3">
                 <option [ngValue]="null">{{ 'finance.noCategory' | translate }}</option>
                 @for (cat of categoriesForKind(); track cat.id) {
                   <option [ngValue]="cat.id">{{ cat.name }}</option>
@@ -292,11 +360,11 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
             @if (txCategoryId === -1) {
               <div class="rounded-card border border-edge-strong bg-field-soft p-3 space-y-3">
                 <input name="newCatName" [placeholder]="'finance.categoryName' | translate" [(ngModel)]="newCategoryName"
-                  class="w-full rounded-control bg-field border border-edge-strong px-3 py-2 text-sm" />
-                <div class="flex gap-2">
+                  class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3 text-sm" />
+                <div class="flex flex-wrap gap-2">
                   @for (c of categoryColors; track c) {
                     <button type="button" (click)="newCategoryColor.set(c)"
-                      class="h-6 w-6 rounded-full border-2 transition-transform hover:scale-110"
+                      class="h-11 w-11 rounded-full border-2 transition-transform hover:scale-110"
                       [style.background]="c"
                       [style.border-color]="newCategoryColor() === c ? swatchRing() : 'transparent'"></button>
                   }
@@ -307,16 +375,16 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
             <div>
               <label for="txDesc" class="block text-sm text-ink-soft mb-1">{{ 'finance.description' | translate }}</label>
               <input id="txDesc" name="txDesc" [(ngModel)]="txDescription" [placeholder]="'common.optional' | translate"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
 
             <div class="flex justify-end gap-2 pt-2">
               <button type="button" (click)="showAdd.set(false)"
-                class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">
+                class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field">
                 {{ 'common.cancel' | translate }}
               </button>
               <button type="submit" [disabled]="saving()"
-                class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+                class="min-h-11 rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
                 {{ (saving() ? 'common.saving' : 'common.save') | translate }}
               </button>
             </div>
@@ -354,6 +422,7 @@ export class FinancePage {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly translate = inject(TranslateService);
   private readonly language = inject(LanguageService);
+  private readonly viewport = inject(ViewportService);
   readonly themeService = inject(ThemeService);
 
   readonly categoryColors = CATEGORY_COLORS;
@@ -408,6 +477,10 @@ export class FinancePage {
   readonly donutOption = computed(() => {
     const dark = this.themeService.effective() === 'dark';
     const rows = this.summary()?.expenses_by_category ?? [];
+    // On a phone the slice labels and their leader lines collide into an
+    // unreadable tangle — the legend below the donut carries the names there,
+    // and a tap still brings up the tooltip with the exact amount.
+    const compact = this.viewport.isHandset();
     return {
       tooltip: {
         trigger: 'item',
@@ -424,14 +497,18 @@ export class FinancePage {
       series: [
         {
           type: 'pie',
-          radius: ['45%', '70%'],
-          center: ['50%', '44%'],
+          radius: compact ? ['50%', '76%'] : ['45%', '70%'],
+          center: ['50%', compact ? '40%' : '44%'],
           itemStyle: { borderColor: dark ? DARK_SURFACE : '#ffffff', borderWidth: 2, borderRadius: 4 },
-          label: {
-            color: dark ? '#c6cade' : '#3a4056',
-            formatter: (p: { name: string; value: number }) => `${p.name}\n${this.eur(p.value)}`,
-          },
-          labelLine: { lineStyle: { color: dark ? 'rgba(255,255,255,0.25)' : '#7d8296' } },
+          label: compact
+            ? { show: false }
+            : {
+                color: dark ? '#c6cade' : '#3a4056',
+                formatter: (p: { name: string; value: number }) => `${p.name}\n${this.eur(p.value)}`,
+              },
+          labelLine: compact
+            ? { show: false }
+            : { lineStyle: { color: dark ? 'rgba(255,255,255,0.25)' : '#7d8296' } },
           data: rows.map((r) => ({
             name: r.name,
             value: r.spent,

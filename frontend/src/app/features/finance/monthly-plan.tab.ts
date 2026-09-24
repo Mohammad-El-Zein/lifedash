@@ -23,8 +23,8 @@ import { staggerTilesSoon } from '../../shared/animations';
       }
 
       <!-- Plan stat tiles -->
-      <div class="grid gap-4 sm:grid-cols-3 mb-6">
-        <div data-tile class="rounded-card border border-edge bg-card p-5">
+      <div class="grid gap-2 sm:gap-4 sm:grid-cols-3 mb-4 sm:mb-6">
+        <div data-tile class="rounded-card border border-edge bg-card p-4 sm:p-5">
           <p class="text-sm text-ink-muted">{{ 'plan.totalIncome' | translate }}</p>
           <p class="text-2xl font-semibold mt-1">{{ eur(p.income_total) }}</p>
           <p class="text-xs text-ink-faint mt-1">
@@ -34,14 +34,14 @@ import { staggerTilesSoon } from '../../shared/animations';
             } }}
           </p>
         </div>
-        <div data-tile class="rounded-card border border-edge bg-card p-5">
+        <div data-tile class="rounded-card border border-edge bg-card p-4 sm:p-5">
           <p class="text-sm text-ink-muted">{{ 'plan.fixedExpenses' | translate }}</p>
           <p class="text-2xl font-semibold mt-1">{{ eur(p.fixed_expense_total) }}</p>
           <p class="text-xs text-ink-faint mt-1">
             {{ 'plan.recurringCount' | translate: { n: p.fixed_items.length } }}
           </p>
         </div>
-        <div data-tile class="rounded-card border border-edge bg-card p-5">
+        <div data-tile class="rounded-card border border-edge bg-card p-4 sm:p-5">
           <p class="text-sm text-ink-muted">{{ 'plan.available' | translate }}</p>
           <p class="text-2xl font-semibold mt-1" [class]="p.available_for_variable >= 0 ? 'text-success' : 'text-danger'">
             {{ eur(p.available_for_variable) }}
@@ -52,9 +52,9 @@ import { staggerTilesSoon } from '../../shared/animations';
         </div>
       </div>
 
-      <div class="grid gap-6 lg:grid-cols-2">
+      <div class="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <!-- Fixed expenses checklist -->
-        <div class="rounded-card border border-edge bg-card p-5">
+        <div class="rounded-card border border-edge bg-card p-4 sm:p-5">
           <div class="flex items-center justify-between mb-1">
             <h2 class="font-semibold">{{ 'plan.fixedExpenses' | translate }}</h2>
             <span class="text-sm text-ink-muted">
@@ -71,7 +71,7 @@ import { staggerTilesSoon } from '../../shared/animations';
           }
           <ul class="space-y-2">
             @for (item of p.fixed_items; track item.transaction_id) {
-              <li class="flex items-center justify-between gap-3 rounded-control border border-edge px-3 py-2">
+              <li class="flex flex-wrap items-center justify-between gap-2 rounded-control border border-edge px-3 py-2">
                 <div class="min-w-0">
                   <p class="truncate">{{ item.description || '—' }}</p>
                   <p class="text-xs text-ink-faint tabular-nums">{{ item.date }}</p>
@@ -80,7 +80,7 @@ import { staggerTilesSoon } from '../../shared/animations';
                   <span class="tabular-nums font-medium">{{ eur(item.amount) }}</span>
                   <button
                     (click)="toggleStatus(item)"
-                    [class]="'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-colors ' +
+                    [class]="'inline-flex min-h-11 items-center gap-1 rounded-control px-4 text-xs font-medium transition-colors ' +
                       (item.status === 'paid'
                         ? 'bg-success-surface text-success border border-success-edge'
                         : 'bg-warn-surface text-warn border border-warn-edge hover:bg-warn-hover')"
@@ -95,10 +95,10 @@ import { staggerTilesSoon } from '../../shared/animations';
         </div>
 
         <!-- Recurring templates -->
-        <div class="rounded-card border border-edge bg-card p-5">
+        <div class="rounded-card border border-edge bg-card p-4 sm:p-5">
           <div class="flex items-center justify-between mb-4">
             <h2 class="font-semibold">{{ 'plan.recurringTitle' | translate }}</h2>
-            <button (click)="openAdd()" class="rounded-control bg-accent hover:bg-accent-hover px-3 py-1.5 text-sm font-medium transition-colors">
+            <button (click)="openAdd()" class="min-h-11 shrink-0 rounded-control bg-accent hover:bg-accent-hover px-3 text-sm font-medium transition-colors">
               {{ 'plan.addRecurring' | translate }}
             </button>
           </div>
@@ -110,8 +110,8 @@ import { staggerTilesSoon } from '../../shared/animations';
           <ul class="space-y-2">
             @for (rec of recurring(); track rec.id) {
               <li class="rounded-control border border-edge px-3 py-2" [class.opacity-50]="!rec.is_active">
-                <div class="flex items-center justify-between gap-3">
-                  <div class="min-w-0">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                  <div class="min-w-0 flex-1">
                     <p class="truncate">
                       {{ rec.description }}
                       @if (!rec.is_active) { <span class="text-xs text-ink-faint">{{ 'plan.paused' | translate }}</span> }
@@ -123,21 +123,21 @@ import { staggerTilesSoon } from '../../shared/animations';
                       @if (skippedThisMonth(rec)) { · <span class="text-warn">{{ 'plan.skippedThisMonth' | translate }}</span> }
                     </p>
                   </div>
-                  <div class="flex items-center gap-2 shrink-0">
+                  <div class="flex w-full items-center gap-2 sm:w-auto sm:shrink-0">
                     <span class="tabular-nums font-medium" [class]="rec.kind === 'income' ? 'text-success' : ''">
                       {{ rec.kind === 'income' ? '+' : '−' }}{{ eur(rec.amount) }}
                     </span>
                     @if (skippedThisMonth(rec)) {
-                      <button (click)="unskip(rec)" class="text-xs text-ink-muted hover:text-ink border border-edge-strong rounded-control px-2 py-1" [title]="'plan.unskipTitle' | translate">
+                      <button (click)="unskip(rec)" class="min-h-11 text-xs text-ink-muted hover:text-ink border border-edge-strong rounded-control px-3" [title]="'plan.unskipTitle' | translate">
                         {{ 'plan.unskip' | translate }}
                       </button>
                     } @else {
-                      <button (click)="skip(rec)" class="text-xs text-ink-muted hover:text-warn border border-edge-strong rounded-control px-2 py-1" [title]="'plan.skipTitle' | translate">
+                      <button (click)="skip(rec)" class="min-h-11 text-xs text-ink-muted hover:text-warn border border-edge-strong rounded-control px-3" [title]="'plan.skipTitle' | translate">
                         {{ 'plan.skip' | translate }}
                       </button>
                     }
-                    <button (click)="openEdit(rec)" class="text-ink-faint hover:text-ink px-1" [title]="'common.edit' | translate"><lucide-icon name="pencil" [size]="15" /></button>
-                    <button (click)="remove(rec)" class="text-ink-faint hover:text-danger px-1" [title]="'plan.deleteTemplate' | translate"><lucide-icon name="x" [size]="15" /></button>
+                    <button (click)="openEdit(rec)" class="flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-ink" [title]="'common.edit' | translate"><lucide-icon name="pencil" [size]="15" /></button>
+                    <button (click)="remove(rec)" class="flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-danger" [title]="'plan.deleteTemplate' | translate"><lucide-icon name="x" [size]="15" /></button>
                   </div>
                 </div>
               </li>
