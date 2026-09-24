@@ -42,9 +42,9 @@ type FinanceTab = 'overview' | 'plan' | 'budgets' | 'savings';
       @if (tab() !== 'savings') {
         <!-- "Add transaction" is too long to share a row with the month nav on a phone. -->
         <div class="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-          <button (click)="shiftMonth(-1)" class="flex min-h-11 items-center rounded-control border border-edge-strong px-3 hover:bg-field transition-colors" [attr.aria-label]="'finance.prevMonth' | translate"><lucide-icon name="chevron-left" [size]="16" /></button>
+          <button (click)="shiftMonth(-1)" class="flex h-11 w-11 items-center justify-center rounded-control border border-edge-strong hover:bg-field transition-colors" [attr.aria-label]="'finance.prevMonth' | translate"><lucide-icon name="chevron-left" [size]="16" /></button>
           <button (click)="goCurrentMonth()" class="min-h-11 whitespace-nowrap rounded-control border border-edge-strong px-4 text-sm hover:bg-field transition-colors">{{ 'finance.thisMonth' | translate }}</button>
-          <button (click)="shiftMonth(1)" class="flex min-h-11 items-center rounded-control border border-edge-strong px-3 hover:bg-field transition-colors" [attr.aria-label]="'finance.nextMonth' | translate"><lucide-icon name="chevron-right" [size]="16" /></button>
+          <button (click)="shiftMonth(1)" class="flex h-11 w-11 items-center justify-center rounded-control border border-edge-strong hover:bg-field transition-colors" [attr.aria-label]="'finance.nextMonth' | translate"><lucide-icon name="chevron-right" [size]="16" /></button>
           @if (tab() === 'overview') {
             <button (click)="openAdd()" class="min-h-11 w-full whitespace-nowrap rounded-control bg-accent hover:bg-accent-hover px-4 text-sm font-medium transition-colors sm:ml-2 sm:w-auto">
               {{ 'finance.addTransaction' | translate }}

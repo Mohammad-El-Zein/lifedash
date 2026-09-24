@@ -48,9 +48,9 @@ interface PositionedOccurrence {
         <p class="text-ink-muted mt-1 text-sm sm:text-base">{{ periodLabel() }}</p>
       </div>
       <div class="flex flex-1 items-center gap-2 sm:flex-none">
-        <button (click)="shiftPeriod(-1)" class="flex min-h-11 items-center rounded-control border border-edge-strong px-3 hover:bg-field transition-colors" [attr.aria-label]="(dayView() ? 'calendar.prevDay' : 'calendar.prevWeek') | translate"><lucide-icon name="chevron-left" [size]="16" /></button>
+        <button (click)="shiftPeriod(-1)" class="flex h-11 w-11 items-center justify-center rounded-control border border-edge-strong hover:bg-field transition-colors" [attr.aria-label]="(dayView() ? 'calendar.prevDay' : 'calendar.prevWeek') | translate"><lucide-icon name="chevron-left" [size]="16" /></button>
         <button (click)="goToday()" class="min-h-11 rounded-control border border-edge-strong px-4 text-sm hover:bg-field transition-colors">{{ 'common.today' | translate }}</button>
-        <button (click)="shiftPeriod(1)" class="flex min-h-11 items-center rounded-control border border-edge-strong px-3 hover:bg-field transition-colors" [attr.aria-label]="(dayView() ? 'calendar.nextDay' : 'calendar.nextWeek') | translate"><lucide-icon name="chevron-right" [size]="16" /></button>
+        <button (click)="shiftPeriod(1)" class="flex h-11 w-11 items-center justify-center rounded-control border border-edge-strong hover:bg-field transition-colors" [attr.aria-label]="(dayView() ? 'calendar.nextDay' : 'calendar.nextWeek') | translate"><lucide-icon name="chevron-right" [size]="16" /></button>
         <button
           (click)="openCreate(null)"
           class="ml-auto min-h-11 shrink-0 rounded-control bg-accent hover:bg-accent-hover px-4 text-sm font-medium transition-colors sm:ml-2"

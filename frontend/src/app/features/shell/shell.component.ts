@@ -52,7 +52,7 @@ import { pageEnter } from '../../shared/animations';
         >
           <div class="flex items-center gap-1 px-3 py-4" [class.justify-center]="!showLabels()">
             @if (showLabels()) {
-              <a routerLink="/dashboard" class="flex-1 px-3 text-2xl font-bold tracking-tight">
+              <a routerLink="/dashboard" class="flex min-h-11 flex-1 items-center px-3 text-2xl font-bold tracking-tight">
                 Life<span class="logo-accent">Dash</span>
               </a>
             }
@@ -204,7 +204,7 @@ import { pageEnter } from '../../shared/animations';
             >
               <lucide-icon name="menu" [size]="22" />
             </button>
-            <a routerLink="/dashboard" class="flex-1 truncate px-1 text-xl font-bold tracking-tight">
+            <a routerLink="/dashboard" class="flex min-h-11 flex-1 items-center truncate px-1 text-xl font-bold tracking-tight">
               Life<span class="logo-accent">Dash</span>
             </a>
             <!-- Phones have no Ctrl key, so the palette needs a button of its own. -->
