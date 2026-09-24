@@ -75,7 +75,7 @@ import { LandingFxComponent } from './landing-fx.component';
       <footer class="relative z-10 border-t border-edge">
         <div class="mx-auto w-full max-w-6xl px-4 py-6 flex flex-wrap items-center justify-between gap-3 text-sm text-ink-faint sm:px-6">
           <span>Life<span class="logo-accent">Dash</span> — {{ 'app.tagline' | translate }}</span>
-          <a routerLink="/register" class="text-link hover:underline">{{ 'landing.cta' | translate }}</a>
+          <a routerLink="/register" class="inline-flex min-h-11 items-center text-link hover:underline">{{ 'landing.cta' | translate }}</a>
         </div>
       </footer>
     </div>

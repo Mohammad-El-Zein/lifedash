@@ -37,7 +37,7 @@ const TONE_CLASS: Record<Insight['tone'], string> = {
             type="button"
             (click)="refresh()"
             [disabled]="loading()"
-            class="flex min-h-9 items-center gap-1.5 rounded-control border border-edge-strong px-2.5 text-xs text-ink-soft transition-colors hover:bg-field disabled:opacity-50"
+            class="flex min-h-11 items-center gap-1.5 rounded-control border border-edge-strong px-3 text-xs text-ink-soft transition-colors hover:bg-field disabled:opacity-50"
             [title]="'insights.refreshHint' | translate"
           >
             <lucide-icon name="refresh-cw" [size]="14" [class.animate-spin]="loading()" />

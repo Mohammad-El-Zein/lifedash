@@ -100,10 +100,14 @@ import { deepLink } from '../../shared/deep-link';
               @for (m of goal.milestones; track m.id) {
                 <li class="flex items-center gap-3 text-sm rounded-control border border-edge px-3 py-2">
                   <button (click)="toggle(m)"
-                    [class]="'h-5 w-5 rounded border flex items-center justify-center shrink-0 transition-colors ' +
-                      (m.done ? 'bg-accent border-accent' : 'border-edge-strong hover:border-accent')"
+                    class="-my-2 -ml-1 flex h-11 w-11 shrink-0 items-center justify-center"
                     [title]="(m.done ? 'learning.markOpen' : 'learning.markDone') | translate">
-                    @if (m.done) { <lucide-icon name="check" [size]="13" /> }
+                    <span
+                      [class]="'h-5 w-5 rounded border flex items-center justify-center transition-colors ' +
+                        (m.done ? 'bg-accent border-accent' : 'border-edge-strong')"
+                    >
+                      @if (m.done) { <lucide-icon name="check" [size]="13" /> }
+                    </span>
                   </button>
                   <span class="min-w-0 flex-1 truncate" [class.line-through]="m.done" [class.text-ink-faint]="m.done">
                     {{ m.title }}
@@ -114,21 +118,21 @@ import { deepLink } from '../../shared/deep-link';
                       {{ formatDate(m.due_date) }}
                     </span>
                   }
-                  <button (click)="removeMilestone(goal, m)" [title]="'common.delete' | translate"
-                    class="text-ink-faint hover:text-danger px-1 shrink-0"><lucide-icon name="trash-2" [size]="14" /></button>
+                  <button (click)="removeMilestone(goal, m)" [attr.aria-label]="'common.delete' | translate"
+                    class="-my-2 -mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-danger"><lucide-icon name="trash-2" [size]="14" /></button>
                 </li>
               }
             </ul>
 
             <!-- Inline milestone add -->
-            <form class="mt-2 flex gap-2" (ngSubmit)="addMilestone(goal)">
+            <form class="mt-2 flex flex-col gap-2 sm:flex-row" (ngSubmit)="addMilestone(goal)">
               <input [name]="'newMilestone' + goal.id" [(ngModel)]="newMilestone[goal.id]"
                 [placeholder]="'learning.milestonePlaceholder' | translate"
                 class="min-h-11 min-w-0 flex-1 rounded-control bg-field border border-edge-strong px-3 text-sm" />
               <input [name]="'newMilestoneDue' + goal.id" type="date" [(ngModel)]="newMilestoneDue[goal.id]"
                 class="min-h-11 rounded-control bg-field border border-edge-strong px-3 text-sm" />
               <button type="submit" [disabled]="!(newMilestone[goal.id] || '').trim()"
-                class="inline-flex min-h-11 items-center gap-1 rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field disabled:opacity-50">
+                class="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field disabled:opacity-50">
                 <lucide-icon name="plus" [size]="14" /> {{ 'learning.addMilestone' | translate }}
               </button>
             </form>
@@ -234,7 +238,7 @@ export class LearningPage {
 
   chipClass(active: boolean): string {
     return (
-      'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors ' +
+      'inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 text-sm transition-colors ' +
       (active
         ? 'border-accent bg-nav-active text-nav-active-ink'
         : 'border-edge-strong text-ink-soft hover:bg-field-soft')
