@@ -14,15 +14,15 @@ import { AuthFxComponent } from './auth-fx.component';
     <div class="relative min-h-screen overflow-hidden flex items-center justify-center px-4">
       <app-auth-fx />
       <div class="relative z-10 w-full max-w-md">
-        <div class="text-center mb-8">
-          <h1 class="text-4xl font-bold tracking-tight">
+        <div class="text-center mb-6 sm:mb-8">
+          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">
             Life<span class="logo-accent">Dash</span>
           </h1>
           <p class="text-ink-muted mt-2">{{ 'app.tagline' | translate }}</p>
         </div>
 
         <form
-          class="bg-card border border-edge rounded-card p-8 shadow-modal space-y-5"
+          class="bg-card border border-edge rounded-card p-5 shadow-modal space-y-4 sm:p-8 sm:space-y-5"
           (ngSubmit)="submit()"
         >
           <h2 class="text-xl font-semibold">{{ 'auth.createTitle' | translate }}</h2>
@@ -40,7 +40,7 @@ import { AuthFxComponent } from './auth-fx.component';
               name="fullName"
               type="text"
               [(ngModel)]="fullName"
-              class="w-full rounded-control bg-field border border-edge-strong px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-hover"
+              class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3 focus:outline-none focus:ring-2 focus:ring-accent-hover"
               [placeholder]="'auth.namePlaceholder' | translate"
             />
           </div>
@@ -53,7 +53,7 @@ import { AuthFxComponent } from './auth-fx.component';
               type="email"
               required
               [(ngModel)]="email"
-              class="w-full rounded-control bg-field border border-edge-strong px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-hover"
+              class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3 focus:outline-none focus:ring-2 focus:ring-accent-hover"
               placeholder="you@example.com"
             />
           </div>
@@ -67,7 +67,7 @@ import { AuthFxComponent } from './auth-fx.component';
               required
               minlength="8"
               [(ngModel)]="password"
-              class="w-full rounded-control bg-field border border-edge-strong px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-hover"
+              class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3 focus:outline-none focus:ring-2 focus:ring-accent-hover"
               [placeholder]="'auth.passwordPlaceholder' | translate"
             />
           </div>
@@ -75,7 +75,7 @@ import { AuthFxComponent } from './auth-fx.component';
           <button
             type="submit"
             [disabled]="loading()"
-            class="w-full rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2.5 font-medium transition-colors"
+            class="min-h-12 w-full rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 font-medium transition-colors"
           >
             {{ (loading() ? 'auth.creating' : 'auth.createTitle') | translate }}
           </button>

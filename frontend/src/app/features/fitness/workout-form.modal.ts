@@ -17,8 +17,8 @@ interface SetRow {
   selector: 'app-workout-form-modal',
   imports: [FormsModule, TranslatePipe, LucideAngularModule, FxModal],
   template: `
-    <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="closed.emit()">
-      <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-card border border-edge-strong bg-card p-6 shadow-modal"
+    <div class="fx-fade fixed inset-0 z-50 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="closed.emit()">
+      <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto max-h-[88vh] overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6"
         fxModal (click)="$event.stopPropagation()">
         <h2 class="text-xl font-semibold mb-4">
           {{ (workout() ? 'fitness.form.editTitle' : 'fitness.form.newTitle') | translate }}
@@ -34,18 +34,18 @@ interface SetRow {
               <label for="wName" class="block text-sm text-ink-soft mb-1">{{ 'fitness.form.name' | translate }}</label>
               <input id="wName" name="wName" required [(ngModel)]="fName"
                 [placeholder]="'fitness.form.namePlaceholder' | translate"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <div>
               <label for="wDate" class="block text-sm text-ink-soft mb-1">{{ 'fitness.form.date' | translate }}</label>
               <input id="wDate" name="wDate" type="date" required [(ngModel)]="fDate"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
           </div>
           <div>
             <label for="wNotes" class="block text-sm text-ink-soft mb-1">{{ 'fitness.form.notes' | translate }}</label>
             <input id="wNotes" name="wNotes" [(ngModel)]="fNotes" [placeholder]="'common.optional' | translate"
-              class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+              class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
           </div>
 
           <!-- Sets -->
@@ -121,11 +121,11 @@ interface SetRow {
 
           <div class="flex justify-end gap-2 pt-2">
             <button type="button" (click)="closed.emit()"
-              class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">
+              class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field">
               {{ 'common.cancel' | translate }}
             </button>
             <button type="submit" [disabled]="saving()"
-              class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+              class="min-h-11 rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
               {{ (saving() ? 'common.saving' : 'common.save') | translate }}
             </button>
           </div>

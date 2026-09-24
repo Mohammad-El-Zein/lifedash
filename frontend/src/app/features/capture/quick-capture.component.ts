@@ -48,7 +48,7 @@ const NEW_CATEGORY = -1;
         (click)="close()"
       >
         <div
-          class="w-full max-w-lg rounded-card border border-edge-strong bg-card p-6 shadow-modal"
+          class="w-full max-w-lg max-h-[88vh] overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6"
           fxModal
           (click)="$event.stopPropagation()"
         >
@@ -74,7 +74,7 @@ const NEW_CATEGORY = -1;
               (ngModelChange)="text.set($event)"
               name="captureText"
               [placeholder]="'capture.placeholder' | translate"
-              class="w-full rounded-control border border-edge-strong bg-field px-3 py-2 text-sm"
+              class="min-h-11 w-full rounded-control border border-edge-strong bg-field px-3 text-sm"
             ></textarea>
 
             @if (speech.interim(); as interim) {

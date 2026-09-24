@@ -16,12 +16,12 @@ const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
   selector: 'app-profile-page',
   imports: [FormsModule, TranslatePipe],
   template: `
-    <header class="mb-8">
-      <h1 class="text-3xl font-bold">{{ 'profile.title' | translate }}</h1>
-      <p class="text-ink-muted mt-1">{{ 'profile.subtitle' | translate }}</p>
+    <header class="mb-6 sm:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold">{{ 'profile.title' | translate }}</h1>
+      <p class="text-ink-muted mt-1 text-sm sm:text-base">{{ 'profile.subtitle' | translate }}</p>
     </header>
 
-    <div class="grid gap-6 lg:grid-cols-3 max-w-4xl">
+    <div class="grid gap-4 sm:gap-6 lg:grid-cols-3 max-w-4xl">
       <!-- Avatar -->
       <div class="rounded-card border border-edge bg-card p-5 text-center">
         <h2 class="font-semibold mb-4 text-left">{{ 'profile.picture' | translate }}</h2>
@@ -35,14 +35,14 @@ const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
           </div>
         }
         <div class="mt-4 flex justify-center gap-2">
-          <label class="rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field cursor-pointer">
+          <label class="inline-flex min-h-11 items-center rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field cursor-pointer">
             {{ (uploading() ? 'common.uploading' : user()?.has_avatar ? 'common.change' : 'common.upload') | translate }}
             <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden"
               [disabled]="uploading()" (change)="onFileSelected($event)" />
           </label>
           @if (user()?.has_avatar) {
             <button (click)="removeAvatar()"
-              class="rounded-control border border-danger-edge text-danger px-3 py-1.5 text-sm hover:bg-danger-surface">
+              class="min-h-11 rounded-control border border-danger-edge text-danger px-3 text-sm hover:bg-danger-surface">
               {{ 'common.remove' | translate }}
             </button>
           }
@@ -60,7 +60,7 @@ const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
             name="language"
             [ngModel]="language.lang()"
             (ngModelChange)="setLanguage($event)"
-            class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"
+            class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3"
           >
             <option value="en">{{ 'languages.en' | translate }}</option>
             <option value="de">{{ 'languages.de' | translate }}</option>
@@ -73,7 +73,7 @@ const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
             name="theme"
             [ngModel]="theme.theme()"
             (ngModelChange)="setTheme($event)"
-            class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"
+            class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3"
           >
             <option value="dark">{{ 'theme.dark' | translate }}</option>
             <option value="light">{{ 'theme.light' | translate }}</option>
@@ -99,19 +99,19 @@ const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
           <div>
             <label for="fullName" class="block text-sm text-ink-soft mb-1">{{ 'profile.name' | translate }}</label>
             <input id="fullName" name="fullName" [(ngModel)]="fName" maxlength="255"
-              class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+              class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
           </div>
           <div>
             <label for="jobTitle" class="block text-sm text-ink-soft mb-1">{{ 'profile.jobTitle' | translate }}</label>
             <input id="jobTitle" name="jobTitle" [(ngModel)]="fJobTitle" maxlength="200"
               [placeholder]="'profile.jobTitlePlaceholder' | translate"
-              class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+              class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
           </div>
           <div>
             <label for="bio" class="block text-sm text-ink-soft mb-1">{{ 'profile.bio' | translate }}</label>
             <textarea id="bio" name="bio" rows="4" [(ngModel)]="fBio" maxlength="1000"
               [placeholder]="'profile.bioPlaceholder' | translate"
-              class="w-full rounded-control bg-field border border-edge-strong px-3 py-2"></textarea>
+              class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3"></textarea>
             <p class="mt-1 text-xs text-ink-faint">{{ fBio.length }}/1000</p>
           </div>
           <div>
@@ -119,7 +119,7 @@ const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
             <p class="text-sm text-ink-faint">{{ user()?.email }} {{ 'profile.emailNote' | translate }}</p>
           </div>
           <button type="submit" [disabled]="saving()"
-            class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+            class="min-h-11 rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
             {{ (saving() ? 'common.saving' : 'profile.saveButton') | translate }}
           </button>
         </form>

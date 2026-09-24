@@ -14,7 +14,7 @@ import { FxModal } from '../../shared/animations';
     <div class="flex items-center justify-between mb-4">
       <p class="text-ink-muted text-sm">{{ 'meals.ingredients.hint' | translate }}</p>
       <button (click)="openForm(null)"
-        class="inline-flex items-center gap-1.5 rounded-control bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium transition-colors">
+        class="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-control bg-accent hover:bg-accent-hover px-4 text-sm font-medium transition-colors">
         <lucide-icon name="plus" [size]="16" /> {{ 'meals.ingredients.add' | translate }}
       </button>
     </div>
@@ -26,7 +26,50 @@ import { FxModal } from '../../shared/animations';
         {{ 'meals.ingredients.empty' | translate }}
       </div>
     } @else {
-      <div class="rounded-card border border-edge bg-card overflow-hidden">
+      <!-- Seven nutrient columns per ingredient; below sm each becomes a card. -->
+      <ul class="divide-y divide-edge rounded-card border border-edge bg-card sm:hidden">
+        @for (ing of ingredients(); track ing.id) {
+          <li class="px-4 py-3">
+            <div class="flex items-baseline justify-between gap-3">
+              <span class="min-w-0 truncate font-medium">{{ ing.name }}</span>
+              <span class="shrink-0 tabular-nums font-semibold">{{ num(ing.calories_per_100g) }} kcal</span>
+            </div>
+            <p class="mt-1 text-xs text-ink-muted tabular-nums">
+              {{ 'meals.ingredients.per100g' | translate }}
+              <span aria-hidden="true">·</span>
+              {{ 'meals.protein' | translate }} {{ num(ing.protein_per_100g) }} g
+              <span aria-hidden="true">·</span>
+              {{ 'meals.carbs' | translate }} {{ num(ing.carbs_per_100g) }} g
+              <span aria-hidden="true">·</span>
+              {{ 'meals.fat' | translate }} {{ num(ing.fat_per_100g) }} g
+            </p>
+            <div class="mt-1 flex items-center gap-2">
+              @if (ing.piece_grams !== null) {
+                <span class="text-xs text-ink-faint tabular-nums">
+                  {{ 'meals.ingredients.pieceGrams' | translate }} {{ num(ing.piece_grams) }} g
+                </span>
+              }
+              <span class="flex-1"></span>
+              <button
+                (click)="openForm(ing)"
+                class="flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-ink"
+                [attr.aria-label]="'common.edit' | translate"
+              >
+                <lucide-icon name="pencil" [size]="16" />
+              </button>
+              <button
+                (click)="remove(ing)"
+                class="flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-danger"
+                [attr.aria-label]="'common.delete' | translate"
+              >
+                <lucide-icon name="trash-2" [size]="16" />
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+
+      <div class="hidden rounded-card border border-edge bg-card overflow-hidden sm:block">
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
@@ -53,9 +96,9 @@ import { FxModal } from '../../shared/animations';
                   </td>
                   <td class="px-5 py-2.5 text-right whitespace-nowrap">
                     <button (click)="openForm(ing)" [title]="'common.edit' | translate"
-                      class="text-ink-faint hover:text-ink px-1"><lucide-icon name="pencil" [size]="15" /></button>
+                      class="inline-flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-ink"><lucide-icon name="pencil" [size]="15" /></button>
                     <button (click)="remove(ing)" [title]="'common.delete' | translate"
-                      class="text-ink-faint hover:text-danger px-1"><lucide-icon name="trash-2" [size]="15" /></button>
+                      class="inline-flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-danger"><lucide-icon name="trash-2" [size]="15" /></button>
                   </td>
                 </tr>
               }
@@ -72,8 +115,8 @@ import { FxModal } from '../../shared/animations';
 
     <!-- Add/edit modal -->
     @if (showForm()) {
-      <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="showForm.set(false)">
-        <div class="w-full max-w-md rounded-card border border-edge-strong bg-card p-6 shadow-modal" fxModal (click)="$event.stopPropagation()">
+      <div class="fx-fade fixed inset-0 z-50 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="showForm.set(false)">
+        <div class="w-full max-w-md max-h-[88vh] overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6" fxModal (click)="$event.stopPropagation()">
           <h2 class="text-xl font-semibold mb-1">
             {{ (editing() ? 'meals.ingredients.editTitle' : 'meals.ingredients.addTitle') | translate }}
           </h2>
@@ -86,7 +129,7 @@ import { FxModal } from '../../shared/animations';
               <label for="ingName" class="block text-sm text-ink-soft mb-1">{{ 'meals.ingredients.name' | translate }}</label>
               <input id="ingName" name="ingName" required [(ngModel)]="fName"
                 [placeholder]="'meals.ingredients.namePlaceholder' | translate"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
@@ -121,11 +164,11 @@ import { FxModal } from '../../shared/animations';
             </div>
             <div class="flex justify-end gap-2 pt-2">
               <button type="button" (click)="showForm.set(false)"
-                class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">
+                class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field">
                 {{ 'common.cancel' | translate }}
               </button>
               <button type="submit" [disabled]="saving()"
-                class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+                class="min-h-11 rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
                 {{ (saving() ? 'common.saving' : 'common.save') | translate }}
               </button>
             </div>

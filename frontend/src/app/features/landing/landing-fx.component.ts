@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { ThemeService } from '../../core/theme/theme.service';
 import { prefersReducedMotion } from '../../shared/animations';
+import { frameRateWatchdog, fxQuality, scaleCount } from '../../shared/fx-quality';
 
 interface FxColors {
   primary: number;
@@ -24,6 +25,11 @@ interface FxColors {
  */
 @Component({
   selector: 'app-landing-fx',
+  // The canvas sizes itself from this host element, so the host has to fill
+  // the positioned ancestor it sits in. Without this it measures 0x0, resize()
+  // bails out and the scene renders into the default 300x150 buffer, stretched
+  // over the page by CSS.
+  host: { class: 'absolute inset-0' },
   template: `<canvas
     #canvas
     class="pointer-events-none absolute inset-0 h-full w-full"
@@ -70,16 +76,19 @@ export class LandingFxComponent implements OnDestroy {
     const canvas = this.canvasRef().nativeElement;
     const host = canvas.parentElement as HTMLElement;
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer = renderer;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
     camera.position.z = 10;
 
+    const quality = fxQuality();
+    renderer.setPixelRatio(quality.pixelRatio);
+
     const { group, animate, setColors } = buildWaves(
       THREE,
       palette(this.theme.effective() === 'dark'),
+      quality.detail,
     );
     scene.add(group);
     this.applyColors = setColors;
@@ -97,9 +106,14 @@ export class LandingFxComponent implements OnDestroy {
     resize();
 
     this.renderOnce = () => renderer.render(scene, camera);
+
+    // If the device cannot keep up, freeze on the current frame. The CSS
+    // aurora behind the canvas carries the page from there.
+    const watchdog = frameRateWatchdog(() => cancelAnimationFrame(this.rafId));
     this.tick = (time) => {
       animate(time / 1000, this.pointer);
       renderer.render(scene, camera);
+      watchdog(time);
       this.rafId = requestAnimationFrame(this.tick);
     };
 
@@ -140,10 +154,12 @@ interface FxScene {
 
 /** Flowing aurora wave field of points below the hero copy (user-picked
  * from three prototyped variants: net XL / orbit / waves). */
-function buildWaves(THREE: Three, colors: FxColors): FxScene {
+function buildWaves(THREE: Three, colors: FxColors, detail: number): FxScene {
   const group = new THREE.Group();
-  const cols = 110;
-  const rows = 42;
+  // Every point's height is recomputed on the CPU each frame, so the grid
+  // resolution is what a weaker device actually feels.
+  const cols = scaleCount(110, detail, 40);
+  const rows = scaleCount(42, detail, 16);
   const width = 26;
   const depth = 12;
   const count = cols * rows;

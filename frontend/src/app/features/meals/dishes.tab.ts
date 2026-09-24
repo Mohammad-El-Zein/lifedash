@@ -25,7 +25,7 @@ interface ItemRow {
     <div class="flex items-center justify-between mb-4">
       <p class="text-ink-muted text-sm">{{ 'meals.dishes.hint' | translate }}</p>
       <button (click)="openForm(null)"
-        class="inline-flex items-center gap-1.5 rounded-control bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium transition-colors">
+        class="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-control bg-accent hover:bg-accent-hover px-4 text-sm font-medium transition-colors">
         <lucide-icon name="plus" [size]="16" /> {{ 'meals.dishes.add' | translate }}
       </button>
     </div>
@@ -47,9 +47,9 @@ interface ItemRow {
               </h2>
               <div class="flex items-center gap-1 shrink-0">
                 <button (click)="openForm(tpl)" [title]="'common.edit' | translate"
-                  class="text-ink-faint hover:text-ink px-1"><lucide-icon name="pencil" [size]="15" /></button>
+                  class="inline-flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-ink"><lucide-icon name="pencil" [size]="15" /></button>
                 <button (click)="remove(tpl)" [title]="'common.delete' | translate"
-                  class="text-ink-faint hover:text-danger px-1"><lucide-icon name="trash-2" [size]="15" /></button>
+                  class="inline-flex h-11 w-11 items-center justify-center rounded-control text-ink-faint hover:bg-field hover:text-danger"><lucide-icon name="trash-2" [size]="15" /></button>
               </div>
             </div>
             <ul class="text-sm text-ink-soft space-y-1 mb-3">
@@ -78,8 +78,8 @@ interface ItemRow {
 
     <!-- Builder modal -->
     @if (showForm()) {
-      <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="showForm.set(false)">
-        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-card border border-edge-strong bg-card p-6 shadow-modal"
+      <div class="fx-fade fixed inset-0 z-50 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="showForm.set(false)">
+        <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto max-h-[88vh] overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6"
           fxModal (click)="$event.stopPropagation()">
           <h2 class="text-xl font-semibold mb-4">
             {{ (editing() ? 'meals.dishes.editTitle' : 'meals.dishes.addTitle') | translate }}
@@ -92,14 +92,14 @@ interface ItemRow {
               <label for="dishName" class="block text-sm text-ink-soft mb-1">{{ 'meals.dishes.name' | translate }}</label>
               <input id="dishName" name="dishName" required [(ngModel)]="fName"
                 [placeholder]="'meals.dishes.namePlaceholder' | translate"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
 
             <div>
               <div class="flex items-center justify-between mb-2">
                 <span class="block text-sm font-medium text-ink-soft">{{ 'meals.dishes.ingredients' | translate }}</span>
                 <button type="button" (click)="addRow()" [disabled]="ingredients().length === 0"
-                  class="inline-flex items-center gap-1 rounded-control border border-edge-strong px-3 py-1.5 text-sm text-ink-soft hover:bg-field disabled:opacity-50">
+                  class="inline-flex min-h-11 items-center gap-1 rounded-control border border-edge-strong px-3 text-sm text-ink-soft hover:bg-field disabled:opacity-50">
                   <lucide-icon name="plus" [size]="14" /> {{ 'meals.dishes.addIngredient' | translate }}
                 </button>
               </div>
@@ -159,11 +159,11 @@ interface ItemRow {
 
             <div class="flex justify-end gap-2 pt-2">
               <button type="button" (click)="showForm.set(false)"
-                class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">
+                class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field">
                 {{ 'common.cancel' | translate }}
               </button>
               <button type="submit" [disabled]="saving()"
-                class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+                class="min-h-11 rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
                 {{ (saving() ? 'common.saving' : 'common.save') | translate }}
               </button>
             </div>
