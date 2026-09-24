@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 import { FormsModule } from '@angular/forms';
@@ -6,6 +7,7 @@ import { FxModal } from '../../shared/animations';
 import { CalendarApiService } from '../../core/api/calendar-api.service';
 import { toIsoDate } from '../../core/date-utils';
 import { LanguageService } from '../../core/i18n/language.service';
+import { ViewportService } from '../../core/layout/viewport.service';
 import { CalendarEvent, Occurrence } from '../../core/models';
 import { EventFormModal } from './event-form.modal';
 import { deepLink } from '../../shared/deep-link';
@@ -13,6 +15,15 @@ import { deepLink } from '../../shared/deep-link';
 const DAY_START_HOUR = 6;
 const DAY_END_HOUR = 23;
 const DAY_MINUTES = (DAY_END_HOUR - DAY_START_HOUR) * 60;
+
+/** How far a touch has to travel sideways before it counts as a day swipe. */
+const SWIPE_THRESHOLD_PX = 50;
+
+/**
+ * Two lines of text need roughly 30px, which an event shorter than an hour
+ * does not get in either grid — those blocks show the title alone.
+ */
+const TIME_LABEL_MIN_PCT = (60 * 100) / DAY_MINUTES;
 
 interface DayColumn {
   date: string; // YYYY-MM-DD
@@ -29,20 +40,20 @@ interface PositionedOccurrence {
 
 @Component({
   selector: 'app-calendar-week-page',
-  imports: [FormsModule, EventFormModal, TranslatePipe, FxModal, LucideAngularModule],
+  imports: [FormsModule, EventFormModal, NgTemplateOutlet, TranslatePipe, FxModal, LucideAngularModule],
   template: `
-    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <h1 class="text-3xl font-bold">{{ 'calendar.title' | translate }}</h1>
-        <p class="text-ink-muted mt-1">{{ weekLabel() }}</p>
+    <header class="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div class="min-w-0">
+        <h1 class="text-2xl sm:text-3xl font-bold">{{ 'calendar.title' | translate }}</h1>
+        <p class="text-ink-muted mt-1 text-sm sm:text-base">{{ periodLabel() }}</p>
       </div>
-      <div class="flex items-center gap-2">
-        <button (click)="shiftWeek(-1)" class="rounded-control border border-edge-strong px-3 py-2 hover:bg-field transition-colors" [attr.aria-label]="'calendar.prevWeek' | translate"><lucide-icon name="chevron-left" [size]="16" /></button>
-        <button (click)="goToday()" class="rounded-control border border-edge-strong px-4 py-2 text-sm hover:bg-field transition-colors">{{ 'common.today' | translate }}</button>
-        <button (click)="shiftWeek(1)" class="rounded-control border border-edge-strong px-3 py-2 hover:bg-field transition-colors" [attr.aria-label]="'calendar.nextWeek' | translate"><lucide-icon name="chevron-right" [size]="16" /></button>
+      <div class="flex flex-1 items-center gap-2 sm:flex-none">
+        <button (click)="shiftPeriod(-1)" class="flex min-h-11 items-center rounded-control border border-edge-strong px-3 hover:bg-field transition-colors" [attr.aria-label]="(dayView() ? 'calendar.prevDay' : 'calendar.prevWeek') | translate"><lucide-icon name="chevron-left" [size]="16" /></button>
+        <button (click)="goToday()" class="min-h-11 rounded-control border border-edge-strong px-4 text-sm hover:bg-field transition-colors">{{ 'common.today' | translate }}</button>
+        <button (click)="shiftPeriod(1)" class="flex min-h-11 items-center rounded-control border border-edge-strong px-3 hover:bg-field transition-colors" [attr.aria-label]="(dayView() ? 'calendar.nextDay' : 'calendar.nextWeek') | translate"><lucide-icon name="chevron-right" [size]="16" /></button>
         <button
           (click)="openCreate(null)"
-          class="ml-2 rounded-control bg-accent hover:bg-accent-hover px-4 py-2 text-sm font-medium transition-colors"
+          class="ml-auto min-h-11 shrink-0 rounded-control bg-accent hover:bg-accent-hover px-4 text-sm font-medium transition-colors sm:ml-2"
         >
           {{ 'calendar.newEvent' | translate }}
         </button>
@@ -51,6 +62,41 @@ interface PositionedOccurrence {
 
     @if (loading()) {
       <p class="text-ink-muted">{{ 'calendar.loadingWeek' | translate }}</p>
+    } @else if (dayView()) {
+      <!-- Handset: one day at a time, swipe or use the week strip to move. -->
+      <div class="rounded-card border border-edge bg-card overflow-hidden">
+        <div class="grid grid-cols-7 border-b border-edge">
+          @for (day of days(); track day.date) {
+            <button
+              (click)="dayIndex.set($index)"
+              class="flex min-h-14 flex-col items-center justify-center gap-0.5 transition-colors"
+              [class]="$index === dayIndex() ? 'bg-nav-active' : 'hover:bg-field-soft'"
+              [attr.aria-label]="'calendar.pickDay' | translate"
+              [attr.aria-current]="$index === dayIndex() ? 'date' : null"
+            >
+              <span class="text-[10px] uppercase text-ink-muted">{{ dayLabel(day.date).slice(0, 2) }}</span>
+              <span
+                class="inline-flex h-7 w-7 items-center justify-center rounded-full text-sm"
+                [class]="day.isToday ? 'bg-accent text-white font-semibold' : 'text-ink'"
+              >
+                {{ day.dayOfMonth }}
+              </span>
+            </button>
+          }
+        </div>
+
+        @if (activeDay(); as day) {
+          <div
+            class="grid relative touch-pan-y"
+            style="grid-template-columns: 3rem 1fr; height: 62vh; min-height: 420px"
+            (touchstart)="onTouchStart($event)"
+            (touchend)="onTouchEnd($event)"
+          >
+            <ng-container *ngTemplateOutlet="hourLabels" />
+            <ng-container *ngTemplateOutlet="dayColumn; context: { $implicit: day }" />
+          </div>
+        }
+      </div>
     } @else {
       <div class="rounded-card border border-edge bg-card overflow-hidden">
         <!-- Day headers -->
@@ -75,54 +121,64 @@ interface PositionedOccurrence {
 
         <!-- Time grid -->
         <div class="grid relative" style="grid-template-columns: 3.5rem repeat(7, 1fr); height: 60vh; min-height: 480px">
-          <!-- Hour labels -->
-          <div class="relative">
-            @for (hour of hours; track hour) {
-              <span
-                class="absolute right-1.5 -translate-y-1/2 text-[10px] text-ink-faint"
-                [style.top.%]="hourTopPct(hour)"
-              >
-                {{ hour }}:00
-              </span>
-            }
-          </div>
-
+          <ng-container *ngTemplateOutlet="hourLabels" />
           @for (day of days(); track day.date) {
-            <div class="relative border-l border-edge" [class]="day.isToday ? 'bg-today' : ''">
-              @for (hour of hours; track hour) {
-                <div class="absolute inset-x-0 border-t border-edge-soft" [style.top.%]="hourTopPct(hour)"></div>
-              }
-              @for (
-                item of day.occurrences;
-                track item.occ.event_id + '-' + (item.occ.exception_id ?? 'r') + '-' + item.occ.date + '-' + item.occ.start_time
-              ) {
-                <button
-                  class="absolute inset-x-0.5 rounded-control px-1.5 py-0.5 text-left text-xs overflow-hidden border border-white/10 hover:brightness-110 transition-all"
-                  [style.top.%]="item.topPct"
-                  [style.height.%]="item.heightPct"
-                  [style.background]="item.occ.color + 'cc'"
-                  (click)="select(item.occ)"
-                >
-                  <span class="font-semibold block truncate">
-                    {{ item.occ.title }}
-                    @if (item.occ.is_moved) { <span [title]="'calendar.moved' | translate"><lucide-icon name="corner-down-right" [size]="12" /></span> }
-                  </span>
-                  <span class="block truncate text-white/80">
-                    {{ item.occ.start_time.slice(0, 5) }}–{{ item.occ.end_time.slice(0, 5) }}
-                  </span>
-                </button>
-              }
-            </div>
+            <ng-container *ngTemplateOutlet="dayColumn; context: { $implicit: day }" />
           }
         </div>
       </div>
     }
 
+    <!-- Shared between the week grid and the handset day view -->
+    <ng-template #hourLabels>
+      <div class="relative">
+        @for (hour of hours; track hour) {
+          <span
+            class="absolute right-1.5 -translate-y-1/2 text-[10px] text-ink-faint"
+            [style.top.%]="hourTopPct(hour)"
+          >
+            {{ hour }}:00
+          </span>
+        }
+      </div>
+    </ng-template>
+
+    <ng-template #dayColumn let-day>
+      <div class="relative border-l border-edge" [class]="day.isToday ? 'bg-today' : ''">
+        @for (hour of hours; track hour) {
+          <div class="absolute inset-x-0 border-t border-edge-soft" [style.top.%]="hourTopPct(hour)"></div>
+        }
+        @for (
+          item of day.occurrences;
+          track item.occ.event_id + '-' + (item.occ.exception_id ?? 'r') + '-' + item.occ.date + '-' + item.occ.start_time
+        ) {
+          <button
+            class="absolute inset-x-0.5 min-h-6 rounded-control px-1.5 py-0.5 text-left text-xs leading-tight overflow-hidden border border-white/10 hover:brightness-110 transition-all"
+            [style.top.%]="item.topPct"
+            [style.height.%]="item.heightPct"
+            [style.background]="item.occ.color + 'cc'"
+            (click)="select(item.occ)"
+          >
+            <span class="font-semibold block truncate">
+              {{ item.occ.title }}
+              @if (item.occ.is_moved) { <span [title]="'calendar.moved' | translate"><lucide-icon name="corner-down-right" [size]="12" /></span> }
+            </span>
+            <!-- A short block only has room for the title; the time would be clipped. -->
+            @if (item.heightPct >= TIME_LABEL_MIN_PCT) {
+              <span class="block truncate text-white/80">
+                {{ item.occ.start_time.slice(0, 5) }}–{{ item.occ.end_time.slice(0, 5) }}
+              </span>
+            }
+          </button>
+        }
+      </div>
+    </ng-template>
+
     <!-- Occurrence detail / actions panel -->
     @if (selected(); as occ) {
-      <div class="fx-fade fixed inset-0 z-40 flex items-center justify-center bg-backdrop p-4" (click)="selected.set(null)">
+      <div class="fx-fade fixed inset-0 z-40 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="selected.set(null)">
         <div
-          class="w-full max-w-md rounded-card border border-edge-strong bg-card p-6 shadow-modal"
+          class="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6"
           fxModal (click)="$event.stopPropagation()"
         >
           <div class="flex items-start justify-between">
@@ -206,7 +262,11 @@ export class CalendarWeekPage {
       const date = params.get('date');
       if (date) {
         const [year, month, day] = date.split('-').map(Number);
-        this.weekStart.set(mondayOf(new Date(year, month - 1, day)));
+        const target = new Date(year, month - 1, day);
+        const monday = mondayOf(target);
+        this.weekStart.set(monday);
+        // The day view has to land on the linked date, not just its week.
+        this.dayIndex.set(Math.round((target.getTime() - monday.getTime()) / 86_400_000));
         // On the first (pre-ngOnInit) emission the initial load already picks this up.
         if (this.started) this.load();
       }
@@ -217,6 +277,18 @@ export class CalendarWeekPage {
   private readonly api = inject(CalendarApiService);
   private readonly translate = inject(TranslateService);
   private readonly language = inject(LanguageService);
+  private readonly viewport = inject(ViewportService);
+
+  /**
+   * Seven columns of 30-minute slots do not survive a 375px screen, so a
+   * handset shows a single day and moves between days by swipe, the arrows in
+   * the header, or the week strip above the grid.
+   */
+  readonly dayView = this.viewport.isHandset;
+  readonly dayIndex = signal(todayIndexIn(mondayOf(new Date())));
+
+  /** Exposed for the template's block-height check. */
+  protected readonly TIME_LABEL_MIN_PCT = TIME_LABEL_MIN_PCT;
 
   readonly hours = Array.from(
     { length: DAY_END_HOUR - DAY_START_HOUR },
@@ -246,6 +318,24 @@ export class CalendarWeekPage {
       d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
     return `${fmt(start)} – ${fmt(end)}`;
   });
+
+  readonly activeDay = computed(() => this.days()[this.dayIndex()] ?? null);
+
+  /** The header caption: a single date in the day view, the range otherwise. */
+  readonly periodLabel = computed(() => {
+    if (!this.dayView()) return this.weekLabel();
+    const day = this.activeDay();
+    if (!day) return this.weekLabel();
+    const [y, m, d] = day.date.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString(this.language.locale(), {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+    });
+  });
+
+  /** Where the first touch of a potential swipe landed. */
+  private touchStart: { x: number; y: number } | null = null;
 
   /** False until ngOnInit has run its first load. */
   private started = false;
@@ -298,9 +388,51 @@ export class CalendarWeekPage {
     this.load();
   }
 
+  /** The arrows step by a day in the day view and by a week otherwise. */
+  shiftPeriod(direction: number): void {
+    if (this.dayView()) this.shiftDay(direction);
+    else this.shiftWeek(direction);
+  }
+
+  /** Moves one day, rolling into the neighbouring week at either end. */
+  shiftDay(direction: number): void {
+    const next = this.dayIndex() + direction;
+    if (next < 0) {
+      this.dayIndex.set(6);
+      this.shiftWeek(-1);
+    } else if (next > 6) {
+      this.dayIndex.set(0);
+      this.shiftWeek(1);
+    } else {
+      this.dayIndex.set(next);
+    }
+  }
+
   goToday(): void {
-    this.weekStart.set(mondayOf(new Date()));
+    const monday = mondayOf(new Date());
+    this.dayIndex.set(todayIndexIn(monday));
+    this.weekStart.set(monday);
     this.load();
+  }
+
+  onTouchStart(event: TouchEvent): void {
+    const touch = event.changedTouches[0];
+    this.touchStart = { x: touch.clientX, y: touch.clientY };
+  }
+
+  /**
+   * A mostly-horizontal drag moves to the neighbouring day. Vertical drags are
+   * left alone so the grid can still be scrolled.
+   */
+  onTouchEnd(event: TouchEvent): void {
+    const start = this.touchStart;
+    this.touchStart = null;
+    if (!start) return;
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    if (Math.abs(dx) < SWIPE_THRESHOLD_PX || Math.abs(dx) <= Math.abs(dy)) return;
+    this.shiftDay(dx < 0 ? 1 : -1);
   }
 
   select(occ: Occurrence): void {
@@ -401,6 +533,16 @@ function mondayOf(date: Date): Date {
   const weekday = (d.getDay() + 6) % 7; // 0 = Monday
   d.setDate(d.getDate() - weekday);
   return d;
+}
+
+/** Index of today inside the week starting at `monday`, or 0 if it is elsewhere. */
+function todayIndexIn(monday: Date): number {
+  const today = new Date();
+  const days = Math.floor(
+    (new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() - monday.getTime()) /
+      86_400_000,
+  );
+  return days >= 0 && days <= 6 ? days : 0;
 }
 
 function addDays(date: Date, days: number): Date {

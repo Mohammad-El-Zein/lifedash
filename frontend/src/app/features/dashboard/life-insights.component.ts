@@ -25,7 +25,7 @@ const TONE_CLASS: Record<Insight['tone'], string> = {
   imports: [TranslatePipe, LucideAngularModule],
   template: `
     @if (visible()) {
-      <section class="mb-8">
+      <section class="mb-6 sm:mb-8">
         <div class="mb-3 flex items-center gap-2">
           <lucide-icon name="sparkles" [size]="18" class="text-link" />
           <h2 class="font-semibold">{{ 'insights.title' | translate }}</h2>
@@ -37,7 +37,7 @@ const TONE_CLASS: Record<Insight['tone'], string> = {
             type="button"
             (click)="refresh()"
             [disabled]="loading()"
-            class="flex items-center gap-1.5 rounded-control border border-edge-strong px-2.5 py-1 text-xs text-ink-soft transition-colors hover:bg-field disabled:opacity-50"
+            class="flex min-h-9 items-center gap-1.5 rounded-control border border-edge-strong px-2.5 text-xs text-ink-soft transition-colors hover:bg-field disabled:opacity-50"
             [title]="'insights.refreshHint' | translate"
           >
             <lucide-icon name="refresh-cw" [size]="14" [class.animate-spin]="loading()" />
@@ -62,7 +62,7 @@ const TONE_CLASS: Record<Insight['tone'], string> = {
         } @else {
           <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             @for (insight of insights(); track insight.title) {
-              <article class="rounded-card border p-5 shadow-card" [class]="toneClass(insight)">
+              <article class="rounded-card border p-4 shadow-card sm:p-5" [class]="toneClass(insight)">
                 <div class="mb-2 flex items-center gap-1.5">
                   @for (icon of iconsFor(insight); track icon) {
                     <lucide-icon [name]="icon" [size]="14" class="text-ink-muted" />
