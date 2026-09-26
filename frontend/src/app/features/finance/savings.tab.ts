@@ -19,15 +19,15 @@ import { SavingsOverview } from '../../core/models';
         </p>
       }
 
-      <div class="grid gap-6 lg:grid-cols-3 mb-6">
+      <div class="grid gap-4 sm:gap-6 lg:grid-cols-3 mb-4 sm:mb-6">
         <!-- Cumulative progress -->
-        <div class="rounded-card border border-edge bg-card p-5 lg:col-span-2">
+        <div class="rounded-card border border-edge bg-card p-4 sm:p-5 lg:col-span-2">
           <h2 class="font-semibold mb-1">
             {{ 'savings.since' | translate: { month: o.start_month.slice(0, 7) } }}
           </h2>
-          <p class="text-3xl font-semibold mt-2 tabular-nums">
+          <p class="text-2xl sm:text-3xl font-semibold mt-2 tabular-nums">
             {{ eur(o.saved_total) }}
-            <span class="text-ink-muted text-xl font-normal">/ {{ eur(o.target_total) }} {{ 'savings.saved' | translate }}</span>
+            <span class="text-ink-muted text-base sm:text-xl font-normal">/ {{ eur(o.target_total) }} {{ 'savings.saved' | translate }}</span>
           </p>
           <p class="mt-1 text-sm" [class]="o.delta_total >= 0 ? 'text-success' : 'text-danger'">
             {{ o.delta_total >= 0 ? '+' : '' }}{{ eur(o.delta_total) }} {{ 'savings.vsGoal' | translate }}
@@ -43,22 +43,22 @@ import { SavingsOverview } from '../../core/models';
         </div>
 
         <!-- Settings -->
-        <div class="rounded-card border border-edge bg-card p-5">
+        <div class="rounded-card border border-edge bg-card p-4 sm:p-5">
           <h2 class="font-semibold mb-4">{{ 'savings.settings' | translate }}</h2>
           <div class="space-y-3">
             <div>
               <label for="savTarget" class="block text-sm text-ink-soft mb-1">{{ 'savings.monthlyTarget' | translate }}</label>
               <input id="savTarget" name="savTarget" type="number" min="0" step="10"
                 [(ngModel)]="pendingTarget"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <div>
               <label for="savStart" class="block text-sm text-ink-soft mb-1">{{ 'savings.trackingStarts' | translate }}</label>
               <input id="savStart" name="savStart" type="month" [(ngModel)]="pendingStart"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <button (click)="saveSettings()" [disabled]="saving()"
-              class="w-full rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+              class="min-h-11 w-full rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
               {{ (saving() ? 'common.saving' : 'savings.saveSettings') | translate }}
             </button>
             <p class="text-xs text-ink-faint">
@@ -70,13 +70,45 @@ import { SavingsOverview } from '../../core/models';
 
       <!-- Per-month breakdown -->
       <div class="rounded-card border border-edge bg-card overflow-hidden">
-        <h2 class="font-semibold px-5 pt-5 pb-3">{{ 'savings.monthByMonth' | translate }}</h2>
+        <h2 class="font-semibold px-4 pt-4 pb-3 sm:px-5 sm:pt-5">{{ 'savings.monthByMonth' | translate }}</h2>
         @if (o.months.length === 0) {
           <p class="text-sm text-ink-faint px-5 pb-6">
             {{ 'savings.futureStart' | translate }}
           </p>
         } @else {
-          <div class="overflow-x-auto">
+          <!-- Six columns per month do not fit a phone; each month becomes a card. -->
+          <ul class="divide-y divide-edge-soft border-t border-edge sm:hidden">
+            @for (m of monthsNewestFirst(); track m.month) {
+              <li class="px-4 py-3">
+                <div class="flex items-baseline justify-between gap-3">
+                  <span class="flex min-w-0 items-center gap-2">
+                    <span class="tabular-nums font-medium">{{ m.month.slice(0, 7) }}</span>
+                    @if (m.is_current) {
+                      <span class="shrink-0 rounded-full bg-info-surface border border-info-edge text-info-ink px-2 py-0.5 text-[10px]">{{ 'savings.inProgress' | translate }}</span>
+                    }
+                  </span>
+                  <span
+                    class="shrink-0 tabular-nums font-semibold"
+                    [class]="m.delta >= 0 ? 'text-success' : 'text-danger'"
+                  >
+                    {{ m.delta >= 0 ? '+' : '' }}{{ eur(m.delta) }}
+                  </span>
+                </div>
+                <p class="mt-1 text-xs text-ink-muted tabular-nums">
+                  {{ 'savings.savedCol' | translate }} {{ eur(m.saved) }}
+                  <span aria-hidden="true">·</span>
+                  {{ 'savings.target' | translate }} {{ eur(m.target) }}
+                </p>
+                <p class="mt-0.5 text-xs text-ink-faint tabular-nums">
+                  {{ 'savings.income' | translate }} {{ eur(m.income) }}
+                  <span aria-hidden="true">·</span>
+                  {{ 'savings.expenses' | translate }} {{ eur(m.expenses) }}
+                </p>
+              </li>
+            }
+          </ul>
+
+          <div class="hidden overflow-x-auto sm:block">
             <table class="w-full text-sm">
               <thead>
                 <tr class="text-left text-ink-muted border-t border-edge">

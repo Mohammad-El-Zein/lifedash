@@ -11,9 +11,9 @@ import { Category, RecurringPayload, RecurringTransaction } from '../../core/mod
   selector: 'app-recurring-form-modal',
   imports: [FormsModule, TranslatePipe, FxModal],
   template: `
-    <div class="fx-fade fixed inset-0 z-50 flex items-center justify-center bg-backdrop p-4" (click)="closed.emit()">
+    <div class="fx-fade fixed inset-0 z-50 flex items-end justify-center bg-backdrop p-4 sm:items-center" (click)="closed.emit()">
       <div
-        class="w-full max-w-md rounded-card border border-edge-strong bg-card p-6 shadow-modal max-h-[90vh] overflow-y-auto"
+        class="w-full max-w-md max-h-[88vh] overflow-y-auto rounded-card border border-edge-strong bg-card p-5 shadow-modal sm:p-6 max-h-[90vh] overflow-y-auto"
         fxModal (click)="$event.stopPropagation()"
       >
         <h2 class="text-xl font-semibold mb-4">
@@ -42,7 +42,7 @@ import { Category, RecurringPayload, RecurringTransaction } from '../../core/mod
             <label for="recDesc" class="block text-sm text-ink-soft mb-1">{{ 'recurringForm.name' | translate }}</label>
             <input id="recDesc" name="recDesc" required [(ngModel)]="description"
               [placeholder]="'recurringForm.namePlaceholder' | translate"
-              class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+              class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
@@ -50,13 +50,13 @@ import { Category, RecurringPayload, RecurringTransaction } from '../../core/mod
               <label for="recAmount" class="block text-sm text-ink-soft mb-1">{{ 'recurringForm.amountEur' | translate }}</label>
               <input id="recAmount" name="recAmount" type="number" step="0.01" min="0.01" required
                 [(ngModel)]="amount"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <div>
               <label for="recDay" class="block text-sm text-ink-soft mb-1">{{ 'recurringForm.dayOfMonth' | translate }}</label>
               <input id="recDay" name="recDay" type="number" min="1" max="31" required
                 [(ngModel)]="dayOfMonth"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
           </div>
 
@@ -64,12 +64,12 @@ import { Category, RecurringPayload, RecurringTransaction } from '../../core/mod
             <div>
               <label for="recStart" class="block text-sm text-ink-soft mb-1">{{ 'recurringForm.firstMonth' | translate }}</label>
               <input id="recStart" name="recStart" type="month" required [(ngModel)]="startMonth"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
             </div>
             <div>
               <label for="recEnd" class="block text-sm text-ink-soft mb-1">{{ 'recurringForm.lastMonth' | translate }}</label>
               <input id="recEnd" name="recEnd" type="month" [(ngModel)]="endMonth"
-                class="w-full rounded-control bg-field border border-edge-strong px-3 py-2" />
+                class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3" />
               <p class="text-xs text-ink-faint mt-1">{{ 'recurringForm.openEnded' | translate }}</p>
             </div>
           </div>
@@ -77,7 +77,7 @@ import { Category, RecurringPayload, RecurringTransaction } from '../../core/mod
           <div>
             <label for="recCategory" class="block text-sm text-ink-soft mb-1">{{ 'finance.category' | translate }}</label>
             <select id="recCategory" name="recCategory" [(ngModel)]="categoryId"
-              class="w-full rounded-control bg-field border border-edge-strong px-3 py-2">
+              class="min-h-11 w-full rounded-control bg-field border border-edge-strong px-3">
               <option [ngValue]="null">{{ 'finance.noCategory' | translate }}</option>
               @for (cat of categoriesForKind(); track cat.id) {
                 <option [ngValue]="cat.id">{{ cat.name }}</option>
@@ -92,11 +92,11 @@ import { Category, RecurringPayload, RecurringTransaction } from '../../core/mod
 
           <div class="flex justify-end gap-2 pt-2">
             <button type="button" (click)="closed.emit()"
-              class="rounded-control border border-edge-strong px-4 py-2 text-sm text-ink-soft hover:bg-field">
+              class="min-h-11 rounded-control border border-edge-strong px-4 text-sm text-ink-soft hover:bg-field">
               {{ 'common.cancel' | translate }}
             </button>
             <button type="submit" [disabled]="saving()"
-              class="rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 py-2 text-sm font-medium">
+              class="min-h-11 rounded-control bg-accent hover:bg-accent-hover disabled:opacity-50 px-4 text-sm font-medium">
               {{ (saving() ? 'common.saving' : 'common.save') | translate }}
             </button>
           </div>
