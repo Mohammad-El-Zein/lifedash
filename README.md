@@ -60,7 +60,7 @@ infra/              Bicep templates for Azure (see infra/README.md)
 
 | Module | Status |
 | --- | --- |
-| 📅 Calendar — weekly view, recurring events, per-day exceptions | ✅ Phase 1 |
+| 📅 Calendar — weekly view, recurring events, per-day exceptions |  Phase 1 |
 | 💶 Finance — transactions, budgets, ECharts dashboards | Phase 2 |
 | 💼 Job applications — pipeline & status history | Phase 2 |
 | ✨ GSAP animations | Phase 2 |
